@@ -31,3 +31,4 @@ loop do # Can receive multiple consecutive clients
 end
 
 CSV.open('nodelist.csv', 'wb') { |csv| nodes.to_a.each { |elem| csv << elem } }
+puts "Node list written to \'nodelist.csv\'."
