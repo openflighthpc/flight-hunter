@@ -8,6 +8,5 @@ myhostname = Socket.gethostname
 
 server = TCPSocket.open(hostname,port)
 
-server.puts(mac,myhostname)
-
+server.puts(mac+" "+myhostname)
 server.close
