@@ -6,7 +6,7 @@ port = 2000
 mac = Mac.addr
 myhostname = Socket.gethostname
 
-server = TCPSocket.open(hostname,port)
+server = TCPSocket.open(hostname, port)
 
-server.puts(mac+" "+myhostname)
+server.puts(mac + ' ' + myhostname)
 server.close
