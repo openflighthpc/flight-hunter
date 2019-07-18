@@ -1,4 +1,4 @@
-# flight-hunter
+# Hunter
 
 A tool for tracking MAC addresses of nodes in a cluster.
 
@@ -68,7 +68,7 @@ If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 
 ![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
 
-flight-hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+Hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
 Based on a work at [https://github.com/openflighthpc/%GITHUB-PROJECT%](https://github.com/openflighthpc/%GITHUB-PROJECT%).
 
@@ -79,7 +79,7 @@ or alternative license terms made available by Alces Flight Ltd -
 please direct inquiries about licensing to
 [licensing@alces-flight.com](mailto:licensing@alces-flight.com).
 
-flight-hunter is distributed in the hope that it will be useful, but
+Hunter is distributed in the hope that it will be useful, but
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
 IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF
 TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR
