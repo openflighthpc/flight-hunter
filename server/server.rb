@@ -59,7 +59,7 @@ server = TCPServer.open(@port) # start listening over port specified in config
 def check_for_duplicate(host,mac)
 	for row in @nodes
 		if [host,mac] == row
-			return "both"
+			return ["both","both"]
 		elsif host == row[0]
 			return ["host",row[1]]
 		elsif mac == row[1]
@@ -72,16 +72,16 @@ end
 
 def dupe_handler(host,mac)
 	dupe_check = check_for_duplicate(host,mac)
-	if dupe_check == "both"
-		puts "This exact host/MAC pair already exists in the CSV."
-	elsif dupe_check == false
-		puts "Node added\nHostname: #{host}\nMAC address: #{mac}\n"
-		@nodes.push([host, mac])
+	if dupe_check[0] == "both"
+		puts "This exact host/MAC pair already exists in the CSV."		
 	elsif dupe_check[0] == "host"
 		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."		
 	elsif dupe_check[0] == "mac"
 		puts "A node already exists with the address \"#{mac}\". It is named \"#{dupe_check[1]}\"."
-	end	
+	else
+		puts "Node added\nHostname: #{host}\nMAC address: #{mac}\n"
+		@nodes.push([host, mac])
+	end
 end
 
 loop do # Can receive multiple consecutive clients
