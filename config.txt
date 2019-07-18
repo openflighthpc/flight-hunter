@@ -1,0 +1,10 @@
+# Enter the IP of the server machine below
+# e.g. 127.0.0.1
+10.13.13.103
+
+# Enter the name of the CSV to save/load the list of nodes from.
+# e.g. nodelist.csv
+nodelist.csv
+
+
+
