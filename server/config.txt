@@ -1,3 +1,0 @@
-# Enter the name of the CSV to save/load the list of nodes from.
-# e.g. nodelist.csv
-nodelist.csv
