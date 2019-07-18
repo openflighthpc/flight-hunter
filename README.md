@@ -4,7 +4,7 @@ A tool for tracking MAC addresses of nodes in a cluster.
 
 ## Overview
 
-Flight Hunter facilitates a communication between a two machines,
+Hunter facilitates a communication between a two machines,
 allowing one machine running the client script to send it's hostname
 and MAC address to another machine running the server script.
 
