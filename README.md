@@ -4,9 +4,9 @@ A tool for tracking MAC addresses of nodes in a cluster.
 
 ## Overview
 
-Flight Hunter facilitates a communication between a two machines, 
+Flight Hunter facilitates a communication between a two machines,
 allowing one machine running the client script to send it's hostname
-and MAC address to another machine running the server script. 
+and MAC address to another machine running the server script.
 
 ## Installation
 
@@ -29,16 +29,16 @@ directory and executing:
 ```ruby
 ruby server.rb
 ```
-Once the server script is running, client script(s) can be executed on 
+Once the server script is running, client script(s) can be executed on
 the client nodes. (please note: only one client can be handled at a time.)
 The client script can be launched by navigating to the 'client'
-directory and executing: 
+directory and executing:
 ```ruby
 ruby client.rb
 ```
 The client script sends the hostname and MAC address over a TCP
 connection and immediately exits. At this point, the server script
-will prompt the user for input, asking what they would like to 
+will prompt the user for input, asking what they would like to
 save the node as in the nodelist. If the hostname or MAC address already
 exists in the nodelist, the user will be told so and the node will not
 be added. Once the client has been handled, the server continues
@@ -70,7 +70,7 @@ If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 
 Hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
-Based on a work at [https://github.com/openflighthpc/%GITHUB-PROJECT%](https://github.com/openflighthpc/%GITHUB-PROJECT%).
+Based on a work at [https://github.com/openflighthpc/hunter](https://github.com/openflighthpc/hunter).
 
 This content and the accompanying materials are made available available
 under the terms of the Creative Commons Attribution-ShareAlike 4.0

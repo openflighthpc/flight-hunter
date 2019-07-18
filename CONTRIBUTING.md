@@ -119,7 +119,7 @@ applied to Hunter itself.
 
 In particular you need to agree to the Contributor License Agreement,
 which can be [found
-here](https://www.clahub.com/agreements/openflighthpc/%GITHUB-PROJECT%). This
+here](https://www.clahub.com/agreements/openflighthpc/hunter). This
 applies to all contributors, including those contributing on behalf of
 a company. If you agree to its content, you simply have to click on
 the link posted by the CLA assistant available on the pull
