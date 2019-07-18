@@ -44,15 +44,13 @@ def dupe_handler(host,mac)
 	if dupe_check == "both"
 		puts "This exact host/MAC pair already exists in the CSV."
 	elsif dupe_check == false
+		puts "Node added\nHostname: #{host}\nMAC address: #{mac}\n"
+		@nodes.push([host, mac])
 	elsif dupe_check[0] == "host"
-		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."
-		
+		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."		
 	elsif dupe_check[0] == "mac"
 		puts "A node already exists with the address \"#{mac}\". It is named \"#{dupe_check[1]}\"."
-		
 	end	
-	puts "Node added\nHostname: #{host}\nMAC address: #{mac}\n"
-	@nodes.push([host, mac])
 end
 
 loop do # Can receive multiple consecutive clients
