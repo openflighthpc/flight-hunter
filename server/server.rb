@@ -25,7 +25,7 @@
 #  https://opensource.org/licenses/EPL-2.0
 #
 # For more information on Hunter, please visit:
-# https://github.com/openflighthpc/flight-cloud
+# https://github.com/openflighthpc/hunter
 #===============================================================================
 
 require 'socket'
@@ -73,9 +73,9 @@ end
 def dupe_handler(host,mac)
 	dupe_check = check_for_duplicate(host,mac)
 	if dupe_check[0] == "both"
-		puts "This exact host/MAC pair already exists in the CSV."		
+		puts "This exact host/MAC pair already exists in the CSV."
 	elsif dupe_check[0] == "host"
-		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."		
+		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."
 	elsif dupe_check[0] == "mac"
 		puts "A node already exists with the address \"#{mac}\". It is named \"#{dupe_check[1]}\"."
 	else
@@ -89,7 +89,7 @@ loop do # Can receive multiple consecutive clients
 	client = server.accept
 	while (line = client.gets)
 		mac, host = line.split(' ') # Split line into array containing MAC and hostname, using whitespace delimiter
-		puts "Node found. Hostname = \"#{host}\", MAC address = \"#{mac}\". How would you like this node to be saved? (default: #{host})."		
+		puts "Node found. Hostname = \"#{host}\", MAC address = \"#{mac}\". How would you like this node to be saved? (default: #{host})."
 		puts 'Enter name: '
 		input = gets.chomp
 		unless input == ""
@@ -105,6 +105,6 @@ loop do # Can receive multiple consecutive clients
 		next
 	end
 end
-	
+
 CSV.open(@csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
 puts "Node list written to \'#{@csvname}\'."

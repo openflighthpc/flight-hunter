@@ -32,7 +32,7 @@ You can help Hunter by helping others who use it and need support.
 ## Analyse Issues
 
 Analysing issue reports can be a lot of effort. Any help is welcome!
-Go to [the GitHub issue tracker](https://github.com/openflighthpc/%GITHUB-PROJECT%/issues?state=open)
+Go to [the GitHub issue tracker](https://github.com/openflighthpc/hunter/issues?state=open)
 and find an open issue which needs additional work or a bugfix
 (e.g. issues labeled with "help wanted" or "bug").
 
@@ -48,7 +48,7 @@ only handle well-reported, actual bugs, so please follow the
 guidelines below.
 
 Once you have familiarised with the guidelines, you can go to the
-[GitHub issue tracker for Hunter](https://github.com/openflighthpc/%GITHUB-PROJECT%/issues/new)
+[GitHub issue tracker for Hunter](https://github.com/openflighthpc/hunter/issues/new)
 to report the issue.
 
 ### Quick Checklist for Bug Reports
