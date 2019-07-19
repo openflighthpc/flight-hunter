@@ -31,6 +31,15 @@
 require 'socket'
 require 'csv'
 require 'yaml'
+require 'optparse'
+ignoredupes = false
+options = {}
+optparse = OptionParser.new do |opts|
+	opts.on('-d','--duplicates[=DUPLICATES]') do |duplicates|
+		ignoredupes = true
+	end
+end.parse!
+
 
 def read_config
 	config = YAML.load_file('config.yaml')
@@ -77,7 +86,16 @@ def dupe_handler(host,mac)
 	elsif dupe_check[0] == "host"
 		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."
 	elsif dupe_check[0] == "mac"
-		puts "A node already exists with the address \"#{mac}\". It is named \"#{dupe_check[1]}\"."
+		puts "A node already exists with the address \"#{mac}\". It is named \"#{dupe_check[1]}\". Would you like to rename the pre-existing node? (y/N): "
+		if gets.chomp == 'y'
+			puts "New name: "
+			for index in 0 ... @nodes.size
+				if @nodes[index][1] == mac
+					@nodes[index][0] = gets.chomp
+					puts "Node renamed.\n"
+				end
+			end
+		end
 	else
 		puts "Node added\nHostname: #{host}\nMAC address: #{mac}\n"
 		@nodes.push([host, mac])
@@ -87,10 +105,17 @@ end
 queue = Queue.new
 
 logger = Thread.new do
+	logged = @nodes.map {|item| item}
 	loop do
 		client = server.accept
 		while line = client.gets
-			queue << line
+			mac,host = line.split(' ')
+			if ignoredupes
+				queue << [mac,host] unless @nodes.map {|row| row[0]}.include?(mac)
+			else
+				queue << [mac,host]
+			end
+			logged.push([mac,host])
 		end
 		client.close
 	end
@@ -105,7 +130,7 @@ loop do
 		end
 	end
 	value = queue.pop
-	mac,host = value.split(' ')
+	mac,host = value
 	puts "Node found. Hostname = \"#{host}\", MAC address = \"#{mac}\". How would you like this node to be saved? (default: #{host})."
 	puts 'Enter name: '
 	input = gets.chomp
@@ -122,5 +147,5 @@ loop do
 	waiting = false
 end
 
-CSV.open(@csvname, 'w+') { |csv| @node.each { |elem| csv << elem } }
+CSV.open(@csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
 puts "Node list written to \'#{@csvname}\'."

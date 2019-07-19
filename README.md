@@ -29,6 +29,7 @@ directory and executing:
 ```ruby
 ruby server.rb
 ```
+`server.rb` has the optional argument `-d`, or `--duplicates`. When parsed, this stops duplicate mac addresses from even being added to the process queue.
 Once the server script is running, client script(s) can be executed on
 the client nodes. The server script is multithreaded so that it can accept new incoming client transmissions while it is handling other clients. Incoming transmissions are added to a thread-safe queue, and the queue is processed until empty.
 The client script can be launched by navigating to the 'client'
@@ -43,6 +44,8 @@ save the node as in the nodelist. If the hostname or MAC address already
 exists in the nodelist, the user will be told so and the node will not
 be added. Once the client has been handled, the server continues
 to listen for new client connections.
+If the hostname already exists in the nodelist, the user will be prompted to choose another name.
+If the MAC address already exists in the nodelist, the user will have the choice to rename the pre-existing node.
 
 To exit the server script, either press `Ctrl-C` or `q` when prompted
 by the script, while there are no clients being handled. All nodes
