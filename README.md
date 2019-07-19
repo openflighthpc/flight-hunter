@@ -30,7 +30,7 @@ directory and executing:
 ruby server.rb
 ```
 Once the server script is running, client script(s) can be executed on
-the client nodes. (please note: only one client can be handled at a time.)
+the client nodes. The server script is multithreaded so that it can accept new incoming client transmissions while it is handling other clients. Incoming transmissions are added to a thread-safe queue, and the queue is processed until empty.
 The client script can be launched by navigating to the 'client'
 directory and executing:
 ```ruby

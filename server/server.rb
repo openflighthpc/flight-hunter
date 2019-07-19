@@ -84,27 +84,43 @@ def dupe_handler(host,mac)
 	end
 end
 
-loop do # Can receive multiple consecutive clients
-	puts 'Waiting for client connection...'
-	client = server.accept
-	while (line = client.gets)
-		mac, host = line.split(' ') # Split line into array containing MAC and hostname, using whitespace delimiter
-		puts "Node found. Hostname = \"#{host}\", MAC address = \"#{mac}\". How would you like this node to be saved? (default: #{host})."
-		puts 'Enter name: '
-		input = gets.chomp
-		unless input == ""
-			host = input
+queue = Queue.new
+
+logger = Thread.new do
+	loop do
+		client = server.accept
+		while line = client.gets
+			queue << line
 		end
-		dupe_handler(host, mac)
-	end
-	client.close
-	puts 'Enter \'q\' to quit, enter anything else to continue listening... '
-	if gets.chomp == 'q'
-		break
-	else
-		next
+		client.close
 	end
 end
 
-CSV.open(@csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
+waiting = false
+loop do
+	while queue.empty?
+		if waiting == false
+			puts "Waiting for client connection... "
+			waiting = true
+		end
+	end
+	value = queue.pop
+	mac,host = value.split(' ')
+	puts "Node found. Hostname = \"#{host}\", MAC address = \"#{mac}\". How would you like this node to be saved? (default: #{host})."
+	puts 'Enter name: '
+	input = gets.chomp
+	unless input == ""
+		host = input
+	end
+	dupe_handler(host, mac)
+
+	puts 'Enter \'q\' to quit, enter anything else to continue... '
+	if gets.chomp == 'q'
+		break
+	else
+	end
+	waiting = false
+end
+
+CSV.open(@csvname, 'w+') { |csv| @node.each { |elem| csv << elem } }
 puts "Node list written to \'#{@csvname}\'."
