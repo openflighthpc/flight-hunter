@@ -48,7 +48,7 @@ To exit the server script, either press `Ctrl-C` or `q` when prompted
 by the script, while there are no clients being handled. All nodes
 discovered during the session will be appended to the CSV specified
 in the server `config.yaml`. If the specified CSV does not exist,
-one will be made.
+one will be made. WARNING: If unprocessed clients exist in the queue when the server is interrupted, those clients will not be added to the nodelist and will instead be discarded.
 
 # Contributing
 
