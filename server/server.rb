@@ -57,10 +57,6 @@ if not File.file?(csvname)
 end
 
 @nodes = CSV.read(csvname)
-puts @nodes.class
-puts 
-puts @nodes[0].class
-
 trap "SIGINT" do
 	puts "\nExiting abruptly..."
 	@nodes.each do |row|
