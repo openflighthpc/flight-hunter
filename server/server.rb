@@ -30,8 +30,6 @@
 
 
 
-# DUPE DETECTION NEEDS WORK
-# MAP OUT PATHWAYS AND EXPECTED RESULTS
 
 require 'socket'
 require 'csv'
@@ -81,7 +79,7 @@ def name_exists(input)
 	input
 end
 
-server = TCPServer.open(port) # start listening over port specified in config
+server = TCPServer.open(port) 
 
 queue = Queue.new
 
@@ -164,7 +162,7 @@ loop do
 			if input == ''
 			else
 				input = name_exists(input)
-				node[0] = input		# FIX THIS
+				node[0] = input	
 			end
 			@nodes.push(node)
 		end
