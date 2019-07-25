@@ -28,94 +28,80 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
+
+
+# DUPE DETECTION NEEDS WORK
+# MAP OUT PATHWAYS AND EXPECTED RESULTS
+
 require 'socket'
 require 'csv'
 require 'yaml'
 require 'optparse'
+
+
 ignoredupes = false
-options = {}
-optparse = OptionParser.new do |opts|
-	opts.on('-d','--duplicates[=DUPLICATES]') do |duplicates|
+OptionParser.new do |opts|
+	opts.banner = "Usage: server.rb [options]"
+
+	opts.on('-d','--duplicates', "Don't add duplicate addresses to the queue") do |duplicates|
 		ignoredupes = true
 	end
 end.parse!
 
+config = YAML.load_file('config.yaml')
+csvname = config['csvname']
+port = config['port']
 
-def read_config
-	config = YAML.load_file('config.yaml')
-	@csvname = config['csvname']
-	@port = config['port']
-end
-read_config
-
-if not File.file?(@csvname)
+if not File.file?(csvname)
 	puts "Specified CSV file doesn't exist. Creating..."
-	CSV.open(@csvname, 'w')
-	puts "Created CSV file named #{@csvname}."
+	CSV.open(csvname, 'w')
+	puts "Created CSV file named #{csvname}."
 end
 
-@nodes = CSV.read(@csvname) # Load array to store host:MAC pairs in
+@nodes = CSV.read(csvname)
+puts @nodes.class
+puts 
+puts @nodes[0].class
 
 trap "SIGINT" do
 	puts "\nExiting abruptly..."
-	CSV.open(@csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
-	puts "Node list written to \'#{@csvname}\'."
+	@nodes.each do |row|
+		puts row
+	end
+	CSV.open(csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
+	puts "Node list written to \'#{csvname}\'."
 	exit 130
 end
 
-server = TCPServer.open(@port) # start listening over port specified in config
-
-def check_for_duplicate(host,mac)
-	for row in @nodes
-		if [host,mac] == row
-			return ["both","both"]
-		elsif host == row[0]
-			return ["host",row[1]]
-		elsif mac == row[1]
-			return ["mac",row[0]]
-		else
-			false
-		end
+def name_exists(input)
+	while @nodes.map {|row| row[0] }.include? input 		
+		puts "This name already exists. Try again."
+		input = gets.chomp.gsub(/[^0-9a-z]/i, '')
 	end
+	input
 end
 
-def dupe_handler(host,mac)
-	dupe_check = check_for_duplicate(host,mac)
-	if dupe_check[0] == "both"
-		puts "This exact host/MAC pair already exists in the CSV."
-	elsif dupe_check[0] == "host"
-		puts "A node already exists with the name \"#{host}\" under address \"#{dupe_check[1]}\". Please choose something else."
-	elsif dupe_check[0] == "mac"
-		puts "A node already exists with the address \"#{mac}\". It is named \"#{dupe_check[1]}\". Would you like to rename the pre-existing node? (y/N): "
-		if gets.chomp == 'y'
-			puts "New name: "
-			for index in 0 ... @nodes.size
-				if @nodes[index][1] == mac
-					@nodes[index][0] = gets.chomp
-					puts "Node renamed.\n"
-				end
-			end
-		end
-	else
-		puts "Node added\nHostname: #{host}\nMAC address: #{mac}\n"
-		@nodes.push([host, mac])
-	end
-end
+server = TCPServer.open(port) # start listening over port specified in config
 
 queue = Queue.new
 
-logger = Thread.new do
-	logged = @nodes.map {|item| item}
+Thread.new do 
+	@this_session = []
 	loop do
 		client = server.accept
 		while line = client.gets
-			mac,host = line.split(' ')
-			if ignoredupes
-				queue << [mac,host] unless @nodes.map {|row| row[0]}.include?(mac)
+			host,mac = line.split(' ')
+			if @this_session.include?([host,mac])
+			elsif @nodes.include?([host,mac]) && !ignoredupes
+				queue << [host,mac,'newname']
+				@this_session.push([host,mac])
+			elsif @nodes.include? ([host,mac]) && ignoredupes
+				queue << [host,mac,'ignoreverbose']
+				@this_session.push([host,mac])
 			else
-				queue << [mac,host]
-			end
-			logged.push([mac,host])
+				queue << [host,mac, nil]
+				@this_session.push([host,mac])
+			end			
 		end
 		client.close
 	end
@@ -129,16 +115,60 @@ loop do
 			waiting = true
 		end
 	end
-	value = queue.pop
-	mac,host = value
-	puts "Node found. Hostname = \"#{host}\", MAC address = \"#{mac}\". How would you like this node to be saved? (default: #{host})."
-	puts 'Enter name: '
-	input = gets.chomp
-	unless input == ""
-		host = input
-	end
-	dupe_handler(host, mac)
+	node = queue.pop
 
+	if node[2] == 'newname'
+		node.pop
+		puts "Node found. Hostname = \"#{node[0]}\", MAC address = \"#{node[1]}\". This exact hostname/MAC address combination already exists in the node list. If you would like to rename the pre-existing node, type the new name below. Otherwise, press enter."
+		input = gets.chomp.gsub(/[^0-9a-z]/i, '')
+		if input == ''
+		else
+			input = name_exists(input)
+			@nodes.each do |element|
+				if element[0] == node[0]
+					element[0] = input
+				end
+			end
+		end
+	elsif node[2] == 'ignoreverbose'
+		puts "Node found. Hostname = \"#{node[0]}\", MAC address = \"#{node[1]}\". This exact hostname/MAC address combination already exists in the node list. Ignoring... "
+	elsif node[2] == nil
+		node.pop
+		puts "Node found. Hostname = \"#{node[0]}\", MAC address = \"#{node[1]}\"."
+		if @nodes.map {|row| row[0] }.include?(node[0])
+			puts "A node with this name already exists in the node list under address #{node[1]}. If you would like to choose a new name, type it below. Otherwise, press enter to ignore this node."
+			input = gets.chomp.gsub(/[^0-9a-z]/i, '')
+			if input == ''
+				puts "Ignoring... "
+			else
+				input = name_exists(input)
+				node[0] = input
+				@nodes.push(node)
+			end
+		elsif @nodes.map {|row| row[1] }.include?(node[1])
+			puts "A node already exists with the address #{node[1]}. It is called #{@nodes.rassoc(node[1])[0]}. If you would like to rename the pre-existing node, type the new name below. Otherwise, press enter."
+			input = gets.chomp.gsub(/[^0-9a-z]/i, '')
+			if input == ''
+				puts "Ignoring... "
+			else
+				input = name_exists(input)
+				@nodes.each do |element|
+					if element[1] == node[1]
+						element[0] = input
+					end
+				end
+			end
+		else
+			puts "What would you like the node to be saved as? (default: #{node[0]}). "
+			input = gets.chomp.gsub(/[^0-9a-z]/i, '')
+			if input == ''
+			else
+				input = name_exists(input)
+				node[0] = input		# FIX THIS
+			end
+			@nodes.push(node)
+		end
+	end
 	puts 'Enter \'q\' to quit, enter anything else to continue... '
 	if gets.chomp == 'q'
 		break
@@ -147,5 +177,5 @@ loop do
 	waiting = false
 end
 
-CSV.open(@csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
-puts "Node list written to \'#{@csvname}\'."
+CSV.open(csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
+puts "Node list written to \'#{csvname}\'."
