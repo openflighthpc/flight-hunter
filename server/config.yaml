@@ -1,4 +1,5 @@
 ---
-csvname: 'nodelist.csv'
+unprocessed_list: 'unprocessed.csv'
+nodelist: 'nodelist.csv'
 port: 2000
 ---
