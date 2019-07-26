@@ -39,7 +39,7 @@ mac = Mac.addr
 myhostname = Socket.gethostname
 begin
 	server = TCPSocket.open(ipaddr, port)
-	server.puts(mac + ' ' + myhostname)
+	server.puts(myhostname + ' ' + mac)
 	server.close
 rescue Errno::ECONNREFUSED => e
 	puts "The server is down."
