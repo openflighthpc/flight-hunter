@@ -65,91 +65,97 @@ OptionParser.new do |opts|
 		exit
 	end
 end.parse!()
-puts options
 
 config = YAML.load_file('config.yaml')
 nodelist_file = config['nodelist']
-not_processed_file = config['unprocessed_list']
+not_processed_file = config['not_processed_list']
 port = config['port']
 
 [nodelist_file,not_processed_file].each do |file|
 	if not File.file?(file)
 		puts "\nSpecified file \"#{file}\" doesn't exist. Creating..."
 		CSV.open(file,'w')
-		puts "Created CSV file named \"#{file}\"."
+		puts "Created YAML file named \"#{file}\"."
 	end
 end
 
-@not_processed = CSV.read(not_processed_file)
-@nodelist = CSV.read(nodelist_file)
+def read_yaml(file_name)
+	file = File.open(file_name,'r')
+	file.sync = true
+	data = file.read
+	file.close
+	return data
+end
+
+@not_processed = YAML.load(read_yaml(not_processed_file)) || {}
+@nodelist = YAML.load(read_yaml(nodelist_file)) || {}
 
 
 case options[:mode]
 when 'f'
-	trap "SIGINT" do
-		puts "\nExiting abruptly..."
-		CSV.open(not_processed_file,'w+') { |csv| @not_processed.each { |elem| csv << elem } }
-		puts "Found nodes written to \'#{not_processed_file}\'. They need processing."
-		exit 130
-	end
 	server = TCPServer.open(port)
-	puts "Press Ctrl-C at any time to exit."
-	loop do
-		client = server.accept
-		while line = client.gets
-			host,mac = line.split(' ')
-			case options[:ignoredupes]
-			when true
-				if (@nodelist.map {|row| row[1]} | @not_processed.map {|row| row[1] }).include?(mac)
-
-				else
-					@not_processed.push([host,mac])
+	Thread.new do
+		loop do
+			client = server.accept
+			while line = client.gets
+				host,mac = line.split(' ')
+				case options[:ignoredupes]
+				when true
+					if @nodelist.key?(mac) || @not_processed.key?(mac)
+					else
+						@not_processed[mac] = host
+					end
+				when false
+					@not_processed[mac] = host
 				end
-			when false
-				@not_processed.push([host,mac])
 			end
 		end
 		client.close
 	end
+	puts "Press enter at any time to close.\n"
+	while gets.chomp
+		puts "\nExiting..."
+		File.open(not_processed_file,'w+') { |file| file.write(@not_processed.to_yaml)}
+		puts "Found nodes written to \'#{not_processed_file}\'. They need processing."
+		exit 130
+	end
+
 when 'a'
 	prefix,length,start = ARGV
-	puts "prefix: #{prefix}, #{prefix.class}"
-	puts "length: #{length}, #{length.class}"
-	puts "start: #{start}, #{start.class}"
 
-	@not_processed.each do |node|
-		new_node = [ prefix + start, node[1]]
+	@not_processed.each do |mac,hname|
+		@nodelist[mac] = prefix + start
 		start = start.succ
-		@nodelist.push(new_node)		
 	end
-	CSV.open(nodelist_file,'a+') {|csv| @nodelist.each { |elem| csv << elem} }
-	CSV.open(not_processed_file,'w+')
+	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(not_processed_file,'w+')
+
 when 'm'
-	@not_processed.each do |node|
-		puts "Enter name for MAC \"#{node[1]}\" (default \"#{node[0]}\"): "
+	@not_processed.each do |mac,hname|
+		puts "Enter name for MAC \"#{mac}\": "
 		input = gets.chomp
-		@nodelist.push([input,node[1]])
+		@nodelist[mac] = input
 	end
-	CSV.open(nodelist_file,'w+') {|csv| @nodelist.each { |elem| csv << elem} }
-	CSV.open(not_processed_file,'w+')
+	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(not_processed_file,'w+')
 	puts "#{not_processed_file} emptied; processed nodes written to #{nodelist_file}."
+
 when 'l'	
-	puts "Name\tMAC address\n"
-	puts "-------------------"
-	@nodelist.each do |node|
-		puts "#{node[0]}\t#{node[1]}"
+	puts "MAC address\t   Name\n"
+	puts "------------------------"
+	@nodelist.each do |mac,hname|
+		puts "#{mac}: #{hname}"
 	end
+
 when 'r'
 	mac = ARGV[0]
-	node_to_remove = @nodelist.rassoc(mac)
-	@nodelist.delete(node_to_remove)
-	CSV.open(nodelist_file,'w+') {|csv| @nodelist.each { |elem| csv << elem} }
-	puts "#{node_to_remove} deleted."
+	@nodelist.delete(@nodelist.key(mac))
+	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	puts mac.to_s + ' : ' + @nodelist[mac] + " deleted."
+
 when 'e'
 	mac, newname = ARGV
-	node_to_modify = @nodelist.rassoc(mac)
-	index_to_modify = @nodelist.index(node_to_modify)
-	@nodelist[index_to_modify] = [newname,mac]
-	CSV.open(nodelist_file,'w+') {|csv| @nodelist.each { |elem| csv << elem} }
-	puts "#{mac} renamed to #{newname}."
+	@nodelist[mac] = newname
+	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	puts "#{mac} renamed to #{newname}"
 end

@@ -1,5 +1,5 @@
 ---
-unprocessed_list: 'unprocessed.csv'
-nodelist: 'nodelist.csv'
+not_processed_list: 'unprocessed.yaml'
+nodelist: 'nodelist.yaml'
 port: 2000
 ---
