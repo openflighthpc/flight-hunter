@@ -55,7 +55,7 @@ OptionParser.new do |opts|
 		options[:mode] = 'l'
 	end
 	opts.on('-r', '--remove', 'Delete a client from the saved list') do 
-		options[:mode] = 'd'
+		options[:mode] = 'r'
 	end
 	opts.on('-e', '--edit', 'Edit a client from the saved list') do 
 		options[:mode] = 'e'
@@ -64,7 +64,7 @@ OptionParser.new do |opts|
 		puts opts
 		exit
 	end
-end.parse!(into: options)
+end.parse!()
 puts options
 
 config = YAML.load_file('config.yaml')
@@ -88,8 +88,8 @@ case options[:mode]
 when 'f'
 	trap "SIGINT" do
 		puts "\nExiting abruptly..."
-		CSV.open(not_processed_file,'w+') { |csv| @unprocessed_list.each { |elem| csv << elem } }
-		puts "Found nodes written to \'#{unprocessed_list}\'. They need processing."
+		CSV.open(not_processed_file,'w+') { |csv| @not_processed.each { |elem| csv << elem } }
+		puts "Found nodes written to \'#{not_processed_file}\'. They need processing."
 		exit 130
 	end
 	server = TCPServer.open(port)
@@ -103,10 +103,10 @@ when 'f'
 				if (@nodelist.map {|row| row[1]} | @not_processed.map {|row| row[1] }).include?(mac)
 
 				else
-					@unprocessed_list.push([host,mac])
+					@not_processed.push([host,mac])
 				end
 			when false
-				@unprocessed_list.push([host,mac])
+				@not_processed.push([host,mac])
 			end
 		end
 		client.close
@@ -120,18 +120,36 @@ when 'a'
 	@not_processed.each do |node|
 		new_node = [ prefix + start, node[1]]
 		start = start.succ
-		@nodelist.push(new_node)
-		
+		@nodelist.push(new_node)		
 	end
 	CSV.open(nodelist_file,'a+') {|csv| @nodelist.each { |elem| csv << elem} }
 	CSV.open(not_processed_file,'w+')
+when 'm'
+	@not_processed.each do |node|
+		puts "Enter name for MAC \"#{node[1]}\" (default \"#{node[0]}\"): "
+		input = gets.chomp
+		@nodelist.push([input,node[1]])
+	end
+	CSV.open(nodelist_file,'w+') {|csv| @nodelist.each { |elem| csv << elem} }
+	CSV.open(not_processed_file,'w+')
+	puts "#{not_processed_file} emptied; processed nodes written to #{nodelist_file}."
 when 'l'	
 	puts "Name\tMAC address\n"
 	puts "-------------------"
 	@nodelist.each do |node|
 		puts "#{node[0]}\t#{node[1]}"
 	end
-when 'd'
-	
+when 'r'
+	mac = ARGV[0]
+	node_to_remove = @nodelist.rassoc(mac)
+	@nodelist.delete(node_to_remove)
+	CSV.open(nodelist_file,'w+') {|csv| @nodelist.each { |elem| csv << elem} }
+	puts "#{node_to_remove} deleted."
 when 'e'
+	mac, newname = ARGV
+	node_to_modify = @nodelist.rassoc(mac)
+	index_to_modify = @nodelist.index(node_to_modify)
+	@nodelist[index_to_modify] = [newname,mac]
+	CSV.open(nodelist_file,'w+') {|csv| @nodelist.each { |elem| csv << elem} }
+	puts "#{mac} renamed to #{newname}."
 end
