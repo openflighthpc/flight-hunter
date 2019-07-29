@@ -33,8 +33,8 @@ require 'csv'
 require 'yaml'
 require 'optparse'
 
-
 options = {}
+arguments = []
 options[:ignoredupes] = true
 
 OptionParser.new do |opts|
@@ -42,8 +42,9 @@ OptionParser.new do |opts|
 	opts.on('-f','--find','Listen over TCP for incoming clients, save them to a local file for processing.') do
 		options[:mode] = 'f'
 	end
-	opts.on('-a','--automatic','Parse saved clients and name them automatically.') do 
+	opts.on('-a','--automatic PREFIX LENGTH START','Parse saved clients and name them automatically.') do |list|
 		options[:mode] = 'a'
+		options[:args] = list
 	end
 	opts.on('-d','--ignoredupes','testing') do
 		options[:ignoredupes] = false
@@ -54,11 +55,13 @@ OptionParser.new do |opts|
 	opts.on('-l', '--list', 'List nodes in saved list') do 
 		options[:mode] = 'l'
 	end
-	opts.on('-r', '--remove', 'Delete a client from the saved list') do 
+	opts.on('-r', '--remove MAC', 'Delete a client from the saved list') do |mac|
 		options[:mode] = 'r'
+		options[:args] = mac
 	end
-	opts.on('-e', '--edit', 'Edit a client from the saved list') do 
+	opts.on('-e', '--edit', 'Edit a client from the saved list') do |list|
 		options[:mode] = 'e'
+		options[:args] = list
 	end	
 	opts.on('-h','--help','display this screen') do
 		puts opts
@@ -121,7 +124,7 @@ when 'f'
 	end
 
 when 'a'
-	prefix,length,start = ARGV
+	prefix,length,start = options[:args]
 
 	@not_processed.each do |mac,hname|
 		@nodelist[mac] = prefix + start
@@ -151,18 +154,18 @@ when 'l'
 		puts "The node list is empty."
 	end
 when 'r'
-	mac = ARGV[0]
-	@nodelist.delete(@nodelist.key(mac))
+	mac = options[:args]
+	@nodelist.delete(mac)
 	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
-	puts mac.to_s + ' : ' + @nodelist[mac] + " deleted."
+	puts "#{mac} deleted."
 
 when 'e'
-	mac, newname = ARGV
-	if [mac,newname] & [nil,"", " "] != []
-		puts "You have left out at least one required argument."
-	else		
-		@nodelist[mac] = newname
-		File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
-		puts "#{mac} renamed to #{newname}"
-	end
+	mac, newname = options[:args]
+	# if [mac,newname] & [nil,"", " "] != []
+	# 	puts "You have left out at least one required argument."
+	# else		
+	@nodelist[mac] = newname
+	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	puts "#{mac} renamed to #{newname}"
+	# end
 end
