@@ -28,148 +28,144 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-
-
-
 require 'socket'
 require 'csv'
 require 'yaml'
 require 'optparse'
 
+options = {}
+arguments = []
+options[:ignoredupes] = true
 
-ignoredupes = false
 OptionParser.new do |opts|
-	opts.banner = "Usage: server.rb [options]"
-
-	opts.on('-d','--duplicates', "Don't add duplicate addresses to the queue") do |duplicates|
-		ignoredupes = true
+	opts.banner = "Usage: server.rb [options] [arguments]"
+	opts.on('-f','--find','Listen over TCP for incoming clients, save them to a local file for processing.') do
+		options[:mode] = 'f'
 	end
-end.parse!
+	opts.on('-a','--automatic PREFIX LENGTH START','Parse saved clients and name them automatically.') do |list|
+		options[:mode] = 'a'
+		options[:args] = list
+	end
+	opts.on('-d','--ignoredupes','testing') do
+		options[:ignoredupes] = false
+	end
+	opts.on('-m', '--manual', 'Parsed saved clients and name them manually') do 
+		options[:mode] = 'm'
+	end
+	opts.on('-l', '--list', 'List nodes in saved list') do 
+		options[:mode] = 'l'
+	end
+	opts.on('-r', '--remove MAC', 'Delete a client from the saved list') do |mac|
+		options[:mode] = 'r'
+		options[:args] = mac
+	end
+	opts.on('-e', '--edit', 'Edit a client from the saved list') do |list|
+		options[:mode] = 'e'
+		options[:args] = list
+	end	
+	opts.on('-h','--help','display this screen') do
+		puts opts
+		exit
+	end
+end.parse!()
 
 config = YAML.load_file('config.yaml')
-csvname = config['csvname']
+nodelist_file = config['nodelist']
+not_processed_file = config['not_processed_list']
 port = config['port']
 
-if not File.file?(csvname)
-	puts "Specified CSV file doesn't exist. Creating..."
-	CSV.open(csvname, 'w')
-	puts "Created CSV file named #{csvname}."
-end
-
-@nodes = CSV.read(csvname)
-trap "SIGINT" do
-	puts "\nExiting abruptly..."
-	@nodes.each do |row|
-		puts row
+[nodelist_file,not_processed_file].each do |file|
+	if not File.file?(file)
+		puts "\nSpecified file \"#{file}\" doesn't exist. Creating..."
+		File.open(file,'w') {}
+		puts "Created YAML file named \"#{file}\"."
 	end
-	CSV.open(csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
-	puts "Node list written to \'#{csvname}\'."
-	exit 130
 end
 
-def name_exists(input)
-	while @nodes.map {|row| row[0] }.include? input 		
-		puts "This name already exists. Try again."
-		input = gets.chomp.gsub(/[^0-9a-z]/i, '')
-	end
-	input
+def read_yaml(file_name)
+	file = File.open(file_name,'r')
+	file.sync = true
+	data = file.read
+	file.close
+	return data
 end
 
-server = TCPServer.open(port) 
 
-queue = Queue.new
+@not_processed = YAML.load(read_yaml(not_processed_file)) || {}
+@nodelist = YAML.load(read_yaml(nodelist_file)) || {}
 
-Thread.new do 
-	@this_session = []
-	loop do
-		client = server.accept
-		while line = client.gets
-			host,mac = line.split(' ')
-			if @this_session.include?([host,mac])
-			elsif @nodes.include?([host,mac]) && !ignoredupes
-				queue << [host,mac,'newname']
-				@this_session.push([host,mac])
-			elsif @nodes.include? ([host,mac]) && ignoredupes
-				queue << [host,mac,'ignoreverbose']
-				@this_session.push([host,mac])
-			else
-				queue << [host,mac, nil]
-				@this_session.push([host,mac])
-			end			
+case options[:mode]
+when 'f'
+	server = TCPServer.open(port)
+	Thread.new do
+		loop do
+			client = server.accept
+			while line = client.gets
+				host,mac = line.split(' ')
+				case options[:ignoredupes]
+				when true
+					if @nodelist.key?(mac) || @not_processed.key?(mac)
+					else
+						@not_processed[mac] = host
+					end
+				when false
+					@not_processed[mac] = host
+				end
+			end
 		end
 		client.close
 	end
+	puts "Press enter at any time to close.\n"
+	while gets.chomp
+		puts "\nExiting..."
+		File.open(not_processed_file,'w+') { |file| file.write(@not_processed.to_yaml)}
+		puts "Found nodes written to \'#{not_processed_file}\'. They need processing."
+		exit 130
+	end
+
+when 'a'
+	prefix,length,start = options[:args]
+
+	@not_processed.each do |mac,hname|
+		@nodelist[mac] = prefix + start
+		start = start.succ
+	end
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(not_processed_file,'w+')
+
+when 'm'
+	@not_processed.each do |mac,hname|
+		puts "Enter name for MAC \"#{mac}\": "
+		input = gets.chomp
+		@nodelist[mac] = input
+	end
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(not_processed_file,'w+')
+	puts "#{not_processed_file} emptied; processed nodes written to #{nodelist_file}."
+
+when 'l'	
+	begin
+		puts "MAC address\t   Name\n"
+		puts "------------------------"
+		@nodelist.each do |mac,hname|
+			puts "#{mac}: #{hname}"
+		end
+	rescue NoMethodError => e
+		puts "The node list is empty."
+	end
+when 'r'
+	mac = options[:args]
+	@nodelist.delete(mac)
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
+	puts "#{mac} deleted."
+
+when 'e'
+	mac, newname = options[:args]
+	# if [mac,newname] & [nil,"", " "] != []
+	# 	puts "You have left out at least one required argument."
+	# else		
+	@nodelist[mac] = newname
+	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	puts "#{mac} renamed to #{newname}"
+	# end
 end
-
-waiting = false
-loop do
-	while queue.empty?
-		if waiting == false
-			puts "Waiting for client connection... "
-			waiting = true
-		end
-	end
-	node = queue.pop
-
-	if node[2] == 'newname'
-		node.pop
-		puts "Node found. Hostname = \"#{node[0]}\", MAC address = \"#{node[1]}\". This exact hostname/MAC address combination already exists in the node list. If you would like to rename the pre-existing node, type the new name below. Otherwise, press enter."
-		input = gets.chomp.gsub(/[^0-9a-z]/i, '')
-		if input == ''
-		else
-			input = name_exists(input)
-			@nodes.each do |element|
-				if element[0] == node[0]
-					element[0] = input
-				end
-			end
-		end
-	elsif node[2] == 'ignoreverbose'
-		puts "Node found. Hostname = \"#{node[0]}\", MAC address = \"#{node[1]}\". This exact hostname/MAC address combination already exists in the node list. Ignoring... "
-	elsif node[2] == nil
-		node.pop
-		puts "Node found. Hostname = \"#{node[0]}\", MAC address = \"#{node[1]}\"."
-		if @nodes.map {|row| row[0] }.include?(node[0])
-			puts "A node with this name already exists in the node list under address #{node[1]}. If you would like to choose a new name, type it below. Otherwise, press enter to ignore this node."
-			input = gets.chomp.gsub(/[^0-9a-z]/i, '')
-			if input == ''
-				puts "Ignoring... "
-			else
-				input = name_exists(input)
-				node[0] = input
-				@nodes.push(node)
-			end
-		elsif @nodes.map {|row| row[1] }.include?(node[1])
-			puts "A node already exists with the address #{node[1]}. It is called #{@nodes.rassoc(node[1])[0]}. If you would like to rename the pre-existing node, type the new name below. Otherwise, press enter."
-			input = gets.chomp.gsub(/[^0-9a-z]/i, '')
-			if input == ''
-				puts "Ignoring... "
-			else
-				input = name_exists(input)
-				@nodes.each do |element|
-					if element[1] == node[1]
-						element[0] = input
-					end
-				end
-			end
-		else
-			puts "What would you like the node to be saved as? (default: #{node[0]}). "
-			input = gets.chomp.gsub(/[^0-9a-z]/i, '')
-			if input == ''
-			else
-				input = name_exists(input)
-				node[0] = input	
-			end
-			@nodes.push(node)
-		end
-	end
-	puts 'Enter \'q\' to quit, enter anything else to continue... '
-	if gets.chomp == 'q'
-		break
-	else
-	end
-	waiting = false
-end
-
-CSV.open(csvname, 'w+') { |csv| @nodes.each { |elem| csv << elem } }
-puts "Node list written to \'#{csvname}\'."

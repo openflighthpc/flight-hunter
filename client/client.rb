@@ -32,17 +32,18 @@ require 'macaddr'
 require 'socket'
 require 'yaml'
 
-def read_config
-	config = YAML.load_file('config.yaml')
-	@ipaddr = config['ipaddr']
-	@port = config['port']
-end
-
-read_config
+config = YAML.load_file('config.yaml')
+ipaddr = config['ipaddr']
+port = config['port']
 mac = Mac.addr
 myhostname = Socket.gethostname
+begin
+	server = TCPSocket.open(ipaddr, port)
+	server.puts(myhostname + ' ' + mac)
+	server.close
+rescue Errno::ECONNREFUSED => e
+	puts "The server is down."
+	puts e.message
+end
 
-server = TCPSocket.open(@ipaddr, @port)
-
-server.puts(mac + ' ' + myhostname)
-server.close
+# Potentially keep trying until successfully reaching server.
