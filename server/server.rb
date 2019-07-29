@@ -74,7 +74,7 @@ port = config['port']
 [nodelist_file,not_processed_file].each do |file|
 	if not File.file?(file)
 		puts "\nSpecified file \"#{file}\" doesn't exist. Creating..."
-		CSV.open(file,'w')
+		File.open(file,'w') {}
 		puts "Created YAML file named \"#{file}\"."
 	end
 end
@@ -87,8 +87,9 @@ def read_yaml(file_name)
 	return data
 end
 
-@not_processed = YAML.load(read_yaml(not_processed_file)) || {}
-@nodelist = YAML.load(read_yaml(nodelist_file)) || {}
+
+@not_processed = YAML.load(read_yaml(not_processed_file),{})
+@nodelist = YAML.load(read_yaml(nodelist_file),{})
 
 
 case options[:mode]
@@ -127,7 +128,7 @@ when 'a'
 		@nodelist[mac] = prefix + start
 		start = start.succ
 	end
-	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
 	File.open(not_processed_file,'w+')
 
 when 'm'
@@ -136,26 +137,33 @@ when 'm'
 		input = gets.chomp
 		@nodelist[mac] = input
 	end
-	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
 	File.open(not_processed_file,'w+')
 	puts "#{not_processed_file} emptied; processed nodes written to #{nodelist_file}."
 
 when 'l'	
-	puts "MAC address\t   Name\n"
-	puts "------------------------"
-	@nodelist.each do |mac,hname|
-		puts "#{mac}: #{hname}"
+	begin
+		puts "MAC address\t   Name\n"
+		puts "------------------------"
+		@nodelist.each do |mac,hname|
+			puts "#{mac}: #{hname}"
+		end
+	rescue NoMethodError => e
+		puts "The node list is empty."
 	end
-
 when 'r'
 	mac = ARGV[0]
 	@nodelist.delete(@nodelist.key(mac))
-	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
 	puts mac.to_s + ' : ' + @nodelist[mac] + " deleted."
 
 when 'e'
 	mac, newname = ARGV
-	@nodelist[mac] = newname
-	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
-	puts "#{mac} renamed to #{newname}"
+	if [mac,newname] & [nil,"", " "] != []
+		puts "You have left out at least one required argument."
+	else		
+		@nodelist[mac] = newname
+		File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+		puts "#{mac} renamed to #{newname}"
+	end
 end
