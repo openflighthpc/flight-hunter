@@ -88,9 +88,8 @@ def read_yaml(file_name)
 end
 
 
-@not_processed = YAML.load(read_yaml(not_processed_file),{})
-@nodelist = YAML.load(read_yaml(nodelist_file),{})
-
+@not_processed = YAML.load(read_yaml(not_processed_file)) || {}
+@nodelist = YAML.load(read_yaml(nodelist_file)) || {}
 
 case options[:mode]
 when 'f'
