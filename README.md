@@ -51,7 +51,7 @@ The `-f. --find` option has the script listen over the port specified in `config
 
 The `-m, --manual` option lets the user process the nodes saved to `not_processed_list` manually. For each node in the list, the user will be prompted to give it a name. Once all nodes in the list have been processed, they will be written to `nodelist`, `not_processed_list` will be formatted, and the script will terminate.
 
-The `-a, --automatic $PREFIX $LENGTH $START` option lets the user process the nodes automatically, with a few required arguments. The `$PREFIX` argument requires a string to be used for the beginning of all nodes being processed. The `$LENGTH` argument requires an integer that specifies how many digits the integer counter at the end of the node names will be. The `$START` argument requires an integer of length `$LENGTH` from which to start counting.
+The `-a, --automatic $PREFIX,$LENGTH,$START` option lets the user process the nodes automatically, with a few required arguments. The `$PREFIX` argument requires a string to be used for the beginning of all nodes being processed. The `$LENGTH` argument requires an integer that specifies how many digits the integer counter at the end of the node names will be. The `$START` argument requires an integer of length `$LENGTH` from which to start counting.
 For example, the command `ruby server.rb -a node 3 001` for 50 nodes will result in a `nodelist` that resembles the following:
 ```
 ---
