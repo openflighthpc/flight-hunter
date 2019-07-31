@@ -74,9 +74,9 @@ examplemac2: node002
 examplemac50: node050
 ```
 
-The `-r, --remove $MAC` allows the user to remove a MAC: name (key,value) pairing from `nodelist`. The required argument `$MAC` should be a string containing the name of the MAC you would like to remove from the list (if you don't know the MAC you want to remove, run `-l` first).
+The `-r, --remove MAC` allows the user to remove a MAC: name (key,value) pairing from `nodelist`. The required argument `$MAC` should be a string containing the name of the MAC you would like to remove from the list (if you don't know the MAC you want to remove, run `-l` first).
 
-The `-e, --edit $MAC $NAME` option allows the user to edit one a MAC: name (key,value) pairing from `nodelist`. The required argument `$MAC` should be the MAC of the node you want to edit the name of, and the `$NAME` argument should be the new name to change it to.
+The `-e, --edit MAC,NAME` option allows the user to edit one a MAC: name (key,value) pairing from `nodelist`. The required argument `$MAC` should be the MAC of the node you want to edit the name of, and the `$NAME` argument should be the new name to change it to.
 
 ### Client
 

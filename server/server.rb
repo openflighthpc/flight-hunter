@@ -42,7 +42,7 @@ OptionParser.new do |opts|
 	opts.on('-f','--find','Listen over TCP for incoming clients, save them to a local file for processing.') do
 		options[:mode] = 'f'
 	end
-	opts.on('-a','--automatic PREFIX LENGTH START','Parse saved clients and name them automatically.') do |list|
+	opts.on('-a','--automatic PREFIX,LENGTH,START', Array, 'Parse saved clients and name them automatically.') do |list|
 		options[:mode] = 'a'
 		options[:args] = list
 	end
@@ -59,7 +59,7 @@ OptionParser.new do |opts|
 		options[:mode] = 'r'
 		options[:args] = mac
 	end
-	opts.on('-e', '--edit', 'Edit a client from the saved list') do |list|
+	opts.on('-e', '--edit MAC,NEWNAME', Array, 'Edit a client from the saved list') do |list|
 		options[:mode] = 'e'
 		options[:args] = list
 	end	
@@ -161,11 +161,8 @@ when 'r'
 
 when 'e'
 	mac, newname = options[:args]
-	# if [mac,newname] & [nil,"", " "] != []
-	# 	puts "You have left out at least one required argument."
-	# else		
 	@nodelist[mac] = newname
-	File.open(nodelist_file,'a+') {|file| file.write(@nodelist.to_yaml)}
+	File.open(nodelist_file,'w+') {|file| file.write(@nodelist.to_yaml)}
 	puts "#{mac} renamed to #{newname}"
 	# end
 end
