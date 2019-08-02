@@ -38,6 +38,7 @@ def send_mac(ipaddr,port)
 		server = TCPSocket.open(ipaddr,port)
 		server.puts(myhostname + ' ' + mac)
 		server.close
+		puts "Successful transmission."
 	rescue Errno::ECONNREFUSED => e
 		puts "The server is down."
 		puts e.message

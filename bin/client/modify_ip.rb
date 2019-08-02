@@ -31,4 +31,5 @@
 def modify_ip(ip,config)
 	config['ipaddr'] = ip
 	File.open('client/config.yaml','w+') { |file| file.write(config.to_yaml) }
+	puts "Target IP changd to #{ip}"
 end

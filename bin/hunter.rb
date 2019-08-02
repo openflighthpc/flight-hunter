@@ -38,21 +38,7 @@ require 'optparse'
 Dir["client/*.rb"].each {|file| require_relative file}
 Dir["server/*.rb"].each {|file| require_relative file}
 
-# config = YAML.load_file('config.yaml')
-# nodelist_file = config['nodelist']
-# not_processed_file = config['not_processed_list']
-# port = config['port']
 
-# def read_yaml(file_name)
-# 	file = File.open(file_name,'r')
-# 	file.sync = true
-# 	data = file.read
-# 	file.close
-# 	return data
-# end
-
-# not_processed = YAML.load(read_yaml(not_processed_file)) || {}
-# nodelist = YAML.load(read_yaml(nodelist_file)) || {}
 
 case ARGV[0]
 when "client"
@@ -125,12 +111,3 @@ when "server"
 		end
 	end
 end
-
-
-
-
-
-
-
-# hunt(port, not_processed_file, nodelist_file, ignore_dupes)
-# list(nodehash)
