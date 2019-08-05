@@ -38,28 +38,27 @@ require 'optparse'
 Dir["client/*.rb"].each {|file| require_relative file}
 Dir["server/*.rb"].each {|file| require_relative file}
 
-
+client_config = YAML.load_file('client/config.yaml')
+server_config = YAML.load_file('server/config.yaml')
 
 case ARGV[0]
 when "client"
-	config = YAML.load_file('client/config.yaml')
 	case ARGV[1]
 	when "send"
-		ipaddr = config['ipaddr']
-		port = config['port']
+		ipaddr = client_config['ipaddr']
+		port = client_config['port']
 		send_mac(ipaddr,port)
 	when "modify"
 		case ARGV[2]
 		when "ip"
-			modify_ip(ARGV[3],config)
+			modify_ip(ARGV[3],client_config)
 		when "port"
-			modify_port(ARGV[3],config)
+			modify_port(ARGV[3],client_config)
 		end
 	end
 when "server"
-	config = YAML.load_file('server/config.yaml')
-	not_processed_file = 'server/' + config['not_processed_list']
-	nodelist_file = 'server/' + config['nodelist']
+	not_processed_file = 'server/' + server_config['not_processed_list']
+	nodelist_file = 'server/' + server_config['nodelist']
 	[nodelist_file,not_processed_file].each do |file|
 		if not File.file?(file)
 			puts "\nSpecified file \"#{file}\" doesn't exist. Creating..."
@@ -72,7 +71,7 @@ when "server"
 
 	case ARGV[1]
 	when "hunt"
-		port = config['port']
+		port = server_config['port']
 		hunt(port, not_processed_file, nodelist_file,ARGV[2])		
 	when "list"
 		case ARGV[2]
@@ -85,29 +84,29 @@ when "server"
 	when "parse"
 		case ARGV[2]
 		when "manual"
-			manual(config)
+			manual(server_config)
 		when "automatic"
-			automatic(config,ARGV[3],ARGV[4],ARGV[5])
+			automatic(server_config,ARGV[3],ARGV[4],ARGV[5])
 		end
 	when "remove"
 		case ARGV[2]
 		when "mac"
-			remove_mac(config,ARGV[3],ARGV[4])
+			remove_mac(server_config,ARGV[3],ARGV[4])
 		when "name"
-			remove_name(config,ARGV[3],ARGV[4])
+			remove_name(server_config,ARGV[3],ARGV[4])
 		end
 	when "modify"
 		case ARGV[2]
 		when "mac"
-			modify_mac(config,ARGV[3],ARGV[4],ARGV[5])
+			modify_mac(server_config,ARGV[3],ARGV[4],ARGV[5])
 		when "name"
-			modify_name(config,ARGV[3],ARGV[4],ARGV[5])
+			modify_name(server_config,ARGV[3],ARGV[4],ARGV[5])
 		when "not_processed"
-			modify_not_processed(config, ARGV[3])
+			modify_not_processed(cserver_onfig, ARGV[3])
 		when "nodelist"
-			modify_nodelist(config,ARGV[3])
+			modify_nodelist(server_config,ARGV[3])
 		when "port"
-			modify_port(config,ARGV[3])
+			modify_port(server_config,ARGV[3])
 		end
 	end
 end

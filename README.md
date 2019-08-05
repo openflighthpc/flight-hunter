@@ -72,7 +72,7 @@ The third argument `port` modifies the port to communicate over. For example:
 The initial argument `server` filters into the commands available to the server-side script part of Hunter.
 
 #### hunt
-The second argument `hunt` will open a continuous TCP connection over the port specified in the server-side `config.yaml`, listening for broadcasts from client nodes on the network. When a node is accommodated, it's MAC address and hostname are saved into a `.yaml` file containing all unprocessed nodes in {MAC: Hostname} key,value pairs. The file is specified in the server-side `config.yaml`. The command takes a single switch argument, which, when `true`, does not accept MAC addresses that already exist in either the unprocessed or processed list.
+The second argument `hunt` will open a continuous TCP connection over the port specified in the server-side `config.yaml`, listening for broadcasts from client nodes on the network. When a node is accommodated, it's MAC address and hostname are saved into a `.yaml` file containing all unprocessed nodes in {MAC: Hostname} key,value pairs. The file is specified in the server-side `config.yaml`. The command takes a single switch argument, which, when `true`, does not accept MAC addresses that already exist in either the unprocessed or processed list. If the user wants to acknowledge dupes, then `false` must be passed instead.
 
 #### list
 The second argument `list` will print out a 2-column table of all nodes in one of the two lists, specified by a third argument (`unprocessed` or `nodelist`).
