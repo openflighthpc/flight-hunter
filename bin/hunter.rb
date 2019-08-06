@@ -33,7 +33,6 @@
 
 require 'csv'
 require 'yaml'
-require 'optparse'
 
 Dir["client/*.rb"].each {|file| require_relative file}
 Dir["server/*.rb"].each {|file| require_relative file}
