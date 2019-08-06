@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    macaddr (1.7.2)
+      systemu (~> 2.6.5)
+    systemu (2.6.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  macaddr
+
+BUNDLED WITH
+   2.0.2
