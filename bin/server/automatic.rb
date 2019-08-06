@@ -32,10 +32,28 @@ def automatic(config,prefix,length,start)
 	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
 	not_processed_list = YAML.load(read_yaml('server/' + config['not_processed_list'])) || {}
 
+	existing = []
+	to_add = {}
 	not_processed_list.each do |mac,hname|
-		nodelist[mac] = prefix + start
+		newname = prefix+start
+		if nodelist.key?(mac) || nodelist.has_value?(newname)
+			
+			if nodelist.key?(mac)			
+				existing.push([mac,nodelist[mac]])
+			end
+			if
+				existing.push([nodelist.key(newname),newname])
+			end
+			existing.uniq!
+			existing.each { |element| nodelist.delete(element[0])}
+	
+		end
+		to_add[mac] = newname
 		start = start.succ
-	end
+	end	
+	puts "Due to value conflicts, the following pre-existing node entries have been removed:"
+	existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+	to_add.each {|node| nodelist[node[0]] = node[1]}
 	File.open('server/' + config['nodelist'],'w+') {|file| file.write(nodelist.to_yaml)}
 	File.open('server/' + config['not_processed_list'],'w+')
 	puts "#{config['not_processed_list']} emptied; processed nodes written to #{config['nodelist']}."

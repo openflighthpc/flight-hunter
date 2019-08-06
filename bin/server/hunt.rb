@@ -28,10 +28,9 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-require 'socket'
 require_relative 'read_yaml.rb'
 
-def hunt(port, not_processed_file, nodelist_file,ignore_dupes)
+def hunt(port, not_processed_file, nodelist_file,allow_existing)
 	not_processed = YAML.load(read_yaml(not_processed_file)) || {}
 	nodelist = YAML.load(read_yaml(nodelist_file)) || {}
 
@@ -41,10 +40,38 @@ def hunt(port, not_processed_file, nodelist_file,ignore_dupes)
 			client = server.accept
 			while line = client.gets
 				host,mac = line.split(' ')
-				if ignore_dupes && (nodelist.key?(mac) || not_processed.key?(mac))
+				if !allow_existing
+					if not_processed.key?(mac)
+						puts "This MAC address already exists in the unprocessed list. Ignoring..."
+					elsif not_processed.has_value?(host)
+						puts "This hostname already exists in the unprocessed list. Ignoring..."
+					elsif nodelist.key?(mac)
+						puts "This MAC address already exists in the processed list. Ignoring..."
+					elsif nodelist.has_value?(host)
+						puts "This hostname already exists in the unprocessed list. Ignoring..."
+					else
+						not_processed[mac] = host
+						puts "Found node. MAC: #{mac}, name: #{host}"
+					end
 				else
-					not_processed[mac] = host
-					puts "Found node. MAC: #{mac}, name: #{host}"
+					if not_processed.key?(mac)
+						not_processed[mac] = host
+						puts "This MAC already existed in the unprocessed list, but its name has been overwritten to the new one."
+					elsif not_processed.has_value?(host)
+						not_processed[mac] = host # Add anyway name not guaranteed or required to be unique during staging
+						puts "Found node. MAC: #{mac}, name: #{host}"
+						puts "Node added, but please note that the name of this node already exists in the unprocessed"+
+						"list under #{not_processed.key[host]}. It will be renamed during parsing anyway,"+
+						"but is useful to keep in mind."						
+					elsif nodelist.key?(mac)
+						# add, print warning
+						not_processed[mac] = host
+						puts "Node added, but please note that this MAC address already exists in the parsed nodelist."
+					elsif nodelist.has_value?(host)
+						# add, print warning
+						not_processed[mac] = host
+						puts "Node added, but please note that a node with this hostname already exists in the parsed nodelist."
+					end
 				end
 			end
 		end

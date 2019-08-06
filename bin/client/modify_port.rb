@@ -28,10 +28,8 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-require 'yaml'
-
 def modify_port(port,config)
 	config['port'] = port
 	File.open('client/config.yaml','w+') { |file| file.write(config.to_yaml) }
-	"Port changed to #{port}"
+	puts "Port changed to #{port}"
 end

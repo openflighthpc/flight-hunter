@@ -39,9 +39,7 @@ The server side script provides similar commands to modify its `config.yaml` fil
 
 
 
-## Operation
-
-To be completed... 
+## Operation 
 
 Hunter operates on a tree-like structure of arguments. They are executed with the following format: 
 
@@ -72,14 +70,15 @@ The third argument `port` modifies the port to communicate over. For example:
 The initial argument `server` filters into the commands available to the server-side script part of Hunter.
 
 #### hunt
-The second argument `hunt` will open a continuous TCP connection over the port specified in the server-side `config.yaml`, listening for broadcasts from client nodes on the network. When a node is accommodated, it's MAC address and hostname are saved into a `.yaml` file containing all unprocessed nodes in {MAC: Hostname} key,value pairs. The file is specified in the server-side `config.yaml`. The command takes a single switch argument, which, when `true`, does not accept MAC addresses that already exist in either the unprocessed or processed list. If the user wants to acknowledge dupes, then `false` must be passed instead.
+The second argument `hunt` will open a continuous TCP connection over the port specified in the server-side `config.yaml`, listening for broadcasts from client nodes on the network. When a node is accommodated, it's MAC address and hostname are saved into a `.yaml` file containing all unprocessed nodes in {MAC: Hostname} key,value pairs. The file is specified in the server-side `config.yaml`. The command takes a single switch argument, which, when `true`, does not accept MAC addresses that already exist in either the unprocessed or processed list. If the user wishes pre-existing MACs/hostnames to be parsed, `allow_existing` must be given as an argument to `hunt`.
+When the `allow_existing` argument is passed, the `hunt` command will add new nodes with 'taken' values, but will give a warning.
 
 #### list
 The second argument `list` will print out a 2-column table of all nodes in one of the two lists, specified by a third argument (`unprocessed` or `nodelist`).
 
 #### parse
 The second argument `parse` allows the user to process all nodes in the unprocessed list, appending them to the processed list.
-
+In both `manual` and `automatic` modes of parsing, conflicts are handled as such: if either the MAC or name of the newly added node already exists in the parsed nodelist, the old MAC/name pair will be removed and the new one added.
 ##### manual
 The third argument `manual` will step-through the unprocessed list one-by-one, each time prompting the user for a name.
 

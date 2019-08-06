@@ -72,7 +72,11 @@ when "server"
 	case ARGV[1]
 	when "hunt"
 		port = server_config['port']
-		hunt(port, not_processed_file, nodelist_file,ARGV[2])		
+		allow_existing = false
+		if ARGV[-1] == 'allow_existing'
+			allow_existing = true
+		end
+		hunt(port, not_processed_file, nodelist_file, allow_existing)		
 	when "list"
 		case ARGV[2]
 		when "not_processed"
