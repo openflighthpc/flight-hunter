@@ -36,6 +36,7 @@ require 'yaml'
 
 Dir["client/*.rb"].each {|file| require_relative file}
 Dir["server/*.rb"].each {|file| require_relative file}
+require_relative 'help.rb' 
 
 client_config = YAML.load_file('client/config.yaml')
 server_config = YAML.load_file('server/config.yaml')
@@ -44,16 +45,24 @@ case ARGV[0]
 when "client"
 	case ARGV[1]
 	when "send"
-		ipaddr = client_config['ipaddr']
-		port = client_config['port']
-		send_mac(ipaddr,port)
+		if ARGV[2] == "--help"
+			help('client_send')
+		else
+			ipaddr = client_config['ipaddr']
+			port = client_config['port']
+			send_mac(ipaddr,port)
+		end
 	when "modify"
 		case ARGV[2]
 		when "ip"
 			modify_ip(ARGV[3],client_config)
 		when "port"
 			modify_port(ARGV[3],client_config)
+		when "--help"
+			help('client_modify')
 		end
+	when "--help"
+		help('client')
 	end
 when "server"
 	not_processed_file = 'server/' + server_config['not_processed_list']
@@ -70,26 +79,40 @@ when "server"
 
 	case ARGV[1]
 	when "hunt"
-		port = server_config['port']
-		allow_existing = false
-		if ARGV[-1] == 'allow_existing'
-			allow_existing = true
+		if ARGV[-1] == "--help"
+			help('server_hunt')
+		else
+			port = server_config['port']
+			allow_existing = false
+			if ARGV[-1] == 'allow_existing'
+				allow_existing = true
+			end
+			hunt(port, not_processed_file, nodelist_file, allow_existing)
 		end
-		hunt(port, not_processed_file, nodelist_file, allow_existing)		
 	when "list"
 		case ARGV[2]
 		when "not_processed"
 			list_nodes(not_processed)
 		when "nodelist"
 			list_nodes(nodelist)
+		when "--help"
+			help('server_list')
 		end
 
 	when "parse"
 		case ARGV[2]
 		when "manual"
-			manual(server_config)
+			if ARGV[-1] == "--help"
+				help('server_parse_manual')
+			else
+				manual(server_config)
+			end
 		when "automatic"
-			automatic(server_config,ARGV[3],ARGV[4],ARGV[5])
+			if ARGV[-1] == "--help"
+				help('server_parse_automatic')
+			else
+				automatic(server_config,ARGV[3],ARGV[4],ARGV[5])
+			end
 		end
 	when "remove"
 		case ARGV[2]
@@ -97,6 +120,8 @@ when "server"
 			remove_mac(server_config,ARGV[3],ARGV[4])
 		when "name"
 			remove_name(server_config,ARGV[3],ARGV[4])
+		when "--help"
+			help('server_remove')
 		end
 	when "modify"
 		case ARGV[2]
@@ -110,6 +135,12 @@ when "server"
 			modify_nodelist(server_config,ARGV[3])
 		when "port"
 			modify_port(server_config,ARGV[3])
+		when "--help"
+			help('server_modify')
 		end
+	when "--help"
+		help('server')
 	end
+when "--help"
+	help('hunter')
 end

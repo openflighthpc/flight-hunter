@@ -48,7 +48,7 @@ def hunt(port, not_processed_file, nodelist_file,allow_existing)
 					elsif nodelist.key?(mac)
 						puts "This MAC address already exists in the processed list. Ignoring..."
 					elsif nodelist.has_value?(host)
-						puts "This hostname already exists in the unprocessed list. Ignoring..."
+						puts "This hostname already exists in the processed list. Ignoring..."
 					else
 						not_processed[mac] = host
 						puts "Found node. MAC: #{mac}, name: #{host}"

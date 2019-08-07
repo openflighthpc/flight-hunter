@@ -2,4 +2,5 @@
 
 source 'https://rubygems.org'
 
+gem 'tty-markdown'
 gem 'macaddr'

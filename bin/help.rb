@@ -29,16 +29,7 @@
 #===============================================================================
 require 'tty-markdown'
 
-def list_nodes(list)
-	if list.empty?
-		puts "The list is empty."
-	else
-		table = '| MAC address | Name |
-	|-------------|------|'
-
-		list.each do |mac, hname|
-			table = table+ "\n| #{mac} | #{hname} |"
-		end
-		puts TTY::Markdown.parse(table)
-	end
+def help(command)
+	text = File.read('../helpdocs/' + command + '.md')
+	puts TTY::Markdown.parse(text)
 end
