@@ -60,8 +60,8 @@ def hunt(port, not_processed_file, nodelist_file,allow_existing)
 					elsif not_processed.has_value?(host)
 						not_processed[mac] = host # Add anyway name not guaranteed or required to be unique during staging
 						puts "Found node. MAC: #{mac}, name: #{host}"
-						puts "Node added, but please note that the name of this node already exists in the unprocessed"+
-						"list under #{not_processed.key[host]}. It will be renamed during parsing anyway,"+
+						puts "Node added, but please note that the name of this node already exists in the unprocessed "+
+						"list under #{not_processed.key(host)}. It will be renamed during parsing anyway,"+
 						"but is useful to keep in mind."						
 					elsif nodelist.key?(mac)
 						# add, print warning
