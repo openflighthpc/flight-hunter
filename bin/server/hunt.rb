@@ -71,6 +71,9 @@ def hunt(port, not_processed_file, nodelist_file,allow_existing)
 						# add, print warning
 						not_processed[mac] = host
 						puts "Node added, but please note that a node with this hostname already exists in the parsed nodelist."
+					else
+						not_processed[mac] = host
+						puts "Found node. MAC: #{mac}, name: #{host}"
 					end
 				end
 			end
