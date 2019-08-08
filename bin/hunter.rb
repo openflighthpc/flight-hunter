@@ -38,8 +38,8 @@ Dir["client/*.rb"].each {|file| require_relative file}
 Dir["server/*.rb"].each {|file| require_relative file}
 require_relative 'help.rb' 
 
-client_config = YAML.load_file('client/config.yaml')
-server_config = YAML.load_file('server/config.yaml')
+client_config = YAML.load_file(__dir__+'/client/config.yaml')
+server_config = YAML.load_file(__dir__+'/server/config.yaml')
 
 case ARGV[0]
 when "client"
