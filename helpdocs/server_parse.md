@@ -16,5 +16,5 @@ or manually.
 &nbsp;&nbsp;&nbsp;&nbsp;- Automatically iterates over each node in the
 &nbsp;&nbsp;&nbsp;&nbsp;  not processed list, assigning it a string prefix
 &nbsp;&nbsp;&nbsp;&nbsp;  and a numeric suffix, incrementing the suffix per 
-&nbsp;&nbsp;&nbsp;&nbsp;  node processed. See `ruby hunter.rb server parse
-&nbsp;&nbsp;&nbsp;&nbsp;  automatic --help` for more information.
+&nbsp;&nbsp;&nbsp;&nbsp;  node processed. See `ruby hunter.rb server parse`
+&nbsp;&nbsp;&nbsp;&nbsp;  `automatic --help` for more information.
