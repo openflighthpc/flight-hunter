@@ -35,13 +35,19 @@ def automatic(config,prefix,length,start)
 	existing = []
 	to_add = {}
 	not_processed_list.each do |mac,hname|
+		if start.length < length
+			start.prepend("0"* (length-start.length))
+		elsif start.length > length
+			start.slice!(0,start.length-length)
+		end
+
 		newname = prefix+start
 		if nodelist.key?(mac) || nodelist.has_value?(newname)
 			
 			if nodelist.key?(mac)			
 				existing.push([mac,nodelist[mac]])
 			end
-			if
+			if nodelist.has_value(hname)
 				existing.push([nodelist.key(newname),newname])
 			end
 			existing.uniq!
@@ -50,9 +56,11 @@ def automatic(config,prefix,length,start)
 		end
 		to_add[mac] = newname
 		start = start.succ
-	end	
-	puts "Due to value conflicts, the following pre-existing node entries have been removed:"
-	existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+	end
+	if !existing.empty?
+		puts "Due to value conflicts, the following pre-existing node entries have been removed:"
+		existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+	end
 	to_add.each {|node| nodelist[node[0]] = node[1]}
 	File.open('server/' + config['nodelist'],'w+') {|file| file.write(nodelist.to_yaml)}
 	File.open('server/' + config['not_processed_list'],'w+')
