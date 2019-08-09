@@ -31,17 +31,18 @@
 def automatic(config,prefix,length,start)	
 	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
 	not_processed_list = YAML.load(read_yaml('server/' + config['not_processed_list'])) || {}
-
+	length = length.to_i
 	existing = []
 	to_add = {}
 	not_processed_list.each do |mac,hname|
-		if start.length < length
-			start.prepend("0"* (length-start.length))
-		elsif start.length > length
-			start.slice!(0,start.length-length)
+		start_val = start.dup
+		if start_val.length < length
+			start_val.prepend("0"* (length-start_val.length))
+		elsif start_val.length > length
+			start_val.slice!(0,start_val.length-length)
 		end
 
-		newname = prefix+start
+		newname = prefix+start_val
 		if nodelist.key?(mac) || nodelist.has_value?(newname)
 			
 			if nodelist.key?(mac)			
@@ -55,7 +56,7 @@ def automatic(config,prefix,length,start)
 	
 		end
 		to_add[mac] = newname
-		start = start.succ
+		start_val.succ
 	end
 	if !existing.empty?
 		puts "Due to value conflicts, the following pre-existing node entries have been removed:"
