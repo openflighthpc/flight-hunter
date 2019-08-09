@@ -113,6 +113,8 @@ when "server"
 			else
 				automatic(server_config,ARGV[3],ARGV[4],ARGV[5])
 			end
+		when "--help"
+			help('server_parse')
 		end
 	when "remove"
 		case ARGV[2]
