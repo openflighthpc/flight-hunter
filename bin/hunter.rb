@@ -128,9 +128,9 @@ when "server"
 	when "modify"
 		case ARGV[2]
 		when "mac"
-			modify_mac(server_config,ARGV[3],ARGV[4],ARGV[5])
+			modify_mac(server_config,ARGV[3],ARGV[4])
 		when "name"
-			modify_name(server_config,ARGV[3],ARGV[4],ARGV[5])
+			modify_name(server_config,ARGV[3],ARGV[4])
 		when "not_processed"
 			modify_not_processed(cserver_onfig, ARGV[3])
 		when "nodelist"

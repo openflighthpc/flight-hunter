@@ -28,13 +28,9 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_mac(config,list,mac,newname)
-	if list == "not_processed"
-		nodelist = YAML.load(read_yaml('server/' + config['not_processed_list'])) || {}
-	else
-		nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
-	end
+def modify_mac(config,mac,newname)
+	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
 	nodelist[mac] = newname
-	File.open('server/' + config['not_processed_list'],'w+') { |file| file.write(nodelist.to_yaml)}
+	File.open('server/' + config['nodelist'],'w+') { |file| file.write(nodelist.to_yaml)}
 	puts "#{mac} renamed to #{newname}."
 end
