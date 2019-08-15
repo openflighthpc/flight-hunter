@@ -22,7 +22,7 @@ Subcommand to filter commands into server side options.
 &nbsp;&nbsp;&nbsp;&nbsp;- Removes a node from either of the nodelists, using either MAC or name as a primary
 &nbsp;&nbsp;&nbsp;&nbsp;  key.
 - *modify* [options]
-&nbsp;&nbsp;&nbsp;&nbsp;- Modifies a node from either of the nodelists. Can change either the MAC or the
+&nbsp;&nbsp;&nbsp;&nbsp;- Modifies a node from the parsed nodelist. Can change either the MAC or the
 &nbsp;&nbsp;&nbsp;&nbsp;  name, using the inverse as the key. *Modify* also changes the `config.yaml`,
 &nbsp;&nbsp;&nbsp;&nbsp;  setting the file paths to use for the unprocessed and parsed nodelists, as well
 &nbsp;&nbsp;&nbsp;&nbsp;  as the port to listen over.

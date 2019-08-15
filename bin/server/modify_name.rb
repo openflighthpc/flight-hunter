@@ -28,9 +28,9 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_name(config,mac,newname)
+def modify_mac(config,hname,newmac)
 	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
-	nodelist[mac] = newname
+	nodelist[newmac] = nodelist.delete(nodelist.key(hname))
 	File.open('server/' + config['nodelist'],'w+') { |file| file.write(nodelist.to_yaml)}
-	puts "#{mac} renamed to #{newname}."
+	puts "#{hname} MAC changed to #{newmac}"
 end

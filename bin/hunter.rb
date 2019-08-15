@@ -132,7 +132,7 @@ when "server"
 		when "name"
 			modify_name(server_config,ARGV[3],ARGV[4])
 		when "not_processed"
-			modify_not_processed(cserver_onfig, ARGV[3])
+			modify_not_processed(server_onfig, ARGV[3])
 		when "nodelist"
 			modify_nodelist(server_config,ARGV[3])
 		when "port"
