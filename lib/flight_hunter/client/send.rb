@@ -28,6 +28,8 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
+require 'bundler/setup'
+Bundler.setup
 require 'macaddr'
 require 'socket'
 

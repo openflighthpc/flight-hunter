@@ -75,8 +75,6 @@ require 'flight_hunter/server/dump_buffer'
 require 'csv'
 require 'commander'
 require 'yaml'
-require 'bundler/setup'
-Bundler.setup
 
 module FlightHunter
   class CLI
