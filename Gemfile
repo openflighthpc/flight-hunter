@@ -3,5 +3,5 @@
 source 'https://rubygems.org'
 
 gem 'tty-markdown'
-gem 'macaddr'
+gem 'macaddr', :git => 'https://github.com/jrmhaig/macaddr.git'
 gem 'commander'
