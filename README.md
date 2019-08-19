@@ -8,6 +8,8 @@ Hunter facilitates a communication between a two machines,
 allowing one machine running the client script to send it's hostname
 and MAC address to another machine running the server script.
 
+PLEASE NOTE: The following instructions for configuration/operation are out of date. Please wait until they have been rewritten for the new command line interfacing.
+
 ## Installation
 
 For installation instructions see INSTALL.md
