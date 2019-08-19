@@ -28,9 +28,15 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_mac(config,hname,newmac)
-	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
-	nodelist[newmac] = nodelist.delete(nodelist.key(hname))
-	File.open('server/' + config['nodelist'],'w+') { |file| file.write(nodelist.to_yaml)}
-	puts "#{hname} MAC changed to #{newmac}"
+module FlightHunter
+  module Server
+    class ModifyName
+      def modify_name(list_file,oldname,newname)
+      	list = YAML.load(File.read(list_file))
+      	list[list.key(oldname)] = newname
+      	File.write(list_file,list.to_yaml)
+      	puts "#{oldname} MAC changed to #{newname}"
+      end
+    end
+  end
 end

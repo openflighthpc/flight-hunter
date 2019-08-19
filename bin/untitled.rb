@@ -28,9 +28,13 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_name(config,mac,newname)
-	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
-	nodelist[mac] = newname
-	File.open('server/' + config['nodelist'],'w+') { |file| file.write(nodelist.to_yaml)}
-	puts "#{mac} renamed to #{newname}."
+module FlightHunter
+	module Server
+		class Dump
+			def dump_buffer(buffer)
+				File.write(buffer,'--- {}')
+        puts "#{buffer} emptied."
+      end
+    end
+  end
 end

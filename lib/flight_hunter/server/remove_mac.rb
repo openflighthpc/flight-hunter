@@ -28,8 +28,15 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_ip(ip,config)
-	config['ipaddr'] = ip
-	File.open('client/config.yaml','w+') { |file| file.write(config.to_yaml) }
-	puts "Target IP changd to #{ip}"
+module FlightHunter
+  module Server
+    class RemoveMac
+      def remove_mac(list_file,mac)
+      	list = YAML.load(File.read(list_file))
+      	list.delete(mac)
+      	File.write(list_file,list.to_yaml)
+      	puts "#{mac} deleted."
+      end
+    end
+  end
 end

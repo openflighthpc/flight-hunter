@@ -28,7 +28,14 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_port(config,newport)
-	config['port'] = newport
-	File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
+module FlightHunter
+  module Client
+    class ModifyPort
+      def modify_port(port,config)
+      	config['port'] = port
+      	File.open('client/config.yaml','w+') { |file| file.write(config.to_yaml) }
+      	puts "Port changed to #{port}"
+      end
+    end
+  end
 end

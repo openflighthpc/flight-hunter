@@ -30,119 +30,184 @@
 
 
 # ENTRY POINT FOR HUNTER SERVICE
+module FlightHunter
+  class Config
+    def self.root_dir
+      File.expand_path('..', __dir__)
+    end
+
+    def self.join_content(*a)
+      File.join(root_dir, 'var', 'flight-hunter', *a)
+    end
+
+    def self.join_client_content(*a)
+      join_content('client', *a)
+    end
+
+    def self.join_server_content(*a)
+      join_content('server', *a)
+    end
+
+    def self.data
+      {
+        port: 2000,
+        ipaddr: '10.10.0.1'
+      }     
+    end
+  end
+end
+
+$LOAD_PATH.unshift(File.join(FlightHunter::Config.root_dir, 'lib'))
+
+require 'flight_hunter/client/send'
+require 'flight_hunter/client/modify_ip'
+require 'flight_hunter/client/modify_port'
+require 'flight_hunter/server/hunt'
+require 'flight_hunter/server/list'
+require 'flight_hunter/server/manual'
+require 'flight_hunter/server/automatic'
+require 'flight_hunter/server/remove_mac'
+require 'flight_hunter/server/modify_port'
+require 'flight_hunter/server/modify_mac'
+require 'flight_hunter/server/modify_name'
+require 'flight_hunter/server/dump_buffer'
 
 require 'csv'
+require 'commander'
 require 'yaml'
 
-Dir["client/*.rb"].each {|file| require_relative file}
-Dir["server/*.rb"].each {|file| require_relative file}
-require_relative 'help.rb' 
+module FlightHunter
+  class CLI
+    extend Commander::Delegates
 
-client_config = YAML.load_file(__dir__+'/client/config.yaml')
-server_config = YAML.load_file(__dir__+'/server/config.yaml')
+    program :name, 'hunter'
+    program :version, '0.0.1'
+    program :description, 'MAC collection tool'
+    program :help_paging, false
 
-case ARGV[0]
-when "client"
-	case ARGV[1]
-	when "send"
-		if ARGV[2] == "--help"
-			help('client_send')
-		else
-			ipaddr = client_config['ipaddr']
-			port = client_config['port']
-			send_mac(ipaddr,port)
-		end
-	when "modify"
-		case ARGV[2]
-		when "ip"
-			modify_ip(ARGV[3],client_config)
-		when "port"
-			modify_port(ARGV[3],client_config)
-		when "--help"
-			help('client_modify')
-		end
-	when "--help"
-		help('client')
-	end
-when "server"
-	not_processed_file = 'server/' + server_config['not_processed_list']
-	nodelist_file = 'server/' + server_config['nodelist']
-	[nodelist_file,not_processed_file].each do |file|
-		if not File.file?(file)
-			puts "\nSpecified file \"#{file}\" doesn't exist. Creating..."
-			File.open(file,'w') {}
-			puts "Created YAML file named \"#{file}\"."
-		end
-	end	
-	not_processed = YAML.load(read_yaml(not_processed_file)) || {}
-	nodelist = YAML.load(read_yaml(nodelist_file)) || {}
+    buffer = Config.join_server_content('buffer.yaml')
+    parsed = Config.join_server_content('parsed.yaml')
 
-	case ARGV[1]
-	when "hunt"
-		if ARGV[-1] == "--help"
-			help('server_hunt')
-		else
-			port = server_config['port']
-			allow_existing = false
-			if ARGV[-1] == 'allow_existing'
-				allow_existing = true
-			end
-			hunt(port, not_processed_file, nodelist_file, allow_existing)
-		end
-	when "list"
-		case ARGV[2]
-		when "not_processed"
-			list_nodes(not_processed)
-		when "nodelist"
-			list_nodes(nodelist)
-		when "--help"
-			help('server_list')
-		end
 
-	when "parse"
-		case ARGV[2]
-		when "manual"
-			if ARGV[-1] == "--help"
-				help('server_parse_manual')
-			else
-				manual(server_config)
-			end
-		when "automatic"
-			if ARGV[-1] == "--help"
-				help('server_parse_automatic')
-			else
-				automatic(server_config,ARGV[3],ARGV[4],ARGV[5])
-			end
-		when "--help"
-			help('server_parse')
-		end
-	when "remove"
-		case ARGV[2]
-		when "mac"
-			remove_mac(server_config,ARGV[3],ARGV[4])
-		when "name"
-			remove_name(server_config,ARGV[3],ARGV[4])
-		when "--help"
-			help('server_remove')
-		end
-	when "modify"
-		case ARGV[2]
-		when "mac"
-			modify_mac(server_config,ARGV[3],ARGV[4])
-		when "name"
-			modify_name(server_config,ARGV[3],ARGV[4])
-		when "not_processed"
-			modify_not_processed(server_onfig, ARGV[3])
-		when "nodelist"
-			modify_nodelist(server_config,ARGV[3])
-		when "port"
-			modify_port(server_config,ARGV[3])
-		when "--help"
-			help('server_modify')
-		end
-	when "--help"
-		help('server')
-	end
-when "--help"
-	help('hunter')
+    [buffer, parsed].each do |file|
+      if not File.file?(file)
+        puts "\nSpecified file \"#{ file }\" doesn't exist. Creating..."
+        File.write(file,'')
+        puts "Created YAML file named \"#{ file }\"."
+      end
+    end
+
+    command 'send' do |c|
+      c.summary = 'Send MAC data to server.'
+      c.action do |args, _|
+        ipaddr = Config.data[:ipaddr]
+        port = Config.data[:port]
+        Client::Send.new.send_mac(ipaddr,port)
+      end
+    end
+
+    command 'modify-ip' do |c|
+      c.summary = 'Change IP to open a connection with.'
+      c.action do |args, _|
+        Client::ModifyIP.new.modify_ip(args[0],File.join(Config.root_dir,'etc','client-config.yaml'))
+      end
+    end
+
+    command 'modify-client-port' do |c|
+      c.summary = 'Change port to open a connection over.'
+      c.action do |args, _|
+        Client::ModifyPort.new.modify_port(args[0], File.join(Config.root_dir,'etc','client-config.yaml'))
+      end
+    end
+
+    command 'hunt' do |c|
+      c.summary = 'Listen for broadcasting clients'
+      c.action do |args, _|
+        port = Config.data[:port]
+        allow_existing = 
+          case args[0]
+          when 'allow_existing.'
+            true
+          else
+            false            
+          end
+        Server::Hunt.new.hunt(port, buffer, parsed, allow_existing)
+      end
+    end
+
+    command 'list-buffer' do |c|
+      c.summary = 'List the nodes in the buffer.'
+      c.action do |args, _|
+        Server::ListNodes.new.list_nodes(buffer)
+      end
+    end
+
+    command 'list-parsed' do |c|
+      c.summary = 'List the parsed nodes.'
+      c.action do |args, _|
+        Server::ListNodes.new.list_nodes(parsed)
+      end
+    end
+
+    command 'parse-manual' do |c|
+      c.summary = 'Manually process the node buffer.'
+      c.action do |args, _|
+        Server::ManualParse.new.manual(buffer,parsed)
+      end
+    end
+
+    command 'parse-automatic' do |c|
+      c.syntax = "#{ program(:name) } PREFIX LENGTH START"
+      c.summary = 'Automatically process the node buffer.'
+      c.action do |args, _|
+        prefix,length,start = args
+        Server::AutomaticParse.new.automatic(buffer,parsed,prefix,length,start)
+      end
+    end
+
+    command 'remove-mac' do |c|
+      c.syntax = "#{ program(:name) } MAC"
+      c.summary = 'Remove a node from either of the lists by MAC.'
+      c.action do |args, _|
+        mac = args
+        Server::RemoveMac.new.remove_mac(parsed,mac)
+      end
+    end
+
+    command 'modify-server-port' do |c|
+      c.syntax = "#{ program(:name) } PORT"
+      c.summary = 'Modify the port to listen over when hunting.'
+      c.action do |args, _|
+        port = args[0]
+        Server::ModifyPort.new.modify_port(File.join(Config.root_dir,'etc','server-config.yaml', port))
+      end
+    end
+
+    command 'modify-mac' do |c|
+      c.syntax = "#{ program(:name) } OLDMAC NEWMAC"
+      c.summary = 'Modify the MAC of a node in the parsed list.'
+      c.action do |args, _|
+        oldmac, newmac = args
+        Server::ModifyMac.new.modify_mac(parsed, oldmac, newmac)
+      end
+    end
+
+    command 'modify-name' do |c|
+      c.syntax = "#{program(:name)} OLDNAME NEWNAME"
+      c.summary = 'Modify the name of a node in the parsed list.'
+      c.action do |args, _|
+        oldname, newname = args
+        Server::ModifyName.new.modify_name(parsed, oldname, newname)
+      end
+    end
+
+    command 'dump-buffer' do |c|
+      c.summary = 'Wipe the contents of the node buffer.'
+      c.action do |args, _|
+        Server::DumpBuffer.new.dump_buffer(buffer)
+      end
+    end
+  end
 end
+
+FlightHunter::CLI.run! if $PROGRAM_NAME == __FILE__

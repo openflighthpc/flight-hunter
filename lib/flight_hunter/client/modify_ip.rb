@@ -27,18 +27,16 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
-require 'tty-markdown'
 
-def list_nodes(list)
-	if list.empty?
-		puts "The list is empty."
-	else
-		table = '| MAC address | Name |
-	|-------------|------|'
-
-		list.each do |mac, hname|
-			table = table+ "\n| #{mac} | #{hname} |"
-		end
-		puts TTY::Markdown.parse(table)
-	end
+module FlightHunter
+  module Client
+    class ModifyIP
+      def modify_ip(ip,config)
+      	imported_config = YAML.load_file(config)
+      	imported_config['ipaddr'] = ip
+      	File.write(config, imported_config.to_yaml)
+      	puts "Target IP changd to #{ip}"
+      end
+    end
+  end
 end

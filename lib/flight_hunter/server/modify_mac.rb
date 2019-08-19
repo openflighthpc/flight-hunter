@@ -28,8 +28,15 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def modify_port(port,config)
-	config['port'] = port
-	File.open('client/config.yaml','w+') { |file| file.write(config.to_yaml) }
-	puts "Port changed to #{port}"
+module FlightHunter
+  module Server
+    class ModifyMac
+      def modify_mac(list_file,oldmac,newmac)
+      	list = YAML.load(File.read(list_file))
+      	list[newmac] = list.delete(oldmac)
+      	File.write(list_file,list.to_yaml)
+      	puts "#{oldmac} renamed to #{newmac}."
+      end
+    end
+  end
 end

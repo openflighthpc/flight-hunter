@@ -1,3 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2019-present Alces Flight Ltd.
 #
@@ -24,11 +27,27 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
+require 'tty-markdown'
 
-def read_yaml(file_name)
-	file = File.open(file_name,'r')
-	file.sync = true
-	data = file.read
-	file.close
-	return data
+module FlightHunter
+	module Server
+		class ListNodes
+			def list_nodes(list_file)
+				list = YAML.load(File.read(list_file))
+				if list.nil? || list.empty?
+					puts "The list is empty."
+				else
+					table = <<~TABLE.chomp
+						| MAC address | Name |
+						|-------------|------|
+					TABLE
+
+					all = list.reduce(table) do |memo, (mac, hname)|
+						"#{memo}\n| #{mac} | #{hname} |"
+					end
+					puts TTY::Markdown.parse(all)
+				end
+			end
+		end
+	end
 end

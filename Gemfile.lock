@@ -1,7 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    commander (4.4.7)
+      highline (~> 2.0.0)
     equatable (0.6.1)
+    highline (2.0.2)
     kramdown (1.16.2)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
@@ -31,6 +34,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  commander
   macaddr
   tty-markdown
 

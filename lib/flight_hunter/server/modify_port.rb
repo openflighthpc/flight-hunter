@@ -28,29 +28,14 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def manual(config)
-	nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
-	not_processed_list = YAML.load(read_yaml('server/' + config['not_processed_list'])) || {}
-
-	not_processed_list.each do |mac,hname|
-		puts "Enter name for MAC \"#{mac}\": "
-		input = STDIN.gets.chomp
-		if nodelist.key?(mac) || nodelist.has_value?(input)
-			existing = []
-			if nodelist.key?(mac)			
-				existing.push([mac,nodelist[mac]])
-			end
-			if nodelist.has_value?(input)
-				existing.push([nodelist.key(input),input])
-			end
-			existing.uniq!
-			puts "Due to value conflicts, the following pre-existing node entries have been removed:"
-			existing.each { |element| puts "#{element[0]}: #{element[1]}"}
-			existing.each { |element| nodelist.delete(element[0])}
-		end
-		nodelist[mac] = input
-	end
-	File.open('server/' + config['nodelist'],'w+') {|file| file.write(nodelist.to_yaml)}
-	File.open('server/' + config['not_processed_list'],'w+')
-	puts "#{config['not_processed_list']} emptied; processed nodes written to #{config['nodelist']}."
+module FlightHunter
+  module Server
+    class ModifyPort
+      def modify_port(config,newport)
+      	imported_config = YAML.load_file(config)
+      	config['port'] = newport
+      	File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
+      end
+    end
+  end
 end

@@ -28,13 +28,34 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def remove_mac(config,list,mac)
-	if list == "not_processed"
-		nodelist = YAML.load(read_yaml('server/' + config['not_processed_list'])) || {}
-	else
-		nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
+module FlightHunter
+	module Server
+		class ManualParse
+			def manual(buffer_file,parsed_file)
+				parsed = YAML.load(File.read(parsed_file))
+				buffer = YAML.load(File.read(buffer_file))
+				buffer.each do |mac,hname|
+					puts "Enter name for MAC \"#{mac}\": "
+					input = STDIN.gets.chomp
+					if parsed.key?(mac) || parsed.has_value?(input)
+						existing = []
+						if parsed.key?(mac)			
+							existing.push([mac,parsed[mac]])
+						end
+						if parsed.has_value?(input)
+							existing.push([parsed.key(input),input])
+						end
+						existing.uniq!
+						puts "Due to value conflicts, the following pre-existing node entries have been removed:"
+						existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+						existing.each { |element| parsed.delete(element[0])}
+					end
+					parsed[mac] = input
+				end
+				File.open(parsed_file,'w+') {|file| file.write(parsed.to_yaml)}
+				File.write(buffer_file,'---')
+				puts "#{buffer_file} emptied; processed nodes written to #{parsed_file}."
+			end
+		end
 	end
-	nodelist.delete(mac)
-	File.open('server/' + config['not_processed_list'],'w+') { |file| file.write(nodelist.to_yaml)}
-	puts "#{mac} deleted."
 end
