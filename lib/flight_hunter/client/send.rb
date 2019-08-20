@@ -41,7 +41,7 @@ module FlightHunter
 				myhostname = Socket.gethostname
 				begin
 					server = TCPSocket.open(ipaddr,port)
-					server.puts(myhostname + ' ' + mac)
+					server.puts("#{myhostname} #{mac}")
 					server.close
 					puts "Successful transmission."
 				rescue Errno::ECONNREFUSED => e

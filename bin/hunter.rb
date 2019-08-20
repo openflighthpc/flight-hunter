@@ -82,7 +82,7 @@ module FlightHunter
 
     program :name, 'hunter'
     program :version, '0.0.1'
-    program :description, 'MAC collection tool'
+    program :description, 'MAC collection tool' 
     program :help_paging, false
 
     buffer = Config.join_server_content('buffer.yaml')
