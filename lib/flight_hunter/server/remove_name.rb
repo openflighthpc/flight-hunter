@@ -28,13 +28,21 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-def remove_name(config,list,hname)
-	if list == "not_processed"
-		nodelist = YAML.load(read_yaml('server/' + config['not_processed_list'])) || {}
-	else
-		nodelist = YAML.load(read_yaml('server/' + config['nodelist'])) || {}
-	end
-	nodelist.delete(nodelist.key(hname))
-	File.open('server/' + config['not_processed_list'],'w+') { |file| file.write(nodelist.to_yaml)}
-	puts "#{hname} deleted."
+module FlightHunter
+  module Server
+    class RemoveName
+      def remove_name(list_file,hostname)
+        list = YAML.load(File.read(list_file))
+        to_remove = ""
+        list.each do |mac,vals|
+          if hostname[0] == vals["hostname"]
+            to_remove = mac
+          end
+        end
+        list.delete(to_remove)
+        File.write(list_file,list.to_yaml)
+        puts "#{hostname} deleted from #{list_file}."
+      end
+    end
+  end
 end

@@ -32,25 +32,30 @@ module FlightHunter
 	module Server
 		class ManualParse
 			def manual(buffer_file,parsed_file)
-				parsed = YAML.load(File.read(parsed_file))
-				buffer = YAML.load(File.read(buffer_file))
-				buffer.each do |mac,hname|
+				parsed = YAML.load(File.read(parsed_file)) || {}
+				buffer = YAML.load(File.read(buffer_file)) || {}
+				existing = []
+				hostsearch = SearchHostname.new
+				buffer.each do |mac,vals|
 					puts "Enter name for MAC \"#{mac}\": "
 					input = STDIN.gets.chomp
-					if parsed.key?(mac) || parsed.has_value?(input)
-						existing = []
+					if parsed.key?(mac) || hostsearch.search(parsed,input)						
 						if parsed.key?(mac)			
 							existing.push([mac,parsed[mac]])
 						end
-						if parsed.has_value?(input)
-							existing.push([parsed.key(input),input])
+						if hostsearch.search(parsed,input)
+							parsed.each do |key,value|
+								if value["hostname"] == input
+									existing.push([key,input])
+								end
+							end
 						end
 						existing.uniq!
 						puts "Due to value conflicts, the following pre-existing node entries have been removed:"
 						existing.each { |element| puts "#{element[0]}: #{element[1]}"}
 						existing.each { |element| parsed.delete(element[0])}
 					end
-					parsed[mac] = input
+					parsed[mac] = {"hostname" => input, "payload" => vals["payload"]}.compact
 				end
 				File.open(parsed_file,'w+') {|file| file.write(parsed.to_yaml)}
 				File.write(buffer_file,'---')

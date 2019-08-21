@@ -28,20 +28,22 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-require 'bundler/setup'
-Bundler.setup
 require 'macaddr'
 require 'socket'
 
 module FlightHunter
 	module Client
 		class Send
-			def send_mac(ipaddr,port)
+			def send_mac(ipaddr,port,filename=nil)
 				mac = Mac.addr
 				myhostname = Socket.gethostname
+				if filename != nil
+					fileContent = File.read(filename)
+				end
+				payload = [mac,myhostname,fileContent].pack('Z*Z*Z*')
 				begin
 					server = TCPSocket.open(ipaddr,port)
-					server.puts("#{myhostname} #{mac}")
+					server.write(payload)
 					server.close
 					puts "Successful transmission."
 				rescue Errno::ECONNREFUSED => e

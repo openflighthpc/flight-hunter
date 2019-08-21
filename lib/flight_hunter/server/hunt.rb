@@ -30,54 +30,62 @@
 
 module FlightHunter
 	module Server
+		class SearchHostname
+			def search(list,val)
+				list.each do |key,value|
+					if value["hostname"] == val
+						return true
+					end
+				end
+				false
+			end
+		end
+
 		class Hunt
 			def hunt(port, buffer_file, parsed_file,allow_existing)
 				buffer = YAML.load(File.read(buffer_file)) || {}
 				parsed = YAML.load(File.read(parsed_file)) || {}
-
+				search_hostname = SearchHostname.new
 				server = TCPServer.open(port)
 				Thread.new do
 					loop do
 						client = server.accept
-						while line = client.gets
-							host,mac = line.split(' ')
-							if !allow_existing
-								if buffer.key?(mac)
-									puts "This MAC address already exists in the unprocessed list. Ignoring..."
-								elsif buffer.has_value?(host)
-									puts "This hostname already exists in the unprocessed list. Ignoring..."
-								elsif parsed.key?(mac)
-									puts "This MAC address already exists in the processed list. Ignoring..."
-								elsif parsed.has_value?(host)
-									puts "This hostname already exists in the processed list. Ignoring..."
-								else
-									buffer[mac] = host
-									puts "Found node. MAC: #{mac}, name: #{host}"
-								end
+						mac,host,fileContent = client.read.unpack("Z*Z*Z*")
+						vals = {"hostname"=> host,"payload" => fileContent}.reject { |k,v| v==''}
+						if !allow_existing
+							if buffer.key?(mac)
+								puts "This MAC address already exists in the unprocessed list. Ignoring..."
+							elsif search_hostname.search(buffer,host)
+								puts "This hostname already exists in the unprocessed list. Ignoring..."
+							elsif parsed.key?(mac)
+								puts "This MAC address already exists in the processed list. Ignoring..."
+							elsif search_hostname.search(parsed,host)
+								puts "This hostname already exists in the processed list. Ignoring..."
 							else
-								if buffer.key?(mac)
-									buffer[mac] = host
-									puts "This MAC already existed in the unprocessed list, but its name has been overwritten to the new one."
-								elsif buffer.has_value?(host)
-									buffer[mac] = host # Add anyway name not guaranteed or required to be unique during staging
-									puts "Found node. MAC: #{mac}, name: #{host}"
-									puts "Node added, but please note that the name of this node already exists in the unprocessed "+
-									"list under #{buffer.key(host)}. It will be renamed during parsing anyway,"+
-									"but is useful to keep in mind."						
-								elsif parsed.key?(mac)
-									# add, print warning
-									buffer[mac] = host
-									puts "Node added, but please note that this MAC address already exists in the parsed parsed."
-								elsif parsed.has_value?(host)
-									# add, print warning
-									buffer[mac] = host
-									puts "Node added, but please note that a node with this hostname already exists in the parsed parsed."
-								else
-									buffer[mac] = host
-									puts "Found node. MAC: #{mac}, name: #{host}"
-								end
+								buffer[mac] = vals
+								puts "Found node. MAC: #{mac}, name: #{host}"
 							end
-						end
+						else
+							if buffer.key?(mac)
+								buffer[mac] = vals
+								puts "This MAC already existed in the unprocessed list, but its name has been overwritten to the new one."
+							elsif search_hostname.search(buffer,host)
+								buffer[mac] = vals
+								puts "Found node. MAC: #{mac}, name: #{host}"
+								puts "Node added, but please note that the name of this node already exists in the unprocessed "+
+								"list under #{buffer.key(host)}. It will be renamed during parsing anyway,"+
+								"but is useful to keep in mind."						
+							elsif parsed.key?(mac)
+								buffer[mac] = vals
+								puts "Node added, but please note that this MAC address already exists in the parsed parsed."
+							elsif search_hostname.search(parsed,host)
+								buffer[mac] = vals
+								puts "Node added, but please note that a node with this hostname already exists in the parsed parsed."
+							else
+								buffer[mac] = vals
+								puts "Found node. MAC: #{mac}, name: #{host}"
+							end
+						end						
 					end
 					client.close
 				end
@@ -89,6 +97,7 @@ module FlightHunter
 					exit 130
 				end
 			end
-		end
+			
+		end		
   end
 end

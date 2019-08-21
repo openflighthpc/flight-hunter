@@ -67,6 +67,7 @@ require 'flight_hunter/server/list'
 require 'flight_hunter/server/manual'
 require 'flight_hunter/server/automatic'
 require 'flight_hunter/server/remove_mac'
+require 'flight_hunter/server/remove_name'
 require 'flight_hunter/server/modify_port'
 require 'flight_hunter/server/modify_mac'
 require 'flight_hunter/server/modify_name'
@@ -99,10 +100,12 @@ module FlightHunter
 
     command 'send' do |c|
       c.summary = 'Send MAC data to server.'
-      c.action do |args, _|
+      c.option '--file FILE', 'Specify a file to send'
+      c.action do |args, options|
         ipaddr = Config.data[:ipaddr]
         port = Config.data[:port]
-        Client::Send.new.send_mac(ipaddr,port)
+        filepath = options.file if options.file
+        Client::Send.new.send_mac(ipaddr,port,filepath)
       end
     end
 
@@ -167,10 +170,19 @@ module FlightHunter
 
     command 'remove-mac' do |c|
       c.syntax = "#{ program(:name) } MAC"
-      c.summary = 'Remove a node from either of the lists by MAC.'
+      c.summary = 'Remove a node from the parsed list by MAC.'
       c.action do |args, _|
         mac = args
         Server::RemoveMac.new.remove_mac(parsed,mac)
+      end
+    end
+
+    command 'remove-name' do |c|
+      c.syntax = "#{ program(:name) } NAME"
+      c.summary = 'Remove an node from the parsed list by NAME.'
+      c.action do |args, _|
+        hostname = args
+        Server::RemoveName.new.remove_name(parsed,hostname)
       end
     end
 

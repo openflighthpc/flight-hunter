@@ -33,7 +33,14 @@ module FlightHunter
     class ModifyName
       def modify_name(list_file,oldname,newname)
       	list = YAML.load(File.read(list_file))
-      	list[list.key(oldname)] = newname
+        to_change = ""
+        list.each do |mac,vals|
+          if oldname == vals["hostname"]
+            to_change = mac
+          end
+        end
+
+      	list[to_change]["hostname"] = newname
       	File.write(list_file,list.to_yaml)
       	puts "#{oldname} MAC changed to #{newname}"
       end

@@ -33,12 +33,13 @@ module FlightHunter
 		class AutomaticParse
 			def automatic(buffer_file,parsed_file,prefix,length,start)	
 				parsed = YAML.load(File.read(parsed_file)) || {}
-				buffer = YAML.load(File.read(buffer_file)) || {}
+				buffer = YAML.load(File.read(buffer_file)) || {}				
+				hostsearch = SearchHostname.new
 				length = length.to_i
 				existing = []
 				to_add = {}
 				start_val = start.dup
-				buffer.each do |mac,hname|
+				buffer.each do |mac,vals|
 					if start_val.length < length
 						start_val.prepend("0"* (length-start_val.length))
 					elsif start_val.length > length
@@ -46,22 +47,27 @@ module FlightHunter
 					end
 
 					newname = prefix+start_val
-					if parsed.key?(mac) || parsed.has_value?(newname)			
+					if parsed.key?(mac) || hostsearch.search(parsed,newname)			
 						if parsed.key?(mac)			
 							existing.push([mac,parsed[mac]])
 						end
-						if parsed.has_value?(hname)
-							existing.push([parsed.key(newname),newname])
+						if hostsearch.search(parsed,newname)
+							parsed.each do |key,value|
+								if value["hostname"] == newname
+									existing.push([key,newname])
+								end
+							end
 						end
 						existing.uniq!
 						existing.each { |element| parsed.delete(element[0])}	
 					end
-					to_add[mac] = newname
+					to_add[mac] = {"hostname" => newname, "payload" => vals["payload"]}.compact
 					start_val.succ!
 				end
 				if !existing.empty?
 					puts "Due to value conflicts, the following pre-existing node entries have been removed:"
 					existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+					existing.each { |element| parsed.delete(element[0])}
 				end
 				to_add.each {|node| parsed[node[0]] = node[1]}
 				File.write(parsed_file,parsed.to_yaml)

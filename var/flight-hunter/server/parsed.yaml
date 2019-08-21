@@ -1,1 +1,5 @@
 ---
+mac2:
+  hostname: node002
+mac3:
+  hostname: node001
