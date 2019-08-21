@@ -99,8 +99,8 @@ module FlightHunter
     end
 
     command 'send' do |c|
-      c.summary = 'Send MAC data to server.'
-      c.option '--file FILE', 'Specify a file to send'
+      c.summary = 'Send MAC/hostname plus optional payload to server.'
+      c.option '--file FILE', 'Specify a filepath to send.'
       c.action do |args, options|
         ipaddr = Config.data[:ipaddr]
         port = Config.data[:port]
