@@ -27,6 +27,7 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
+require 'tty-markdown'
 
 module FlightHunter
 	module Server
@@ -38,9 +39,15 @@ module FlightHunter
 				else
 					list.each do |mac,vals|
 						if vals["hostname"] == name
-							puts "MAC address: #{mac}\nName: #{vals["hostname"]}"
+							table = <<~TABLE.chomp
+								| MAC address | Name |
+								|-------------|------|
+								| #{mac} | #{vals["hostname"]} |
+							TABLE
+
+							puts TTY::Markdown.parse(table)
 							if vals.key?("payload")
-								puts "Payload data:\n#{vals["payload"]}"
+								puts vals["payload"]
 							else
 								puts "#{name} has no payload associated with it."
 							end
