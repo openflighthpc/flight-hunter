@@ -72,6 +72,7 @@ require 'flight_hunter/server/modify_port'
 require 'flight_hunter/server/modify_mac'
 require 'flight_hunter/server/modify_name'
 require 'flight_hunter/server/dump_buffer'
+require 'flight_hunter/server/list_node'
 
 require 'csv'
 require 'commander'
@@ -149,6 +150,14 @@ module FlightHunter
       c.summary = 'List the parsed nodes.'
       c.action do |args, _|
         Server::ListNodes.new.list_nodes(parsed)
+      end
+    end
+    command 'list-node' do |c|
+      c.syntax = "#{ program(:name) } NAME"
+      c.summary = 'List the details of a particular node.'
+      c.action do |args, _|
+        name = args[0]
+        Server::ListNode.new.list_node(parsed, name)
       end
     end
 

@@ -31,21 +31,24 @@ require 'tty-markdown'
 
 module FlightHunter
 	module Server
-		class ListNodes
-			def list_nodes(list_file)
-				list = YAML.load(File.read(list_file)) || {}
+		class ListNode
+			def list_node(parsed, name)
+				list = YAML.load(File.read(parsed)) || {}
 				if list.nil? || list.empty?
 					puts "The list is empty."
 				else
-					table = <<~TABLE.chomp
-						| MAC address | Name | Has payload? |
-						|-------------|------|--------------|
-					TABLE
-
-					all = list.reduce(table) do |memo, (mac,vals)|
-						"#{memo}\n| #{mac} | #{list[mac]["hostname"]} | #{list[mac].length > 1} |"
+					list.each do |mac,vals|
+						if vals["hostname"] == name
+							puts "MAC address: #{mac}\nName: #{vals["hostname"]}"
+							if vals.key?("payload")
+								puts "Payload data:\n#{vals["payload"]}"
+							else
+								puts "#{name} has no payload associated with it."
+							end
+							return
+						end
 					end
-					puts TTY::Markdown.parse(all)
+					puts "Could not find a node with name #{name}."
 				end
 			end
 		end
