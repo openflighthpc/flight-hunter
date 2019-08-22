@@ -27,7 +27,6 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
-require 'tty-markdown'
 
 module FlightHunter
 	module Server
