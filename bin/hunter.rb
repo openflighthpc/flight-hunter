@@ -72,7 +72,7 @@ require 'flight_hunter/server/modify_port'
 require 'flight_hunter/server/modify_mac'
 require 'flight_hunter/server/modify_name'
 require 'flight_hunter/server/dump_buffer'
-require 'flight_hunter/server/list_node'
+require 'flight_hunter/server/show_node'
 
 require 'csv'
 require 'commander'
@@ -130,7 +130,7 @@ module FlightHunter
         port = Config.data[:port]
         allow_existing = 
           case args[0]
-          when 'allow_existing.'
+          when 'allow-existing'
             true
           else
             false            
@@ -152,12 +152,12 @@ module FlightHunter
         Server::ListNodes.new.list_nodes(parsed)
       end
     end
-    command 'list-node' do |c|
+    command 'show-node' do |c|
       c.syntax = "#{ program(:name) } NAME"
-      c.summary = 'List the details of a particular node.'
+      c.summary = 'Show the details of a particular node.'
       c.action do |args, _|
         name = args[0]
-        Server::ListNode.new.list_node(parsed, name)
+        Server::ShowNode.new.show_node(parsed, name)
       end
     end
 

@@ -8,84 +8,49 @@ Hunter facilitates a communication between a two machines,
 allowing one machine running the client script to send it's hostname
 and MAC address to another machine running the server script.
 
-PLEASE NOTE: The following instructions for configuration/operation are out of date. Please wait until they have been rewritten for the new command line interfacing.
-
 ## Installation
 
 For installation instructions see INSTALL.md
 
 ## Configuration
 
-The utility has multiple commands for both client and server for configuration.
+Both the client and server utilities are built as an all-in-one package with Flight Hunter. The only configuration that needs to be done is setting the IP and port on the client and server machines. If using the pre-installed image, this can be done by changing the `hunter_ip` environment variable in your PXE config file. 
 
-### Client
+## Operation
 
-`ruby hunter.rb client modify ip $IP`
+The commands' syntax is as follows:
+```
+dump-buffer
+help
+hunt [allow-existing]
+list-buffer
+list-parsed
+modify-client-port PORT
+modify-ip IP
+modify-mac CURRENT_MAC NEW_MAC
+modify-name CURRENT_NAME NEW_NAME
+modify-server-port PORT
+parse-automatic PREFIX LENGTH START_INT
+parse-manual
+remove-mac MAC
+remove-name NAME
+send [--file FILE_PATH]
+show-node NODE_NAME
+```
 
-This command allows the user to modify the IP address specified in the client side `config.yaml` file. Simply replace `$IP` with the desired IP address.
+The `hunt` command starts the server script and begins listening for clients executing the send script. When a client is found, it will be saved to the buffer list file stored at `var/flight-hunter/server/buffer.yaml`. The buffer can then be processed with either `parse-manual` or `parse-automatic`. The optional argument `[allow-existing]` lets the `hunt` script accept new clients with names that already exist in either the buffer or parsed nodelists.
 
-`ruby hunter.rb client modify port $PORT`
+The `send` command tells the `client` script to connect to a currently running `server` script, using the IP and port specified in the client's `config.yaml` file as the target. If the target exists, a connection will be attempted. If the server refuses the connection, an error will be thrown. The optional argument `[--file FILE_PATH]` allows a text-based payload to be attached to the TCP packet. Use an explicit file path when specifying the payload path.
 
-Similarly, this command does the same but with the port specified in `config.yaml`.
+The `modify-ip` and `modify-[server,client]-port` are each used to change parts of the client/server config files. They change the IP and ports communicated over by the client and server scripts.
 
+The `list-buffer` and `list-parsed` commands output a markdown formatted table of all nodes in the buffer and parsed lists, respectively.
 
-### Server
+The `show-node` command will show the markdown formatted entry of one particular node using its name as the key, as well as printing the payload associated with it (if there is one).
 
-The server side script provides similar commands to modify its `config.yaml` file from the command line:
+The `parse-manual` command will process the buffer list in order of reception, and prompt the user to input a name for each node to be saved as in the parsed node list. Once all nodes have been named, the list will be written and the buffer emptied.
 
-`ruby hunter.rb server modify not_processed $FILE` - change filename of file to store unparsed nodes in.
-
-`ruby hunter.rb server modify nodelist $FILE` - changed filename of file to store parsed nodes in.
-
-`ruby hunter.rb server modify port $PORT` - change port to listen over for node communication.
-
-
-
-## Operation 
-
-Hunter operates on a tree-like structure of arguments. They are executed with the following format: 
-
-`ruby hunter.rb [argument1, argument2, ... , argumentN]`
-
-Branches and leaves will be displayed as subheadings below.
-
-### client
-The initial argument of `client` filters into the commands available to the client-side script part of Hunter.
-
-#### send
-
-The second argument `send` tells the `client` script to connect to a `server` script, using the IP and port specified in the client's `config.yaml` file as the target. If the target exists, a connection will be attempted. If the server refuses the connection, an error will be thrown.
-
-#### modify
-The second argument `modify` allows the user to change an element of the `config.yaml` file from the command line, rather than editing the file manually.
-
-##### ip
-The third argument `ip` modifies the target server IP to whatever is written after the `ip` argument. For example:
-`ruby hunter.rb client modify ip 192.168.0.1`
-
-##### port
-The third argument `port` modifies the port to communicate over. For example:
-
-`ruby hunter.rb client modify ip 192.168.0.1`
-
-### server
-The initial argument `server` filters into the commands available to the server-side script part of Hunter.
-
-#### hunt
-The second argument `hunt` will open a continuous TCP connection over the port specified in the server-side `config.yaml`, listening for broadcasts from client nodes on the network. When a node is accommodated, it's MAC address and hostname are saved into a `.yaml` file containing all unprocessed nodes in {MAC: Hostname} key,value pairs. The file is specified in the server-side `config.yaml`. The command takes a single switch argument, which, when `true`, does not accept MAC addresses that already exist in either the unprocessed or processed list. If the user wishes pre-existing MACs/hostnames to be parsed, `allow_existing` must be given as an argument to `hunt`.
-When the `allow_existing` argument is passed, the `hunt` command will add new nodes with 'taken' values, but will give a warning.
-
-#### list
-The second argument `list` will print out a 2-column table of all nodes in one of the two lists, specified by a third argument (`unprocessed` or `nodelist`).
-
-#### parse
-The second argument `parse` allows the user to process all nodes in the unprocessed list, appending them to the processed list.
-In both `manual` and `automatic` modes of parsing, conflicts are handled as such: if either the MAC or name of the newly added node already exists in the parsed nodelist, the old MAC/name pair will be removed and the new one added.
-##### manual
-The third argument `manual` will step-through the unprocessed list one-by-one, each time prompting the user for a name.
-
-##### automatic
-The third argument `automatic` provides a way to speedily process the unprocessed nodes. It takes three subsequent arguments: `prefix`, `length`, and `start`. The `prefix` argument defines a string of characters that the all nodes' names will begin with. The `length` argument defines how long the integer suffix will be, and the `start` argument defines where the integer suffix will start counting from. For example: the command `ruby hunter.rb server parse automatic node 3 001` on a list of three arbitrary nodes will produce the nodelist:
+The `parse-automatic` command will parse each node in the buffer iteratively. It takes three subsequent arguments: `PREFIX`, `LENGTH`, and `START`. The `PREFIX` argument defines a string of characters that the all nodes' names will begin with. The `LENGTH` argument defines how long the integer suffix will be, and the `START` argument defines where the integer suffix will start counting from. For example: the command `bin/hunter.rb parse-automatic node 3 001` on a list of three arbitrary nodes will produce the nodelist:
 
 ```
 7E-8F-89-4F-47-9F: node001
@@ -93,41 +58,12 @@ The third argument `automatic` provides a way to speedily process the unprocesse
 59-D2-AE-26-D6-BA: node003
 ```
 
-#### remove
-The second argument `remove` provides a way to remove a node from the processed node list. It takes either a MAC address or a name as a primary key.
+The `modify-mac` and `modify-name` commands change either the MAC or name of a node in the parsed list. 
 
-##### mac
-Parsing `mac` to the `remove` command indicates that the proceeding value will be the MAC address of the node you wish to remove from the nodelist.
+The `remove-mac` and `remove-name` commands remove a node from the parsed list using either a MAC address or name as removal key, respectively.
 
-##### name
-Similarly, parsing `name` indicates that the proceeding value will be the name of the node you wish to remove from the nodelist.
+The `dump-buffer` command simply empties the node buffer.
 
-#### modify
-
-Similar to the `client modify` command, the server-side `modify` argument provides a way to modify the server's `config.yaml` file. However, it also holds bonus arguments for modifying pre-existing nodes in either the unprocessed or processed nodelist.
-
-##### not_processed
-The third argument `not_processed` modifies the path to the `.yaml` file that stores unprocessed nodes, relative to the `server` root directory.
-
-##### nodelist
-The argument `nodelist` modifies the path to the `.yaml` file that stores processed nodes, relative to the `server` root directory.
-
-##### port
-The `port` argument modifies the port to listen for communications over.
-
-##### mac
-The `mac` argument allows for the saved name of a node to be modified, using the associated MAC address as the primary key. The list to edit must also be specified. For example:
-
-`ruby hunter.rb server modify mac not_processed 7E-8F-89-4F-47-9F newname1`
-
-will change the name of `7E-8F-89-4F-47-9F` to `newname1`, provided it exists in the `not_processed` file.
-
-##### name
-The `name` argument does the inverse of the `mac` argument, using the node's name as a primary key to modify the saved MAC address. For example:
-
-`ruby hunter.rb server modify name not_processed node001 7E-8F-89-4F-47-9F`
-
-will changed the MAC address of the node named `node001` to `7E-8F-89-4F-47-9F`, provided it exists in the not_processed file.
 
 # Contributing
 
@@ -147,9 +83,9 @@ If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 
 ![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
 
-Hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+Flight Hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
-Based on a work at [https://github.com/openflighthpc/hunter](https://github.com/openflighthpc/hunter).
+Based on a work at [https://github.com/openflighthpc/flight-hunter](https://github.com/openflighthpc/flight-hunter).
 
 This content and the accompanying materials are made available available
 under the terms of the Creative Commons Attribution-ShareAlike 4.0
@@ -158,12 +94,11 @@ or alternative license terms made available by Alces Flight Ltd -
 please direct inquiries about licensing to
 [licensing@alces-flight.com](mailto:licensing@alces-flight.com).
 
-Hunter is distributed in the hope that it will be useful, but
+Flight Hunter is distributed in the hope that it will be useful, but
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
 IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF
 TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR
 PURPOSE. See the [Creative Commons Attribution-ShareAlike 4.0
 International License](https://creativecommons.org/licenses/by-sa/4.0/) for more
 details.
-
 

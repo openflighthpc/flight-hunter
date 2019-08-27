@@ -72,15 +72,14 @@ module FlightHunter
 							elsif search_hostname.search(buffer,host)
 								buffer[mac] = vals
 								puts "Found node. MAC: #{mac}, name: #{host}"
-								puts "Node added, but please note that the name of this node already exists in the unprocessed "+
-								"list under #{buffer.key(host)}. It will be renamed during parsing anyway,"+
-								"but is useful to keep in mind."						
+								puts "Node added, but please note that the name of this node already exists in the unprocessed
+								list. It will be renamed during parsing anyway, but is useful to keep in mind."						
 							elsif parsed.key?(mac)
 								buffer[mac] = vals
 								puts "Node added, but please note that this MAC address already exists in the parsed parsed."
 							elsif search_hostname.search(parsed,host)
 								buffer[mac] = vals
-								puts "Node added, but please note that a node with this hostname already exists in the parsed parsed."
+								puts "Node added, but please note that a node with this hostname already exists in the parsed list."
 							else
 								buffer[mac] = vals
 								puts "Found node. MAC: #{mac}, name: #{host}"

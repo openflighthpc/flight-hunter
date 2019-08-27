@@ -31,8 +31,8 @@ require 'tty-markdown'
 
 module FlightHunter
 	module Server
-		class ListNode
-			def list_node(parsed, name)
+		class ShowNode
+			def show_node(parsed, name)
 				list = YAML.load(File.read(parsed)) || {}
 				if list.nil? || list.empty?
 					puts "The list is empty."
