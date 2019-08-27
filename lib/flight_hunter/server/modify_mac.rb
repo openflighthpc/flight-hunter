@@ -28,22 +28,15 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-require 'macaddr'
-require 'socket'
-require 'yaml'
-
-config = YAML.load_file('config.yaml')
-ipaddr = config['ipaddr']
-port = config['port']
-mac = Mac.addr
-myhostname = Socket.gethostname
-begin
-	server = TCPSocket.open(ipaddr, port)
-	server.puts(myhostname + ' ' + mac)
-	server.close
-rescue Errno::ECONNREFUSED => e
-	puts "The server is down."
-	puts e.message
+module FlightHunter
+  module Server
+    class ModifyMac
+      def modify_mac(list_file,oldmac,newmac)
+      	list = YAML.load(File.read(list_file))
+      	list[newmac] = list.delete(oldmac)
+      	File.write(list_file,list.to_yaml)
+      	puts "#{oldmac} renamed to #{newmac}."
+      end
+    end
+  end
 end
-
-# Potentially keep trying until successfully reaching server.

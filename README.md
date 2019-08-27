@@ -14,74 +14,55 @@ For installation instructions see INSTALL.md
 
 ## Configuration
 
-Configuration for each script is handled by their respective `config.yaml`
-files. The client configuration requires a server hostname and port
-to communicate over, while the server configuration requires the# Hunter
-
-A tool for tracking MAC addresses of nodes in a cluster.
-
-## Overview
-
-Hunter facilitates a communication between a two machines,
-allowing one machine running the client script to send it's hostname
-and MAC address to another machine running the server script.
-
-## Installation
-
-For installation instructions see INSTALL.md
-
-## Configuration
-
-Configuration for each script is handled by their respective `config.yaml`
-files. The client configuration requires a server hostname and port
-to communicate over, while the server configuration requires the
-names of the YAML files to store processed/unprocessed nodes in, plus 
-the port to listen over.
+Both the client and server utilities are built as an all-in-one package with Flight Hunter. The only configuration that needs to be done is setting the IP and port on the client and server machines. If using the pre-installed image, this can be done by changing the `hunter_ip` environment variable in your PXE config file. 
 
 ## Operation
 
-Once the required configuration is complete, place the client folder on
-all nodes to be recorded, and the server folder on the machine that will
-be recording nodes.
-
-### Server
-The script is executed with `ruby server.rb`, but it has various options and arguments that must be specified at the command line.
-
-The `-f. --find` option has the script listen over the port specified in `config.yaml`, recording all incoming hosts to the `.yaml` file designated by `not_processed_list` in `config.yaml`.
-
-The `-m, --manual` option lets the user process the nodes saved to `not_processed_list` manually. For each node in the list, the user will be prompted to give it a name. Once all nodes in the list have been processed, they will be written to `nodelist`, `not_processed_list` will be formatted, and the script will terminate.
-
-The `-a, --automatic $PREFIX,$LENGTH,$START` option lets the user process the nodes automatically, with a few required arguments. The `$PREFIX` argument requires a string to be used for the beginning of all nodes being processed. The `$LENGTH` argument requires an integer that specifies how many digits the integer counter at the end of the node names will be. The `$START` argument requires an integer of length `$LENGTH` from which to start counting.
-For example, the command `ruby server.rb -a node 3 001` for 50 nodes will result in a `nodelist` that resembles the following:
+The commands' syntax is as follows:
 ```
----
-examplemac1: node001
-examplemac2: node002
-.
-.
-examplemac50: node050
----
+dump-buffer
+help
+hunt [allow-existing]
+list-buffer
+list-parsed
+modify-client-port PORT
+modify-ip IP
+modify-mac CURRENT_MAC NEW_MAC
+modify-name CURRENT_NAME NEW_NAME
+modify-server-port PORT
+parse-automatic PREFIX LENGTH START_INT
+parse-manual
+remove-mac MAC
+remove-name NAME
+send [--file FILE_PATH]
+show-node NODE_NAME
 ```
 
-The `-l, --list` option will print a list of all the nodes saved in `nodelist` to the command line, in the format:
+The `hunt` command starts the server script and begins listening for clients executing the send script. When a client is found, it will be saved to the buffer list file stored at `var/flight-hunter/server/buffer.yaml`. The buffer can then be processed with either `parse-manual` or `parse-automatic`. The optional argument `[allow-existing]` lets the `hunt` script accept new clients with names that already exist in either the buffer or parsed nodelists.
+
+The `send` command tells the `client` script to connect to a currently running `server` script, using the IP and port specified in the client's `config.yaml` file as the target. If the target exists, a connection will be attempted. If the server refuses the connection, an error will be thrown. The optional argument `[--file FILE_PATH]` allows a text-based payload to be attached to the TCP packet. Use an explicit file path when specifying the payload path.
+
+The `modify-ip` and `modify-[server,client]-port` are each used to change parts of the client/server config files. They change the IP and ports communicated over by the client and server scripts.
+
+The `list-buffer` and `list-parsed` commands output a markdown formatted table of all nodes in the buffer and parsed lists, respectively.
+
+The `show-node` command will show the markdown formatted entry of one particular node using its name as the key, as well as printing the payload associated with it (if there is one).
+
+The `parse-manual` command will process the buffer list in order of reception, and prompt the user to input a name for each node to be saved as in the parsed node list. Once all nodes have been named, the list will be written and the buffer emptied.
+
+The `parse-automatic` command will parse each node in the buffer iteratively. It takes three subsequent arguments: `PREFIX`, `LENGTH`, and `START`. The `PREFIX` argument defines a string of characters that the all nodes' names will begin with. The `LENGTH` argument defines how long the integer suffix will be, and the `START` argument defines where the integer suffix will start counting from. For example: the command `bin/hunter.rb parse-automatic node 3 001` on a list of three arbitrary nodes will produce the nodelist:
+
 ```
-MAC address   Name
-------------------------
-examplemac1: node001
-examplemac2: node002
-.
-.
-examplemac50: node050
+7E-8F-89-4F-47-9F: node001
+0E-CC-B1-F2-23-DD: node002
+59-D2-AE-26-D6-BA: node003
 ```
 
-The `-r, --remove MAC` allows the user to remove a MAC: name (key,value) pairing from `nodelist`. The required argument `$MAC` should be a string containing the name of the MAC you would like to remove from the list (if you don't know the MAC you want to remove, run `-l` first).
+The `modify-mac` and `modify-name` commands change either the MAC or name of a node in the parsed list. 
 
-The `-e, --edit MAC,NAME` option allows the user to edit one a MAC: name (key,value) pairing from `nodelist`. The required argument `$MAC` should be the MAC of the node you want to edit the name of, and the `$NAME` argument should be the new name to change it to.
+The `remove-mac` and `remove-name` commands remove a node from the parsed list using either a MAC address or name as removal key, respectively.
 
-### Client
-
-Once `server.rb` is running with the `-f, --find` flag, the `client.rb` script can be executed with simply `ruby client.rb`. If the target IP : port in `config.yaml` is not reachable, the script will terminate with an error message. If the target is found and a successful communication occurs, the script will end naturally.
-
+The `dump-buffer` command simply empties the node buffer.
 
 
 # Contributing
@@ -102,9 +83,9 @@ If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 
 ![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
 
-Hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+Flight Hunter is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
-Based on a work at [https://github.com/openflighthpc/hunter](https://github.com/openflighthpc/hunter).
+Based on a work at [https://github.com/openflighthpc/flight-hunter](https://github.com/openflighthpc/flight-hunter).
 
 This content and the accompanying materials are made available available
 under the terms of the Creative Commons Attribution-ShareAlike 4.0
@@ -113,11 +94,10 @@ or alternative license terms made available by Alces Flight Ltd -
 please direct inquiries about licensing to
 [licensing@alces-flight.com](mailto:licensing@alces-flight.com).
 
-Hunter is distributed in the hope that it will be useful, but
+Flight Hunter is distributed in the hope that it will be useful, but
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
 IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF
 TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR
 PURPOSE. See the [Creative Commons Attribution-ShareAlike 4.0
 International License](https://creativecommons.org/licenses/by-sa/4.0/) for more
 details.
-

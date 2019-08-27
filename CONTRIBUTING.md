@@ -1,8 +1,8 @@
-# Contributing to Hunter
+# Contributing to Flight Hunter
 
 :+1::tada: Thanks for taking the time to contribute! :tada::+1:
 
-You want to contribute to Hunter? Welcome! Please read this
+You want to contribute to Flight Hunter? Welcome! Please read this
 document to understand what you can do:
 
  * [Code of Conduct](#code-of-conduct)
@@ -27,12 +27,12 @@ behaviour to [help@openflighthpc.org](mailto:help@openflighthpc.org).
 
 ## Help Others
 
-You can help Hunter by helping others who use it and need support.
+You can help Flight Hunter by helping others who use it and need support.
 
 ## Analyse Issues
 
 Analysing issue reports can be a lot of effort. Any help is welcome!
-Go to [the GitHub issue tracker](https://github.com/openflighthpc/hunter/issues?state=open)
+Go to [the GitHub issue tracker](https://github.com/openflighthpc/flight-hunter/issues?state=open)
 and find an open issue which needs additional work or a bugfix
 (e.g. issues labeled with "help wanted" or "bug").
 
@@ -42,13 +42,13 @@ even find and [contribute](#contribute-changes) a bugfix?
 
 ## Report an Issue
 
-If you find a bug - behaviour of Hunter code or documentation
+If you find a bug - behaviour of Flight Hunter code or documentation
 contradicting your expectation - you are welcome to report it. We can
 only handle well-reported, actual bugs, so please follow the
 guidelines below.
 
 Once you have familiarised with the guidelines, you can go to the
-[GitHub issue tracker for Hunter](https://github.com/openflighthpc/hunter/issues/new)
+[GitHub issue tracker for Flight Hunter](https://github.com/openflighthpc/flight-hunter/issues/new)
 to report the issue.
 
 ### Quick Checklist for Bug Reports
@@ -79,7 +79,7 @@ before it can be exploited.  Please send the related information to
 
 ### Issue Reporting Disclaimer
 
-We want to improve the quality of Hunter and good bug reports are
+We want to improve the quality of Flight Hunter and good bug reports are
 welcome! However, our capacity is limited, thus we reserve the right
 to close or to not process bug reports with insufficient detail in
 favour of those which are very cleanly documented and easy to
@@ -93,7 +93,7 @@ proposing solutions)
 ## Contribute Changes
 
 You are welcome to contribute code, content or documentation to
-Hunter in order to fix bugs or to implement new features.
+Flight Hunter in order to fix bugs or to implement new features.
 
 There are three important things to know:
 
@@ -115,11 +115,11 @@ When you contribute (code, documentation, or anything else), you have
 to be aware that your contribution is covered by the same [Creative
 Commons Attribution-ShareAlike 4.0 International
 License](https://creativecommons.org/licenses/by-sa/4.0/) that is
-applied to Hunter itself.
+applied to Flight Hunter itself.
 
 In particular you need to agree to the Contributor License Agreement,
 which can be [found
-here](https://www.clahub.com/agreements/openflighthpc/hunter). This
+here](https://www.clahub.com/agreements/openflighthpc/flight-hunter). This
 applies to all contributors, including those contributing on behalf of
 a company. If you agree to its content, you simply have to click on
 the link posted by the CLA assistant available on the pull
@@ -153,7 +153,7 @@ the CLA in the meantime.
    and accept it, as described in detail above.
 8. Wait for our code review and approval, possibly enhancing your
    change on request.
-    - Note that the Hunter developers also have their regular
+    - Note that the Flight Hunter developers also have their regular
       duties, so depending on the required effort for reviewing,
       testing and clarification this may take a while.
 9. Once the change has been approved we will inform you in a comment.
