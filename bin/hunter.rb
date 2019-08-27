@@ -50,8 +50,9 @@ module FlightHunter
 
     def self.data
       {
-        port: 2000,
-        ipaddr: '10.10.0.1'
+        clientport: YAML.load(File.read("#{Config.root_dir}/etc/client-config.yaml"))["port"],
+        serverport: YAML.load(File.read("#{Config.root_dir}/etc/server-config.yaml"))["port"],
+        ipaddr: YAML.load(File.read("#{Config.root_dir}/etc/client-config.yaml"))["ipaddr"]
       }     
     end
   end
@@ -90,7 +91,6 @@ module FlightHunter
     buffer = Config.join_server_content('buffer.yaml')
     parsed = Config.join_server_content('parsed.yaml')
 
-
     [buffer, parsed].each do |file|
       if not File.file?(file)
         puts "\nSpecified file \"#{ file }\" doesn't exist. Creating..."
@@ -115,12 +115,13 @@ module FlightHunter
       c.action do |args, _|
         Client::ModifyIP.new.modify_ip(args[0],File.join(Config.root_dir,'etc','client-config.yaml'))
       end
+      puts 
     end
 
     command 'modify-client-port' do |c|
       c.summary = 'Change port to open a connection over.'
       c.action do |args, _|
-        Client::ModifyPort.new.modify_port(args[0], File.join(Config.root_dir,'etc','client-config.yaml'))
+        Client::ModifyPort.new.modify_port(File.join(Config.root_dir,'etc','client-config.yaml'),args[0])
       end
     end
 
@@ -200,7 +201,7 @@ module FlightHunter
       c.summary = 'Modify the port to listen over when hunting.'
       c.action do |args, _|
         port = args[0]
-        Server::ModifyPort.new.modify_port(File.join(Config.root_dir,'etc','server-config.yaml', port))
+        Server::ModifyPort.new.modify_port(File.join(Config.root_dir,'etc','server-config.yaml'), port)
       end
     end
 

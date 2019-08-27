@@ -31,10 +31,12 @@
 module FlightHunter
   module Server
     class ModifyPort
-      def modify_port(config,newport)
-      	imported_config = YAML.load_file(config)
-      	config['port'] = newport
-      	File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
+      def modify_port(config,port)
+        imported_config = YAML.load_file(config)
+        imported_config['port'] = port
+        puts imported_config
+        File.write(config,imported_config.to_yaml)
+        puts "#{config} port changed to #{port}"
       end
     end
   end
