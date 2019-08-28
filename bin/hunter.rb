@@ -78,13 +78,14 @@ require 'flight_hunter/server/show_node'
 require 'csv'
 require 'commander'
 require 'yaml'
+require 'socket'
 
 module FlightHunter
   class CLI
     extend Commander::Delegates
 
     program :name, 'hunter'
-    program :version, '0.0.1'
+    program :version, '0.0.3'
     program :description, 'MAC collection tool' 
     program :help_paging, false
 
@@ -104,7 +105,7 @@ module FlightHunter
       c.option '--file FILE', 'Specify a filepath to send.'
       c.action do |args, options|
         ipaddr = Config.data[:ipaddr]
-        port = Config.data[:port]
+        port = Config.data[:clientport]
         filepath = options.file if options.file
         Client::Send.new.send_mac(ipaddr,port,filepath)
       end
@@ -128,7 +129,7 @@ module FlightHunter
     command 'hunt' do |c|
       c.summary = 'Listen for broadcasting clients'
       c.action do |args, _|
-        port = Config.data[:port]
+        port = Config.data[:serverport]
         allow_existing = 
           case args[0]
           when 'allow-existing'
