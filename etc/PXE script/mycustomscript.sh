@@ -30,4 +30,6 @@ chmod 755 /tmp/payload.zip
 EOT
 chmod +x /root/hunter.sh
 chmod +X /etc/rc.d/rc.local
-echo "/root/hunter.sh" /etc/rc.d/rc.local
+echo "export HUNTERIP=\$(cat /proc/cmdline | sed -e 's/^.*hunter_ip=//' -e 's/ .*$//')" >> /etc/rc.d/rc.local
+echo "/root/hunter/bin/hunter.rb modify-ip \$HUNTERIP" >> /etc/rc.d/rc.local
+echo "/root/hunter.sh" >> /etc/rc.d/rc.local
