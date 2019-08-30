@@ -1,2 +1,3 @@
 var/flight-hunter/server/buffer.yaml
 var/flight-hunter/server/parsed.yaml
+Gemfile.lock
