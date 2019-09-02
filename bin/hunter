@@ -79,6 +79,7 @@ require 'csv'
 require 'commander'
 require 'yaml'
 require 'socket'
+require 'fileutils'
 
 module FlightHunter
   class CLI
@@ -95,6 +96,7 @@ module FlightHunter
     [buffer, parsed].each do |file|
       if not File.file?(file)
         puts "\nSpecified file \"#{ file }\" doesn't exist. Creating..."
+        FileUtils.mkdir_p Config.join_server_content
         File.write(file,'')
         puts "Created YAML file named \"#{ file }\"."
       end
