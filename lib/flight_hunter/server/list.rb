@@ -32,21 +32,33 @@ require 'tty-markdown'
 module FlightHunter
 	module Server
 		class ListNodes
-			def list_nodes(list_file)
+			def list_nodes(list_file,plain=false)
 				list = YAML.load(File.read(list_file)) || {}
 				if list.nil? || list.empty?
 					puts "The list is empty."
 				else
-					table = <<~TABLE.chomp
-						| MAC address | Name | Last Known IP | Has payload? |
-						|-------------|------|---------------|--------------|
-					TABLE
-
-					all = list.reduce(table) do |memo, (mac,vals)|
-						"#{memo}\n| #{mac} | #{list[mac]["hostname"]} | #{list[mac]["ip"] || "unknown"} | #{list[mac].length > 1} |"
-					end
-					puts TTY::Markdown.parse(all)
+					plain ? list_plain(list) : list_table(list)
 				end
+			end
+
+		private
+	
+			def list_plain(list)
+				list.each do |mac,vals|
+					puts "#{mac},#{list[mac]["hostname"]},#{list[mac]["ip"] || "unknown"},#{list[mac].length > 1}"
+				end
+			end
+	
+			def list_table(list)
+				table = <<~TABLE.chomp
+					| MAC address | Name | Last Known IP | Has payload? |
+					|-------------|------|---------------|--------------|
+				TABLE
+
+				all = list.reduce(table) do |memo, (mac,vals)|
+					"#{memo}\n| #{mac} | #{list[mac]["hostname"]} | #{list[mac]["ip"] || "unknown"} | #{list[mac].length > 1} |"
+				end
+				puts TTY::Markdown.parse(all)
 			end
 		end
 	end

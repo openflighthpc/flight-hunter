@@ -141,15 +141,17 @@ module FlightHunter
 
     command 'list-buffer' do |c|
       c.summary = 'List the nodes in the buffer.'
-      c.action do |args, _|
-        Server::ListNodes.new.list_nodes(buffer)
+      c.option '--plain', 'Plain output (csv)'
+      c.action do |args, options|
+        Server::ListNodes.new.list_nodes(buffer,options.plain)
       end
     end
 
     command 'list-parsed' do |c|
       c.summary = 'List the parsed nodes.'
-      c.action do |args, _|
-        Server::ListNodes.new.list_nodes(parsed)
+      c.option '--plain', 'Plain output (csv)'
+      c.action do |args, options|
+        Server::ListNodes.new.list_nodes(parsed,options.plain)
       end
     end
     command 'show-node' do |c|
