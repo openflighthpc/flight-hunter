@@ -37,8 +37,9 @@ module FlightHunter
 				existing = []
 				hostsearch = SearchHostname.new
 				buffer.each do |mac,vals|
-					puts "Enter name for MAC \"#{mac}\": "
+					puts "Enter name for MAC \"#{mac}\" [#{vals["hostname"]}]: "
 					input = STDIN.gets.chomp
+					input=vals["hostname"] if input.empty?
 					if parsed.key?(mac) || hostsearch.search(parsed,input)						
 						if parsed.key?(mac)			
 							existing.push([mac,parsed[mac]])
