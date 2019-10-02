@@ -95,7 +95,6 @@ module FlightHunter
 
     [buffer, parsed].each do |file|
       if not File.file?(file)
-        puts "\nSpecified file \"#{ file }\" doesn't exist. Creating..."
         FileUtils.mkdir_p Config.join_server_content
         File.write(file,'')
       end
@@ -120,7 +119,6 @@ module FlightHunter
       c.action do |args, _|
         Client::ModifyIP.new.modify_ip(args[0],File.join(Config.root_dir,'etc','client-config.yaml'))
       end
-      puts 
     end
 
     command 'modify-client-port' do |c|
