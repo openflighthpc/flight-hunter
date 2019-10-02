@@ -88,12 +88,15 @@ module FlightHunter
 					end
 					client.close
 				end
-				puts "Press enter at any time to close.\n"
-				while STDIN.gets.chomp
+				puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+c to stop\n"
+                                trap "SIGINT" do
 					puts "\nExiting..."
 					File.write(buffer_file, buffer.to_yaml)
 					puts "Found nodes written to \'#{buffer_file}\'. They need processing."
 					exit 130
+				end
+				while true do
+					sleep 1
 				end
 			end
 			
