@@ -133,7 +133,7 @@ module FlightHunter
     command 'hunt' do |c|
       c.summary = 'Listen for broadcasting clients'
       c.option '--allowexisting', 'Allow replacement of existing entries'
-      c.option '--port TCPPORT', 'Overide port'
+      c.option '--port TCPPORT', 'Override port'
       c.action do |args, options|
         Server::Hunt.new.hunt(options.port.to_s.empty? ? Config.data[:serverport] : options.port.to_s, buffer, parsed, options.allowexisting)
       end
