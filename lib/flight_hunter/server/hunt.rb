@@ -51,7 +51,7 @@ module FlightHunter
 					loop do
 						client = server.accept
 						mac,host,fileContent = client.read.unpack("Z*Z*Z*")
-						vals = {"hostname"=> host,"payload" => fileContent}.reject { |k,v| v==''}
+						vals = {"hostname"=> host,"ip" => (client.addr[2] || 'unknown'),"payload" => fileContent}.reject { |k,v| v==''}
 						if !allow_existing
 							if buffer.key?(mac)
 								puts "This MAC address already exists in the unprocessed list. Ignoring..."

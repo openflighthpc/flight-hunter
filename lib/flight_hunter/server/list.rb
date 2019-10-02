@@ -38,12 +38,12 @@ module FlightHunter
 					puts "The list is empty."
 				else
 					table = <<~TABLE.chomp
-						| MAC address | Name | Has payload? |
-						|-------------|------|--------------|
+						| MAC address | Name | Last Known IP | Has payload? |
+						|-------------|------|---------------|--------------|
 					TABLE
 
 					all = list.reduce(table) do |memo, (mac,vals)|
-						"#{memo}\n| #{mac} | #{list[mac]["hostname"]} | #{list[mac].length > 1} |"
+						"#{memo}\n| #{mac} | #{list[mac]["hostname"]} | #{list[mac]["ip"] || "unknown"} | #{list[mac].length > 1} |"
 					end
 					puts TTY::Markdown.parse(all)
 				end

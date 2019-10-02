@@ -61,7 +61,7 @@ module FlightHunter
 						existing.uniq!
 						existing.each { |element| parsed.delete(element[0])}	
 					end
-					to_add[mac] = {"hostname" => newname, "payload" => vals["payload"]}.compact
+					to_add[mac] = {"hostname" => newname, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
 					start_val.succ!
 				end
 				if !existing.empty?
