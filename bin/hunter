@@ -95,21 +95,22 @@ module FlightHunter
 
     [buffer, parsed].each do |file|
       if not File.file?(file)
-        puts "\nSpecified file \"#{ file }\" doesn't exist. Creating..."
         FileUtils.mkdir_p Config.join_server_content
         File.write(file,'')
-        puts "Created YAML file named \"#{ file }\"."
       end
     end
 
     command 'send' do |c|
       c.summary = 'Send MAC/hostname plus optional payload to server.'
-      c.option '--file FILE', 'Specify a filepath to send.'
+      c.option '--file FILE', 'Payload file'
+      c.option '--server SERVERIP', 'Override server IP'
+      c.option '--port PORT', 'Override server port'
+      c.option '--spoof NAME', 'Override system hostname' 
       c.action do |args, options|
-        ipaddr = Config.data[:ipaddr]
-        port = Config.data[:clientport]
+        ipaddr = options.server.to_s.empty? ? Config.data[:ipaddr] : options.server
+        port = options.port.to_s.empty? ? Config.data[:clientport] : options.port
         filepath = options.file if options.file
-        Client::Send.new.send_mac(ipaddr,port,filepath)
+        Client::Send.new.send_mac(ipaddr,port,filepath,options.spoof)
       end
     end
 
@@ -118,7 +119,6 @@ module FlightHunter
       c.action do |args, _|
         Client::ModifyIP.new.modify_ip(args[0],File.join(Config.root_dir,'etc','client-config.yaml'))
       end
-      puts 
     end
 
     command 'modify-client-port' do |c|
@@ -130,30 +130,26 @@ module FlightHunter
 
     command 'hunt' do |c|
       c.summary = 'Listen for broadcasting clients'
-      c.action do |args, _|
-        port = Config.data[:serverport]
-        allow_existing = 
-          case args[0]
-          when 'allow-existing'
-            true
-          else
-            false            
-          end
-        Server::Hunt.new.hunt(port, buffer, parsed, allow_existing)
+      c.option '--allowexisting', 'Allow replacement of existing entries'
+      c.option '--port TCPPORT', 'Override port'
+      c.action do |args, options|
+        Server::Hunt.new.hunt(options.port.to_s.empty? ? Config.data[:serverport] : options.port.to_s, buffer, parsed, options.allowexisting)
       end
     end
 
     command 'list-buffer' do |c|
       c.summary = 'List the nodes in the buffer.'
-      c.action do |args, _|
-        Server::ListNodes.new.list_nodes(buffer)
+      c.option '--plain', 'Plain output (csv)'
+      c.action do |args, options|
+        Server::ListNodes.new.list_nodes(buffer,options.plain)
       end
     end
 
     command 'list-parsed' do |c|
       c.summary = 'List the parsed nodes.'
-      c.action do |args, _|
-        Server::ListNodes.new.list_nodes(parsed)
+      c.option '--plain', 'Plain output (csv)'
+      c.action do |args, options|
+        Server::ListNodes.new.list_nodes(parsed,options.plain)
       end
     end
     command 'show-node' do |c|

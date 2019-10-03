@@ -37,8 +37,9 @@ module FlightHunter
 				existing = []
 				hostsearch = SearchHostname.new
 				buffer.each do |mac,vals|
-					puts "Enter name for MAC \"#{mac}\": "
+					puts "Enter name for MAC \"#{mac}\" [#{vals["hostname"]}]: "
 					input = STDIN.gets.chomp
+					input=vals["hostname"] if input.empty?
 					if parsed.key?(mac) || hostsearch.search(parsed,input)						
 						if parsed.key?(mac)			
 							existing.push([mac,parsed[mac]])
@@ -55,7 +56,7 @@ module FlightHunter
 						existing.each { |element| puts "#{element[0]}: #{element[1]}"}
 						existing.each { |element| parsed.delete(element[0])}
 					end
-					parsed[mac] = {"hostname" => input, "payload" => vals["payload"]}.compact
+					parsed[mac] = {"hostname" => input, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
 				end
 				File.open(parsed_file,'w+') {|file| file.write(parsed.to_yaml)}
 				File.write(buffer_file,'---')

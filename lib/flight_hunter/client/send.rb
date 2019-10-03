@@ -34,9 +34,9 @@ require 'socket'
 module FlightHunter
 	module Client
 		class Send
-			def send_mac(ipaddr,port,filename=nil)
+			def send_mac(ipaddr,port,filename=nil,spoof=nil)
 				mac = Mac.addr
-				myhostname = Socket.gethostname
+				myhostname = spoof.to_s.empty? ? Socket.gethostname : spoof
 				if filename != nil
 					fileContent = File.read(filename)
 				end

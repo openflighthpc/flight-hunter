@@ -51,7 +51,7 @@ module FlightHunter
 					loop do
 						client = server.accept
 						mac,host,fileContent = client.read.unpack("Z*Z*Z*")
-						vals = {"hostname"=> host,"payload" => fileContent}.reject { |k,v| v==''}
+						vals = {"hostname"=> host,"ip" => (client.peeraddr[2] || 'unknown'),"payload" => fileContent}.reject { |k,v| v==''}
 						if !allow_existing
 							if buffer.key?(mac)
 								puts "This MAC address already exists in the unprocessed list. Ignoring..."
@@ -88,12 +88,15 @@ module FlightHunter
 					end
 					client.close
 				end
-				puts "Press enter at any time to close.\n"
-				while STDIN.gets.chomp
+				puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+c to stop\n"
+                                trap "SIGINT" do
 					puts "\nExiting..."
 					File.write(buffer_file, buffer.to_yaml)
 					puts "Found nodes written to \'#{buffer_file}\'. They need processing."
 					exit 130
+				end
+				while true do
+					sleep 1
 				end
 			end
 			
