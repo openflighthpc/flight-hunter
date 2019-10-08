@@ -41,7 +41,7 @@ module FlightHunter
 					input = STDIN.gets.chomp
 					input=vals["hostname"] if input.empty?
 					if parsed.key?(id) || hostsearch.search(parsed,input)						
-						if parsed.key?(is)			
+						if parsed.key?(id)			
 							existing.push([id,parsed[id]])
 						end
 						if hostsearch.search(parsed,input)

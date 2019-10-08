@@ -32,26 +32,32 @@ require 'tty-markdown'
 module FlightHunter
 	module Server
 		class Show
-			def show(parsed, name)
+			def show(parsed, name, plain=false)
 				list = YAML.load(File.read(parsed)) || {}
 				if list.nil? || list.empty?
 					puts "The list is empty."
 				else
 					list.each do |id,vals|
 						if vals["hostname"] == name
-							table = <<~TABLE.chomp
-								| ID          | Name |
-								|-------------|------|
-								| #{id}       | #{vals["hostname"]} |
-							TABLE
+							if !plain
+								table = <<~TABLE.chomp
+									| ID          | Name |
+									|-------------|------|
+									| #{id}       | #{vals["hostname"]} |
+								TABLE
 
-							puts TTY::Markdown.parse(table)
-							if vals.key?("payload")
-								puts vals["payload"]
+								puts TTY::Markdown.parse(table)
+								if vals.key?("payload")
+									puts vals["payload"]
+								else
+									puts "#{name} has no payload associated with it."
+								end
+								return
 							else
-								puts "#{name} has no payload associated with it."
+								puts "#{id}: #{name}"
+								puts vals["payload"] rescue false
+								return
 							end
-							return
 						end
 					end
 					puts "Could not find an entry with name #{name}."

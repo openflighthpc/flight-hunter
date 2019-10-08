@@ -63,6 +63,7 @@ $LOAD_PATH.unshift(File.join(FlightHunter::Config.root_dir, 'lib'))
 require 'flight_hunter/client/send'
 require 'flight_hunter/client/modify_ip'
 require 'flight_hunter/client/modify_port'
+require 'collector'
 require 'flight_hunter/server/hunt'
 require 'flight_hunter/server/list'
 require 'flight_hunter/server/manual'
@@ -155,9 +156,10 @@ module FlightHunter
     command 'show' do |c|
       c.syntax = "#{ program(:name) } NAME"
       c.summary = 'Show the details of a particular entry.'
-      c.action do |args, _|
+      c.option '--plain', 'Plain output (csv)'
+      c.action do |args, options|
         name = args[0]
-        Server::Show.new.show(parsed, name)
+        Server::Show.new.show(parsed, name, options.plain)
       end
     end
 
