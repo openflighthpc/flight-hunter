@@ -28,19 +28,18 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-require 'macaddr'
 require 'socket'
 
 module FlightHunter
 	module Client
 		class Send
-			def send_mac(ipaddr,port,filename=nil,spoof=nil)
-				mac = Mac.addr
+			def send(ipaddr,port,filename=nil,spoof=nil)
+				hostid = `hostid`.chomp
 				myhostname = spoof.to_s.empty? ? Socket.gethostname : spoof
 				if filename != nil
 					fileContent = File.read(filename)
 				end
-				payload = [mac,myhostname,fileContent].pack('Z*Z*Z*')
+				payload = [hostid,myhostname,fileContent].pack('Z*Z*Z*')
 				begin
 					server = TCPSocket.open(ipaddr,port)
 					server.write(payload)

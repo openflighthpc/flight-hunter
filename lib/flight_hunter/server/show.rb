@@ -27,16 +27,36 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
+require 'tty-markdown'
 
 module FlightHunter
-  module Server
-    class ModifyMac
-      def modify_mac(list_file,oldmac,newmac)
-      	list = YAML.load(File.read(list_file))
-      	list[newmac] = list.delete(oldmac)
-      	File.write(list_file,list.to_yaml)
-      	puts "#{oldmac} renamed to #{newmac}."
-      end
-    end
-  end
+	module Server
+		class Show
+			def show(parsed, name)
+				list = YAML.load(File.read(parsed)) || {}
+				if list.nil? || list.empty?
+					puts "The list is empty."
+				else
+					list.each do |id,vals|
+						if vals["hostname"] == name
+							table = <<~TABLE.chomp
+								| ID          | Name |
+								|-------------|------|
+								| #{id}       | #{vals["hostname"]} |
+							TABLE
+
+							puts TTY::Markdown.parse(table)
+							if vals.key?("payload")
+								puts vals["payload"]
+							else
+								puts "#{name} has no payload associated with it."
+							end
+							return
+						end
+					end
+					puts "Could not find an entry with name #{name}."
+				end
+			end
+		end
+	end
 end

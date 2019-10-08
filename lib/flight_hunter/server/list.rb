@@ -44,19 +44,19 @@ module FlightHunter
 		private
 	
 			def list_plain(list)
-				list.each do |mac,vals|
-					puts "#{mac},#{list[mac]["hostname"]},#{list[mac]["ip"] || "unknown"},#{list[mac].length > 1}"
+				list.each do |id,vals|
+					puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{list[id].length > 1}"
 				end
 			end
 	
 			def list_table(list)
 				table = <<~TABLE.chomp
-					| MAC address | Name | Last Known IP | Has payload? |
-					|-------------|------|---------------|--------------|
+					| ID       | Name    | Last Known IP | Has payload? |
+					|----------|---------|---------------|--------------|
 				TABLE
 
-				all = list.reduce(table) do |memo, (mac,vals)|
-					"#{memo}\n| #{mac} | #{list[mac]["hostname"]} | #{list[mac]["ip"] || "unknown"} | #{list[mac].length > 1} |"
+				all = list.reduce(table) do |memo, (id,vals)|
+					"#{memo}\n| #{id} | #{list[id]["hostname"]} | #{list[id]["ip"] || "unknown"} | #{list[id].length > 1} |"
 				end
 				puts TTY::Markdown.parse(all)
 			end

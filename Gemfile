@@ -2,6 +2,5 @@
 
 source 'https://rubygems.org'
 
-gem 'macaddr'
 gem 'tty-markdown'
 gem 'commander'

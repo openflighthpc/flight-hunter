@@ -50,39 +50,39 @@ module FlightHunter
 				Thread.new do
 					loop do
 						client = server.accept
-						mac,host,fileContent = client.read.unpack("Z*Z*Z*")
+						id,host,fileContent = client.read.unpack("Z*Z*Z*")
 						vals = {"hostname"=> host,"ip" => (client.peeraddr[2] || 'unknown'),"payload" => fileContent}.reject { |k,v| v==''}
 						if !allow_existing
-							if buffer.key?(mac)
-								puts "This MAC address already exists in the unprocessed list. Ignoring..."
+							if buffer.key?(id)
+								puts "This ID already exists in the unprocessed list. Ignoring..."
 							elsif search_hostname.search(buffer,host)
 								puts "This hostname already exists in the unprocessed list. Ignoring..."
-							elsif parsed.key?(mac)
-								puts "This MAC address already exists in the processed list. Ignoring..."
+							elsif parsed.key?(id)
+								puts "This ID already exists in the processed list. Ignoring..."
 							elsif search_hostname.search(parsed,host)
 								puts "This hostname already exists in the processed list. Ignoring..."
 							else
-								buffer[mac] = vals
-								puts "Found node. MAC: #{mac}, name: #{host}"
+								buffer[id] = vals
+								puts "Found node. ID: #{id}, name: #{host}"
 							end
 						else
-							if buffer.key?(mac)
-								buffer[mac] = vals
-								puts "This MAC already existed in the unprocessed list, but its name has been overwritten to the new one."
+							if buffer.key?(id)
+								buffer[id] = vals
+								puts "This ID already existed in the unprocessed list, but its name has been overwritten to the new one."
 							elsif search_hostname.search(buffer,host)
-								buffer[mac] = vals
-								puts "Found node. MAC: #{mac}, name: #{host}"
+								buffer[id] = vals
+								puts "Found node. ID: #{id}, name: #{host}"
 								puts "Node added, but please note that the name of this node already exists in the unprocessed
 								list. It will be renamed during parsing anyway, but is useful to keep in mind."						
-							elsif parsed.key?(mac)
-								buffer[mac] = vals
-								puts "Node added, but please note that this MAC address already exists in the parsed parsed."
+							elsif parsed.key?(id)
+								buffer[id] = vals
+								puts "Node added, but please note that this ID address already exists in the parsed parsed."
 							elsif search_hostname.search(parsed,host)
-								buffer[mac] = vals
+								buffer[id] = vals
 								puts "Node added, but please note that a node with this hostname already exists in the parsed list."
 							else
-								buffer[mac] = vals
-								puts "Found node. MAC: #{mac}, name: #{host}"
+								buffer[id] = vals
+								puts "Found node. ID: #{id}, name: #{host}"
 							end
 						end						
 					end
