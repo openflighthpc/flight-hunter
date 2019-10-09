@@ -39,7 +39,7 @@ module FlightHunter
 				existing = []
 				to_add = {}
 				start_val = start.dup
-				buffer.each do |mac,vals|
+				buffer.each do |id,vals|
 					if start_val.length < length
 						start_val.prepend("0"* (length-start_val.length))
 					elsif start_val.length > length
@@ -47,9 +47,9 @@ module FlightHunter
 					end
 
 					newname = prefix+start_val
-					if parsed.key?(mac) || hostsearch.search(parsed,newname)			
-						if parsed.key?(mac)			
-							existing.push([mac,parsed[mac]])
+					if parsed.key?(id) || hostsearch.search(parsed,newname)			
+						if parsed.key?(id)			
+							existing.push([id,parsed[id]])
 						end
 						if hostsearch.search(parsed,newname)
 							parsed.each do |key,value|
@@ -61,7 +61,7 @@ module FlightHunter
 						existing.uniq!
 						existing.each { |element| parsed.delete(element[0])}	
 					end
-					to_add[mac] = {"hostname" => newname, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
+					to_add[id] = {"hostname" => newname, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
 					start_val.succ!
 				end
 				if !existing.empty?

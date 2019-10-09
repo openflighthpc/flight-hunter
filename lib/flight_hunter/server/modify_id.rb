@@ -27,36 +27,16 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
-require 'tty-markdown'
 
 module FlightHunter
-	module Server
-		class ShowNode
-			def show_node(parsed, name)
-				list = YAML.load(File.read(parsed)) || {}
-				if list.nil? || list.empty?
-					puts "The list is empty."
-				else
-					list.each do |mac,vals|
-						if vals["hostname"] == name
-							table = <<~TABLE.chomp
-								| MAC address | Name |
-								|-------------|------|
-								| #{mac} | #{vals["hostname"]} |
-							TABLE
-
-							puts TTY::Markdown.parse(table)
-							if vals.key?("payload")
-								puts vals["payload"]
-							else
-								puts "#{name} has no payload associated with it."
-							end
-							return
-						end
-					end
-					puts "Could not find a node with name #{name}."
-				end
-			end
-		end
-	end
+  module Server
+    class ModifyID
+      def modify_id(list_file,oldid,newid)
+      	list = YAML.load(File.read(list_file))
+      	list[newid] = list.delete(oldid)
+      	File.write(list_file,list.to_yaml)
+      	puts "#{oldid} renamed to #{newid}."
+      end
+    end
+  end
 end

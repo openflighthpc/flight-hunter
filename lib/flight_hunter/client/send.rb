@@ -28,19 +28,22 @@
 # https://github.com/openflighthpc/hunter
 #===============================================================================
 
-require 'macaddr'
 require 'socket'
+require 'yaml'
 
 module FlightHunter
 	module Client
 		class Send
-			def send_mac(ipaddr,port,filename=nil,spoof=nil)
-				mac = Mac.addr
+			def send(ipaddr,port,filename=nil,spoof=nil)
+				hostid = ::File::read('/proc/cmdline').split.map { |a| h=a.split('='); [h.first,h.last] if h.size == 2}.compact.to_h['SYSUUID'] || `hostid`.chomp rescue `hostid`.chomp
 				myhostname = spoof.to_s.empty? ? Socket.gethostname : spoof
 				if filename != nil
 					fileContent = File.read(filename)
+				else
+					#we don't have a file the payload, so lets stick some yaml there instead
+					fileContent = BasicCollector::collect.to_yaml
 				end
-				payload = [mac,myhostname,fileContent].pack('Z*Z*Z*')
+				payload = [hostid,myhostname,fileContent].pack('Z*Z*Z*')
 				begin
 					server = TCPSocket.open(ipaddr,port)
 					server.write(payload)

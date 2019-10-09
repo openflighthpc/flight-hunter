@@ -63,17 +63,18 @@ $LOAD_PATH.unshift(File.join(FlightHunter::Config.root_dir, 'lib'))
 require 'flight_hunter/client/send'
 require 'flight_hunter/client/modify_ip'
 require 'flight_hunter/client/modify_port'
+require 'collector'
 require 'flight_hunter/server/hunt'
 require 'flight_hunter/server/list'
 require 'flight_hunter/server/manual'
 require 'flight_hunter/server/automatic'
-require 'flight_hunter/server/remove_mac'
+require 'flight_hunter/server/remove_id'
 require 'flight_hunter/server/remove_name'
 require 'flight_hunter/server/modify_port'
-require 'flight_hunter/server/modify_mac'
+require 'flight_hunter/server/modify_id'
 require 'flight_hunter/server/modify_name'
 require 'flight_hunter/server/dump_buffer'
-require 'flight_hunter/server/show_node'
+require 'flight_hunter/server/show'
 
 require 'csv'
 require 'commander'
@@ -101,7 +102,7 @@ module FlightHunter
     end
 
     command 'send' do |c|
-      c.summary = 'Send MAC/hostname plus optional payload to server.'
+      c.summary = 'Push my identity plus optional payload to server.'
       c.option '--file FILE', 'Payload file'
       c.option '--server SERVERIP', 'Override server IP'
       c.option '--port PORT', 'Override server port'
@@ -110,7 +111,7 @@ module FlightHunter
         ipaddr = options.server.to_s.empty? ? Config.data[:ipaddr] : options.server
         port = options.port.to_s.empty? ? Config.data[:clientport] : options.port
         filepath = options.file if options.file
-        Client::Send.new.send_mac(ipaddr,port,filepath,options.spoof)
+        Client::Send.new.send(ipaddr,port,filepath,options.spoof)
       end
     end
 
@@ -152,12 +153,13 @@ module FlightHunter
         Server::ListNodes.new.list_nodes(parsed,options.plain)
       end
     end
-    command 'show-node' do |c|
+    command 'show' do |c|
       c.syntax = "#{ program(:name) } NAME"
-      c.summary = 'Show the details of a particular node.'
-      c.action do |args, _|
+      c.summary = 'Show the details of a particular entry.'
+      c.option '--plain', 'Plain output (csv)'
+      c.action do |args, options|
         name = args[0]
-        Server::ShowNode.new.show_node(parsed, name)
+        Server::Show.new.show(parsed, name, options.plain)
       end
     end
 
@@ -177,12 +179,12 @@ module FlightHunter
       end
     end
 
-    command 'remove-mac' do |c|
-      c.syntax = "#{ program(:name) } MAC"
-      c.summary = 'Remove a node from the parsed list by MAC.'
+    command 'remove-id' do |c|
+      c.syntax = "#{ program(:name) } ID"
+      c.summary = 'Remove an entity from the parsed list by id.'
       c.action do |args, _|
-        mac = args
-        Server::RemoveMac.new.remove_mac(parsed,mac)
+        id = args
+        Server::RemoveID.new.remove_id(parsed,id)
       end
     end
 
@@ -190,8 +192,8 @@ module FlightHunter
       c.syntax = "#{ program(:name) } NAME"
       c.summary = 'Remove an node from the parsed list by NAME.'
       c.action do |args, _|
-        hostname = args
-        Server::RemoveName.new.remove_name(parsed,hostname)
+        name = args
+        Server::RemoveName.new.remove_name(parsed,name)
       end
     end
 
@@ -204,12 +206,12 @@ module FlightHunter
       end
     end
 
-    command 'modify-mac' do |c|
-      c.syntax = "#{ program(:name) } OLDMAC NEWMAC"
-      c.summary = 'Modify the MAC of a node in the parsed list.'
+    command 'modify-id' do |c|
+      c.syntax = "#{ program(:name) } OLDID NEWID"
+      c.summary = 'Modify the ID of a node in the parsed list.'
       c.action do |args, _|
-        oldmac, newmac = args
-        Server::ModifyMac.new.modify_mac(parsed, oldmac, newmac)
+        oldid, newid = args
+        Server::ModifyID.new.modify_id(parsed, oldid, newid)
       end
     end
 

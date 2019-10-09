@@ -30,12 +30,12 @@
 
 module FlightHunter
   module Server
-    class RemoveMac
-      def remove_mac(list_file,mac)
+    class RemoveID
+      def remove_id(list_file,id)
       	list = YAML.load(File.read(list_file))
-      	list.delete(mac)
+      	list.delete(id)
       	File.write(list_file,list.to_yaml)
-      	puts "#{mac} deleted."
+      	puts "#{id} deleted."
       end
     end
   end

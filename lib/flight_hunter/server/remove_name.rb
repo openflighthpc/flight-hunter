@@ -34,9 +34,9 @@ module FlightHunter
       def remove_name(list_file,hostname)
         list = YAML.load(File.read(list_file))
         to_remove = ""
-        list.each do |mac,vals|
+        list.each do |id,vals|
           if hostname[0] == vals["hostname"]
-            to_remove = mac
+            to_remove = id
           end
         end
         list.delete(to_remove)
