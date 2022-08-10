@@ -73,6 +73,8 @@ require 'flight_hunter/server/remove_name'
 require 'flight_hunter/server/modify_port'
 require 'flight_hunter/server/modify_id'
 require 'flight_hunter/server/modify_name'
+require 'flight_hunter/server/modify_group'
+require 'flight_hunter/server/rename_group'
 require 'flight_hunter/server/dump_buffer'
 require 'flight_hunter/server/show'
 
@@ -90,10 +92,10 @@ module FlightHunter
     program :version, '0.0.3'
     program :description, 'MAC collection tool' 
     program :help_paging, false
+    default_command :help    
 
     buffer = Config.join_server_content('buffer.yaml')
     parsed = Config.join_server_content('parsed.yaml')
-
     [buffer, parsed].each do |file|
       if not File.file?(file)
         FileUtils.mkdir_p Config.join_server_content
@@ -149,10 +151,12 @@ module FlightHunter
     command 'list-parsed' do |c|
       c.summary = 'List the parsed nodes.'
       c.option '--plain', 'Plain output (csv)'
+      c.option '--group GROUP', 'List by group'
       c.action do |args, options|
-        Server::ListNodes.new.list_nodes(parsed,options.plain)
+        Server::ListNodes.new.list_nodes(parsed,options.plain, options.group)
       end
     end
+
     command 'show' do |c|
       c.syntax = "#{ program(:name) } NAME"
       c.summary = 'Show the details of a particular entry.'
@@ -221,6 +225,25 @@ module FlightHunter
       c.action do |args, _|
         oldname, newname = args
         Server::ModifyName.new.modify_name(parsed, oldname, newname)
+      end
+    end
+ 
+    command 'modify-group' do |c|
+      c.syntax = "#{program(:name) } NAME MODIFICATIONS"
+      c.summary = "Change groups of a node"
+      c.description = "Modifications format is:,+<grouptoadd>,-<grouptoremove>. \n e.g. ,+A,-B,+C,+D,-Z \n Changes are evaluated left to right, and any number of changes is allowed"
+      c.action do |args, _|
+        name, modifications = args
+        Server::ModifyGroup.new.modify_group(parsed, name, modifications)
+      end
+    end
+
+		command 'rename-group' do |c|
+      c.syntax = "#{program(:name) } OLDNAME NEWNAME"
+      c.summary = "Change the name of a group."
+      c.action do |args, _|
+        old_name, new_name = args
+        Server::RenameGroup.new.rename_group(parsed, old_name, new_name)
       end
     end
 
