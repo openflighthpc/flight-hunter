@@ -27,45 +27,49 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
-require 'tty-markdown'
 
 module FlightHunter
-	module Server
-		class Show
-			def show(parsed, name, plain=false)
-				list = YAML.load(File.read(parsed)) || {}
-				if list.nil? || list.empty?
-					puts "The list is empty."
-				else
-					list.each do |id,vals|
-						if vals["hostname"] == name
-							if !plain
-								group_name = "nil"
-								unless vals["group"] == nil then group_name = vals["group"] end
-								
-								table = <<~TABLE.chomp
-									| ID          | Name | Group |
-									|-------------|------|-------|
-									| #{id}       | #{vals["hostname"]} | #{vals["group"] || "none" }  |
-								TABLE
-
-								puts TTY::Markdown.parse(table)
-								if vals.key?("payload")
-									puts vals["payload"]
+  module Server
+    class ModifyGroup
+      def modify_group(list_file, name, mods)
+      	list = YAML.load(File.read(list_file))
+        to_change = ""
+        list.each do |id,vals|
+          if name == vals["hostname"] 
+            to_change = id
+          end
+        end
+        changes = (mods or "").split(",")	
+				
+				oldgroup = list[to_change]["group"]
+				message = "Changes made: "
+				
+				unless (changes or []).empty?
+					changes.each do |change|
+						unless change.empty? and change.length < 2
+							if change[0] == "+"
+								if list[to_change]["group"] == nil
+									list[to_change]["group"] = Array.new(1,change[1..-1])
+									message += "ADDED \'#{change[1..-1]}\', "
 								else
-									puts "#{name} has no payload associated with it."
+									unless list[to_change]["group"].include?(change[1..-1])
+										list[to_change]["group"].push(change[1..-1])
+										message += "ADDED \'#{change[1..-1]}\', "
+									end
 								end
-								return
+							elsif change[0] == "-"
+								(list[to_change]["group"] or [] ).delete(change[1..-1])
+								message += "REMOVED \'#{change[1..-1]}\', "
 							else
-								puts "#{id}: #{name}"
-								puts vals["payload"] rescue false
-								return
-							end
+								message += "INVALID CHANGE \'#{change}\', "
+							end 
 						end
 					end
-					puts "Could not find an entry with name #{name}."
 				end
+				
+				File.write(list_file,list.to_yaml)
+				puts message
 			end
-		end
-	end
+    end
+  end
 end

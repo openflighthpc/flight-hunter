@@ -27,45 +27,29 @@
 # For more information on Hunter, please visit:
 # https://github.com/openflighthpc/hunter
 #===============================================================================
-require 'tty-markdown'
 
 module FlightHunter
-	module Server
-		class Show
-			def show(parsed, name, plain=false)
-				list = YAML.load(File.read(parsed)) || {}
-				if list.nil? || list.empty?
-					puts "The list is empty."
-				else
-					list.each do |id,vals|
-						if vals["hostname"] == name
-							if !plain
-								group_name = "nil"
-								unless vals["group"] == nil then group_name = vals["group"] end
-								
-								table = <<~TABLE.chomp
-									| ID          | Name | Group |
-									|-------------|------|-------|
-									| #{id}       | #{vals["hostname"]} | #{vals["group"] || "none" }  |
-								TABLE
-
-								puts TTY::Markdown.parse(table)
-								if vals.key?("payload")
-									puts vals["payload"]
-								else
-									puts "#{name} has no payload associated with it."
-								end
-								return
-							else
-								puts "#{id}: #{name}"
-								puts vals["payload"] rescue false
-								return
-							end
+  module Server
+    class RenameGroup
+      def rename_group(list_file, old_name, new_name)
+      	list = YAML.load(File.read(list_file))
+				counter = 0
+				list.each do |id,vals|
+					if i = (list[id]["group"] or [] ).index(old_name)
+						if (list[id]["group"] or []).include?(new_name)
+							list[id]["group"][i] = nil
+							list[id]["group"].compact!
+						else
+							list[id]["group"][i] = new_name
 						end
+						counter+=1
 					end
-					puts "Could not find an entry with name #{name}."
 				end
+
+
+				File.write(list_file,list.to_yaml)
+				puts "Group \'#{old_name}\' renamed to \'#{new_name}\' for #{counter} nodes" 
 			end
-		end
-	end
+    end
+  end
 end
