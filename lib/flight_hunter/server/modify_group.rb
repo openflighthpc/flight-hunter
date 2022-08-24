@@ -31,18 +31,54 @@
 module FlightHunter
   module Server
     class ModifyGroup
-      def modify_group(list_file, name, mods)
-      	list = YAML.load(File.read(list_file))
-        to_change = ""
-        list.each do |id,vals|
-          if name == vals["hostname"] 
-            to_change = id
-          end
-        end
-        changes = (mods or "").split(",")	
+			REG = "/r"
+      def modify_group(list_file, name, mods, regex)
+				#p name
+				if name == nil
+					puts "No node name entered."
+					return
+				end
+				if mods == nil
+					puts "No changes requested."
+					return
+				end
+      	list = YAML.load(File.read(list_file)) || {}
+				if list.nil? || list.empty?
+					puts "There are no nodes"
+					return
+				end
+        changes = (mods or "").split(",")
+				
+				if name.end_with?(REG) or regex == true 
+					#process the regex
+					if name.end_with?(REG) then name = name.chomp(REG) end
+					regexp = Regexp.new name
+					list.each do |id,vals|
+						if regexp.match?(vals["hostname"]) 
+							modify_one(list_file,list,id,changes)
+						end	
+					end
+				else
+					to_change = ""
+					list.each do |id,vals|
+          	if name == vals["hostname"] 
+            	to_change = id
+          	end
+        	end
+					if to_change == ""
+						 puts "node \"#{name}\" is not an existing node"
+					else
+						modify_one(list_file,list,to_change,changes)
+					end
+				end
+			end
+
+
+		private
+			def modify_one(list_file,list,to_change,changes)	
 				
 				oldgroup = list[to_change]["group"]
-				message = "Changes made: "
+				message = "Node: " +  list[to_change]["hostname"] + " -  changes made: "
 				
 				unless (changes or []).empty?
 					changes.each do |change|
@@ -70,6 +106,8 @@ module FlightHunter
 				File.write(list_file,list.to_yaml)
 				puts message
 			end
+
     end
   end
 end
+
