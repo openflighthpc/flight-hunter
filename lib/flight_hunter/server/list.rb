@@ -70,7 +70,7 @@ module FlightHunter
 			end
 
 			 def list_group_plain(list, group_name)
-                                list.each do |id,vals|
+        list.each do |id,vals|
 					if group_name == nil
 						puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
 					else
@@ -82,17 +82,17 @@ module FlightHunter
 							puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
 						end
 					end
-                                end
+                  end
 
-                        end
+        end
 
-                        def list_group_table(list, group_name)
-                                table = <<~TABLE.chomp
-                                        | ID       | Name    | Last Known IP | Group |  Has payload? |
-                                        |----------|---------|---------------|-------|--------------|
-                                TABLE
+        def list_group_table(list, group_name)
+                  table = <<~TABLE.chomp
+                          | ID       | Name    | Last Known IP | Group |  Has payload? |
+                          |----------|---------|---------------|-------|--------------|
+                  TABLE
 
-                                list.each do |id, vals|
+          list.each do |id, vals|
 					if group_name == nil
 						break
 					else
@@ -106,12 +106,14 @@ module FlightHunter
 							end
 						end
 					end
-                                end
-                                all = list.reduce(table) do |memo, (id,vals)|
-                                        "#{memo}\n| #{id} | #{list[id]["hostname"]} | #{list[id]["ip"] || "unknown"} |#{list[id]["group"] || "none" }  | #{list[id].length > 1} |"
-                                end
-                                puts TTY::Markdown.parse(all)
-                        end
+                end
+                all = list.reduce(table) do |memo, (id,vals)|
+                        
+                        "#{memo}\n| #{id} | #{list[id]["hostname"]} | #{list[id]["ip"] || "unknown"} |#{if list[id]["group"] == nil or list[id]["group"] == [] then "none" else list[id]["group"] end }  | #{list[id].length > 1} |"
+                end
+                puts TTY::Markdown.parse(all)
+      end
+
 		end
 	end
 end
