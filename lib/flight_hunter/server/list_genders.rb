@@ -70,6 +70,7 @@ module FlightHunter
 					message.chomp!(",") #remove spare final comma
 					printout = printout + message + " " + group + "\n"		#add to overall print
 				end
+        if printout == "" then puts "No genders to be listed." end
 				print printout
 			end
 			

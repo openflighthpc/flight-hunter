@@ -32,7 +32,19 @@ module FlightHunter
   module Server
     class RenameGroup
       def rename_group(list_file, old_name, new_name)
-      	list = YAML.load(File.read(list_file))
+        # couple of checks for robustness
+        list = YAML.load(File.read(list_file)) || {}
+        if list.nil? || list.empty?
+          puts "No groups found."
+          return
+        elsif old_name == nil or new_name == nil
+          puts "Missing input/inputs"
+          return
+        end
+
+
+
+
 				counter = 0
 				list.each do |id,vals|
 					if i = (list[id]["group"] or [] ).index(old_name)
