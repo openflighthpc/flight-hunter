@@ -30,42 +30,42 @@
 require 'tty-markdown'
 
 module FlightHunter
-	module Server
-		class Show
-			def show(parsed, name, plain=false)
-				list = YAML.load(File.read(parsed)) || {}
-				if list.nil? || list.empty?
-					puts "The list is empty."
-				else
-					list.each do |id,vals|
-						if vals["hostname"] == name
-							if !plain
-								group_name = "nil"
-								unless vals["group"] == nil then group_name = vals["group"] end
-								
-								table = <<~TABLE.chomp
-									| ID          | Name | Group |
-									|-------------|------|-------|
-									| #{id}       | #{vals["hostname"]} | #{vals["group"] || "none" }  |
-								TABLE
+  module Server
+    class Show
+      def show(parsed, name, plain=false)
+        list = YAML.load(File.read(parsed)) || {}
+        if list.nil? || list.empty?
+          puts "The list is empty."
+        else
+          list.each do |id,vals|
+            if vals["hostname"] == name
+              if !plain
+                group_name = "nil"
+                unless vals["group"] == nil then group_name = vals["group"] end
+                
+                table = <<~TABLE.chomp
+                  | ID          | Name | Group |
+                  |-------------|------|-------|
+                  | #{id}       | #{vals["hostname"]} | #{vals["group"] || "none" }  |
+                TABLE
 
-								puts TTY::Markdown.parse(table)
-								if vals.key?("payload")
-									puts vals["payload"]
-								else
-									puts "#{name} has no payload associated with it."
-								end
-								return
-							else
-								puts "#{id}: #{name}"
-								puts vals["payload"] rescue false
-								return
-							end
-						end
-					end
-					puts "Could not find an entry with name #{name}."
-				end
-			end
-		end
-	end
+                puts TTY::Markdown.parse(table)
+                if vals.key?("payload")
+                  puts vals["payload"]
+                else
+                  puts "#{name} has no payload associated with it."
+                end
+                return
+              else
+                puts "#{id}: #{name}"
+                puts vals["payload"] rescue false
+                return
+              end
+            end
+          end
+          puts "Could not find an entry with name #{name}."
+        end
+      end
+    end
+  end
 end

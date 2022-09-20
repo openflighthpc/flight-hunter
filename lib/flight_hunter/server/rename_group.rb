@@ -42,26 +42,22 @@ module FlightHunter
           return
         end
 
+        counter = 0
+        list.each do |id,vals|
+          if i = (list[id]["group"] or [] ).index(old_name)
+            if (list[id]["group"] or []).include?(new_name)
+              list[id]["group"][i] = nil
+              list[id]["group"].compact!
+            else
+              list[id]["group"][i] = new_name
+            end
+            counter+=1
+          end
+        end
 
-
-
-				counter = 0
-				list.each do |id,vals|
-					if i = (list[id]["group"] or [] ).index(old_name)
-						if (list[id]["group"] or []).include?(new_name)
-							list[id]["group"][i] = nil
-							list[id]["group"].compact!
-						else
-							list[id]["group"][i] = new_name
-						end
-						counter+=1
-					end
-				end
-
-
-				File.write(list_file,list.to_yaml)
-				puts "Group \'#{old_name}\' renamed to \'#{new_name}\' for #{counter} nodes" 
-			end
+        File.write(list_file,list.to_yaml)
+        puts "Group \'#{old_name}\' renamed to \'#{new_name}\' for #{counter} nodes" 
+      end
     end
   end
 end

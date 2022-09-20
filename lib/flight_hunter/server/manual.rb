@@ -29,39 +29,39 @@
 #===============================================================================
 
 module FlightHunter
-	module Server
-		class ManualParse
-			def manual(buffer_file,parsed_file)
-				parsed = YAML.load(File.read(parsed_file)) || {}
-				buffer = YAML.load(File.read(buffer_file)) || {}
-				existing = []
-				hostsearch = SearchHostname.new
-				buffer.each do |id,vals|
-					puts "Enter name for ID \"#{id}\" [#{vals["hostname"]}]: "
-					input = STDIN.gets.chomp
-					input=vals["hostname"] if input.empty?
-					if parsed.key?(id) || hostsearch.search(parsed,input)						
-						if parsed.key?(id)			
-							existing.push([id,parsed[id]])
-						end
-						if hostsearch.search(parsed,input)
-							parsed.each do |key,value|
-								if value["hostname"] == input
-									existing.push([key,input])
-								end
-							end
-						end
-						existing.uniq!
-						puts "Due to value conflicts, the following pre-existing node entries have been removed:"
-						existing.each { |element| puts "#{element[0]}: #{element[1]}"}
-						existing.each { |element| parsed.delete(element[0])}
-					end
-					parsed[id] = {"hostname" => input, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
-				end
-				File.open(parsed_file,'w+') {|file| file.write(parsed.to_yaml)}
-				File.write(buffer_file,'---')
-				puts "#{buffer_file} emptied; processed nodes written to #{parsed_file}."
-			end
-		end
-	end
+  module Server
+    class ManualParse
+      def manual(buffer_file,parsed_file)
+        parsed = YAML.load(File.read(parsed_file)) || {}
+        buffer = YAML.load(File.read(buffer_file)) || {}
+        existing = []
+        hostsearch = SearchHostname.new
+        buffer.each do |id,vals|
+          puts "Enter name for ID \"#{id}\" [#{vals["hostname"]}]: "
+          input = STDIN.gets.chomp
+          input=vals["hostname"] if input.empty?
+          if parsed.key?(id) || hostsearch.search(parsed,input)
+            if parsed.key?(id)
+              existing.push([id,parsed[id]])
+            end
+            if hostsearch.search(parsed,input)
+              parsed.each do |key,value|
+                if value["hostname"] == input
+                  existing.push([key,input])
+                end
+              end
+            end
+            existing.uniq!
+            puts "Due to value conflicts, the following pre-existing node entries have been removed:"
+            existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+            existing.each { |element| parsed.delete(element[0])}
+          end
+          parsed[id] = {"hostname" => input, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
+        end
+        File.open(parsed_file,'w+') {|file| file.write(parsed.to_yaml)}
+        File.write(buffer_file,'---')
+        puts "#{buffer_file} emptied; processed nodes written to #{parsed_file}."
+      end
+    end
+  end
 end

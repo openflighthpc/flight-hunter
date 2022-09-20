@@ -32,10 +32,10 @@ module FlightHunter
   module Server
     class RemoveID
       def remove_id(list_file,id)
-      	list = YAML.load(File.read(list_file))
-      	list.delete(id)
-      	File.write(list_file,list.to_yaml)
-      	puts "#{id} deleted."
+        list = YAML.load(File.read(list_file))
+        list.delete(id)
+        File.write(list_file,list.to_yaml)
+        puts "#{id} deleted."
       end
     end
   end

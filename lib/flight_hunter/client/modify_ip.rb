@@ -35,10 +35,10 @@ module FlightHunter
         if ip == nil || ip.chomp == ""
           puts "You must enter a value."
         else          
-        	imported_config = YAML.load_file(config)
-        	imported_config['ipaddr'] = ip
-        	File.write(config, imported_config.to_yaml)
-        	puts "Target IP changed to #{ip}"
+          imported_config = YAML.load_file(config)
+          imported_config['ipaddr'] = ip
+          File.write(config, imported_config.to_yaml)
+          puts "Target IP changed to #{ip}"
         end
       end
     end

@@ -29,10 +29,10 @@
 #===============================================================================
 
 module FlightHunter
-	module Server
-		class DumpBuffer
-			def dump_buffer(buffer)
-				File.write(buffer,'--- {}')
+  module Server
+    class DumpBuffer
+      def dump_buffer(buffer)
+        File.write(buffer,'--- {}')
         puts "#{buffer} emptied."
       end
     end

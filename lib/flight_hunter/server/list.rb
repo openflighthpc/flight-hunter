@@ -30,58 +30,58 @@
 require 'tty-markdown'
 
 module FlightHunter
-	module Server
-		class ListNodes
-			def list_nodes(list_file,plain=false, group=nil, show=nil )
-				list = YAML.load(File.read(list_file)) || {}
-				if list.nil? || list.empty?
-					puts "The list is empty."
-				else
-					if group != nil
-						groups = (group or "" ).split(",")
-						groups.each do |g| 
-							plain ? list_group_plain(list, g) : list_group_table(list, g)
-						end
-					else
-						plain ? list_group_plain(list, group) : list_group_table(list, group)
-					end
-						
-				end
-			end
+  module Server
+    class ListNodes
+      def list_nodes(list_file,plain=false, group=nil, show=nil )
+        list = YAML.load(File.read(list_file)) || {}
+        if list.nil? || list.empty?
+          puts "The list is empty."
+        else
+          if group != nil
+            groups = (group or "" ).split(",")
+            groups.each do |g| 
+              plain ? list_group_plain(list, g) : list_group_table(list, g)
+            end
+          else
+            plain ? list_group_plain(list, group) : list_group_table(list, group)
+          end
+            
+        end
+      end
 
-		private
-	
-			def list_plain(list)
-				list.each do |id,vals|
-					puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
-				end
-			end
-	
-			def list_table(list)
-				table = <<~TABLE.chomp
-					| ID       | Name    | Last Known IP | Groups |  Has payload? |
-					|----------|---------|---------------|--------|--------------|
-				TABLE
-
-				all = list.reduce(table) do |memo, (id,vals)|
-					"#{memo}\n| #{id} | #{list[id]["hostname"]} | #{list[id]["ip"] || "unknown"} |#{list[id]["group"] || "none" }  | #{list[id].length > 1} |"
-				end
-				puts TTY::Markdown.parse(all)
-			end
-
-			 def list_group_plain(list, group_name)
+    private
+  
+      def list_plain(list)
         list.each do |id,vals|
-					if group_name == nil
-						puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
-					else
-						if list[id]["group"] == nil
-							if group_name == "nil"
-								 puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
-							end
-						elsif list[id]["group"].include?(group_name)
-							puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
-						end
-					end
+          puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
+        end
+      end
+  
+      def list_table(list)
+        table = <<~TABLE.chomp
+          | ID       | Name    | Last Known IP | Groups |  Has payload? |
+          |----------|---------|---------------|--------|--------------|
+        TABLE
+
+        all = list.reduce(table) do |memo, (id,vals)|
+          "#{memo}\n| #{id} | #{list[id]["hostname"]} | #{list[id]["ip"] || "unknown"} |#{list[id]["group"] || "none" }  | #{list[id].length > 1} |"
+        end
+        puts TTY::Markdown.parse(all)
+      end
+
+       def list_group_plain(list, group_name)
+        list.each do |id,vals|
+          if group_name == nil
+            puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
+          else
+            if list[id]["group"] == nil
+              if group_name == "nil"
+                 puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
+              end
+            elsif list[id]["group"].include?(group_name)
+              puts "#{id},#{list[id]["hostname"]},#{list[id]["ip"] || "unknown"},#{ list[id]["group"] || "none"} ,#{list[id].length > 1}"
+            end
+          end
                   end
 
         end
@@ -93,19 +93,19 @@ module FlightHunter
                   TABLE
 
           list.each do |id, vals|
-					if group_name == nil
-						break
-					else
-						if list[id]["group"] == nil
-							unless group_name == "nil"
-								list.delete(id)
-							end
-						else 
-							unless list[id]["group"].include?(group_name)
-								list.delete(id)
-							end
-						end
-					end
+          if group_name == nil
+            break
+          else
+            if list[id]["group"] == nil
+              unless group_name == "nil"
+                list.delete(id)
+              end
+            else 
+              unless list[id]["group"].include?(group_name)
+                list.delete(id)
+              end
+            end
+          end
                 end
                 all = list.reduce(table) do |memo, (id,vals)|
                         
@@ -114,6 +114,6 @@ module FlightHunter
                 puts TTY::Markdown.parse(all)
       end
 
-		end
-	end
+    end
+  end
 end
