@@ -1,3 +1,13 @@
-var/flight-hunter/server/buffer.yaml
-var/flight-hunter/server/parsed.yaml
-Gemfile.lock
+*~
+tmp
+.bundle
+log
+vendor
+var
+etc/config.yml
+libexec/desktop/hooks/*
+*.swp
+*.swo
+*.idea*
+spec/examples.txt
+
