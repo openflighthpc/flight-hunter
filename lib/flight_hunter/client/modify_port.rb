@@ -33,9 +33,9 @@ module FlightHunter
     class ModifyPort
       def modify_port(config,port)
         imported_config = YAML.load_file(config)
-      	imported_config['port'] = port
-      	File.write(config,imported_config.to_yaml)
-      	puts "#{config} port changed to #{port}"
+        imported_config['port'] = port
+        File.write(config,imported_config.to_yaml)
+        puts "#{config} port changed to #{port}"
       end
     end
   end

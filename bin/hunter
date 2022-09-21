@@ -157,13 +157,13 @@ module FlightHunter
         Server::ListNodes.new.list_nodes(parsed,options.plain, options.group)
       end
     end
-	
-		command 'list-genders' do |c|
-			c.summary = 'List the parsed nodes in gender format.'
-			c.action do |args, _|
-				Server::ListGenders.new.list_genders(parsed)
-			end
-		end
+
+    command 'list-genders' do |c|
+      c.summary = 'List the parsed nodes in gender format.'
+      c.action do |args, _|
+        Server::ListGenders.new.list_genders(parsed)
+      end
+    end
 
     command 'show' do |c|
       c.syntax = "#{ program(:name) } NAME"
@@ -240,14 +240,14 @@ module FlightHunter
       c.syntax = "#{program(:name) } NAME MODIFICATIONS"
       c.summary = "Change groups of a node or nodes"
       c.description = "Modifications format is:,+<grouptoadd>,-<grouptoremove>. \n e.g. ,+A,-B,+C,+D,-Z \n Changes are evaluated left to right, and any number of changes is allowed"
-			c.option '--regex', 'The node Name will be treated as a regular expression for selecting all nodes to be changed'
+      c.option '--regex', 'The node Name will be treated as a regular expression for selecting all nodes to be changed'
       c.action do |args, options|
         name, modifications = args
         Server::ModifyGroup.new.modify_group(parsed, name, modifications, options.regex)
       end
     end
 
-		command 'rename-group' do |c|
+    command 'rename-group' do |c|
       c.syntax = "#{program(:name) } OLDNAME NEWNAME"
       c.summary = "Change the name of a group."
       c.action do |args, _|

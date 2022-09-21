@@ -29,6 +29,6 @@
 #===============================================================================
 
 def modify_nodelist(config,newname)
-	config['nodelist'] = newname
-	File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
+  config['nodelist'] = newname
+  File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
 end

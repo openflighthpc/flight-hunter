@@ -29,6 +29,6 @@
 #===============================================================================
 
 def modify_not_processed(config,newname)
-	config['not_processed_list'] = newname
-	File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
+  config['not_processed_list'] = newname
+  File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
 end

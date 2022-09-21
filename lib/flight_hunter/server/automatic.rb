@@ -29,51 +29,51 @@
 #===============================================================================
 
 module FlightHunter
-	module Server
-		class AutomaticParse
-			def automatic(buffer_file,parsed_file,prefix,length,start)	
-				parsed = YAML.load(File.read(parsed_file)) || {}
-				buffer = YAML.load(File.read(buffer_file)) || {}				
-				hostsearch = SearchHostname.new
-				length = length.to_i
-				existing = []
-				to_add = {}
-				start_val = start.dup
-				buffer.each do |id,vals|
-					if start_val.length < length
-						start_val.prepend("0"* (length-start_val.length))
-					elsif start_val.length > length
-						start_val.slice!(0,start_val.length-length)
-					end
+  module Server
+    class AutomaticParse
+      def automatic(buffer_file,parsed_file,prefix,length,start)
+        parsed = YAML.load(File.read(parsed_file)) || {}
+        buffer = YAML.load(File.read(buffer_file)) || {}
+        hostsearch = SearchHostname.new
+        length = length.to_i
+        existing = []
+        to_add = {}
+        start_val = start.dup
+        buffer.each do |id,vals|
+          if start_val.length < length
+            start_val.prepend("0"* (length-start_val.length))
+          elsif start_val.length > length
+            start_val.slice!(0,start_val.length-length)
+          end
 
-					newname = prefix+start_val
-					if parsed.key?(id) || hostsearch.search(parsed,newname)			
-						if parsed.key?(id)			
-							existing.push([id,parsed[id]])
-						end
-						if hostsearch.search(parsed,newname)
-							parsed.each do |key,value|
-								if value["hostname"] == newname
-									existing.push([key,newname])
-								end
-							end
-						end
-						existing.uniq!
-						existing.each { |element| parsed.delete(element[0])}	
-					end
-					to_add[id] = {"hostname" => newname, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
-					start_val.succ!
-				end
-				if !existing.empty?
-					puts "Due to value conflicts, the following pre-existing node entries have been removed:"
-					existing.each { |element| puts "#{element[0]}: #{element[1]}"}
-					existing.each { |element| parsed.delete(element[0])}
-				end
-				to_add.each {|node| parsed[node[0]] = node[1]}
-				File.write(parsed_file,parsed.to_yaml)
-				File.write(buffer_file,'---')
-				puts "#{buffer_file} emptied; processed nodes written to #{parsed_file}."
-			end
-		end
-	end
+          newname = prefix+start_val
+          if parsed.key?(id) || hostsearch.search(parsed,newname)
+            if parsed.key?(id)
+              existing.push([id,parsed[id]])
+            end
+            if hostsearch.search(parsed,newname)
+              parsed.each do |key,value|
+                if value["hostname"] == newname
+                  existing.push([key,newname])
+                end
+              end
+            end
+            existing.uniq!
+            existing.each { |element| parsed.delete(element[0])}
+          end
+          to_add[id] = {"hostname" => newname, "ip" => vals["ip"], "payload" => vals["payload"]}.compact
+          start_val.succ!
+        end
+        if !existing.empty?
+          puts "Due to value conflicts, the following pre-existing node entries have been removed:"
+          existing.each { |element| puts "#{element[0]}: #{element[1]}"}
+          existing.each { |element| parsed.delete(element[0])}
+        end
+        to_add.each {|node| parsed[node[0]] = node[1]}
+        File.write(parsed_file,parsed.to_yaml)
+        File.write(buffer_file,'---')
+        puts "#{buffer_file} emptied; processed nodes written to #{parsed_file}."
+      end
+    end
+  end
 end

@@ -32,10 +32,10 @@ module FlightHunter
   module Server
     class ModifyID
       def modify_id(list_file,oldid,newid)
-      	list = YAML.load(File.read(list_file))
-      	list[newid] = list.delete(oldid)
-      	File.write(list_file,list.to_yaml)
-      	puts "#{oldid} renamed to #{newid}."
+        list = YAML.load(File.read(list_file))
+        list[newid] = list.delete(oldid)
+        File.write(list_file,list.to_yaml)
+        puts "#{oldid} renamed to #{newid}."
       end
     end
   end
