@@ -56,14 +56,18 @@ module Hunter
 
         payload = [hostid, hostname, file_content].pack('Z*Z*Z*')
 
+        host = @options.server || Config.ipaddr
+        port = @options.port || Config.port
+
         begin
-          server = TCPSocket.open(ipaddr, port)
+          server = TCPSocket.open(host, port)
           server.write(payload)
           server.close
           puts "Successful transmission"
-        rescue Errno::ECONNREFUSED => E
+        rescue Errno::ECONNREFUSED => e
           puts "The server is unavailable"
           puts e.message
+        end
       end
     end
   end

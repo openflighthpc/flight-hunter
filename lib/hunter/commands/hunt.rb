@@ -1,4 +1,4 @@
-#==============================================================================
+# #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
 # This file is part of Flight Hunter.
@@ -24,24 +24,38 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require 'ostruct'
+
+require_relative '../command'
+require_relative '../config'
 
 module Hunter
-  class Command
-    attr_accessor :args, :options
+  module Commands
+    class Hunt < Command
+      def run
+        buffer = Config.node_buffer
+        parsed = Config.node_list
 
-    def initialize(args, options, command_name = nil)
-      @args = args.freeze
-      @options = OpenStruct.new(options)
-    end
+        port = @options.port || Config.data.fetch(:port)
+        server = TCPServer.open(port)
 
-    # this wrapper is here to later enable error handling &/ logging
-    def run!
-      run
-    end
+        Thread.new do
+          loop do
+            client = server.accept
+            hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
 
-    def run
-      raise NotImplementedError
+
+          end
+          client.close
+        end
+        puts "Hunter running on #{server.addr[3]}:#{server.addr[1]}\n"
+        trap "SIGINT" do
+          puts "\nExiting..."
+          exit 130
+        end
+        while true do
+          sleep 1
+        end
+      end
     end
   end
 end

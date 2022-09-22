@@ -27,6 +27,7 @@
 require 'xdg'
 require 'tty-config'
 require 'fileutils'
+require 'yaml'
 
 module Hunter
   module Config
@@ -42,6 +43,22 @@ module Hunter
             nil
           end
         end
+      end
+
+      def port
+        data.fetch(:port)
+      end
+
+      def ipaddr
+        data.fetch(:ipaddr)
+      end
+
+      def node_buffer
+        YAML.load_file(var_file('buffer.yaml'))
+      end
+
+      def node_list
+        YAML.load_file(var_file('parsed.yaml'))
       end
 
       def save_data
@@ -86,6 +103,14 @@ module Hunter
       end
 
       private
+
+      def var_file(*a)
+        parent_dir = File.join(root, 'var', *a[0..-2])
+        FileUtils.mkdir_p(parent_dir)
+        file = File.join(root, 'var', *a)
+        FileUtils.touch(file).first
+      end
+
       def xdg_config
         @xdg_config ||= XDG::Config.new
       end

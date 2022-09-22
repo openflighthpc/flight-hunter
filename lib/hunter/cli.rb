@@ -57,6 +57,14 @@ module Hunter
       end
     end
 
+    command :hunt do |c|
+      cli_syntax(c)
+      c.summary = 'Listen for broadcasting clients'
+      c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
+      c.slop.string '--port', 'Override port'
+      c.action Commands, :hunt
+    end
+
     command :send do |c|
       cli_syntax(c)
       c.summary = 'Push my identity plus optional payload to server.'
