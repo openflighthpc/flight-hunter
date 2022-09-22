@@ -38,12 +38,12 @@ begin
   require 'hunter/cli'
   Dir.chdir(ENV.fetch('FLIGHT_CWD','.'))
   OpenFlight.set_standard_env rescue nil
-  Hunter::CLI.run!
+  Hunter::CLI.run!(*ARGV)
 rescue Interrupt
   if Kernel.const_defined?(:Paint)
     $stderr.puts "\n#{Paint['WARNING', :underline, :yellow]}: Cancelled by user"
   else
     $stderr.puts "\nWARNING: Cancelled by user"
   end
-  exit(130)
+  raise SignelException.new(2)
 end

@@ -8,13 +8,15 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    commander-openflighthpc (1.1.2)
-      highline (~> 1.7.2)
+    commander-openflighthpc (2.2.0)
+      highline (> 1.7.2)
       paint (~> 2.1.0)
-    highline (1.7.10)
+      slop (~> 4.8)
+    highline (2.0.3)
     paint (2.1.1)
     pastel (0.8.0)
       tty-color (~> 0.5)
+    slop (4.9.2)
     tty-color (0.6.0)
     tty-config (0.6.0)
     tty-cursor (0.7.1)
@@ -32,7 +34,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  commander-openflighthpc (~> 1.1.0)
+  commander-openflighthpc (~> 2.2.0)
   tty-config
   tty-prompt
   xdg!

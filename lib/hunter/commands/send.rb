@@ -1,4 +1,4 @@
-#==============================================================================
+# #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
 # This file is part of Flight Hunter.
@@ -24,13 +24,46 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
+
+require 'socket'
+require 'yaml'
+
 require_relative '../command'
+require_relative '../collector'
 
 module Hunter
   module Commands
-    class Hello < Command
+    class SendPayload < Command
+      include Hunter::Collector
+
       def run
-        puts "Hello, hunter"
+        syshostid = `hostid`.chomp
+        hostid = begin
+                    File.read('/proc/cmdline').split.map do |a|
+                      a.split('=')
+                    end.select { |a| a.length == 2}.to_h
+                    sysinfo['SYSUUID'] || syshostid
+                  rescue
+                    syshostid
+                  end
+        if @options.file
+          file_content = File.read(@options.file)
+        else
+          file_content = Collector.collect.to_yaml
+        end
+
+        hostname = @options.spoof || Socket.gethostname
+
+        payload = [hostid, hostname, file_content].pack('Z*Z*Z*')
+
+        begin
+          server = TCPSocket.open(ipaddr, port)
+          server.write(payload)
+          server.close
+          puts "Successful transmission"
+        rescue Errno::ECONNREFUSED => E
+          puts "The server is unavailable"
+          puts e.message
       end
     end
   end

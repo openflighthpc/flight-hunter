@@ -29,31 +29,21 @@ require_relative 'version'
 
 require 'tty/reader'
 require 'commander'
+require 'erb'
 
 module Hunter
   module CLI
     PROGRAM_NAME = ENV.fetch('FLIGHT_PROGRAM_NAME','hunter')
 
-    extend Commander::Delegates
+    extend Commander::CLI
     program :application, "Flight Hunter"
     program :name, PROGRAM_NAME
     program :version, "v#{Hunter::VERSION}"
-    program :description, '%DESCRIPTION%'
+    program :description, 'MAC collection tool'
     program :help_paging, false
     default_command :help
-    silent_trace!
 
-    error_handler do |runner, e|
-      case e
-      when TTY::Reader::InputInterrupt
-        $stderr.puts "\n#{Paint['WARNING', :underline, :yellow]}: Cancelled by user"
-        exit(130)
-      else
-        Commander::Runner::DEFAULT_ERROR_HANDLER.call(runner, e)
-      end
-    end
-
-    if ENV['TERM'] !~ /^xterm/ && ENV['TERM'] !~ /rxvt/
+    if [/^xterm/, /rxvt/, /256color/].all? { |regex| ENV['TERM'] !~ regex }
       Paint.mode = 0
     end
 
@@ -67,14 +57,14 @@ module Hunter
       end
     end
 
-    command :hello do |c|
+    command :send do |c|
       cli_syntax(c)
-      c.summary = 'Say hello'
-      c.action Commands, :hello
-      c.description = <<EOF
-Say hello.
-EOF
+      c.summary = 'Push my identity plus optional payload to server.'
+      c.slop.string '-f', '--file', "Specify a payload file"
+      c.slop.string '-s', '--server', "Override server hostname"
+      c.slop.integer '-p', '--port', "Override server port"
+      c.slop.string '--spoof', "Override system hostname"
+      c.action Commands, :send_payload
     end
-    alias_command :h, :hello
   end
 end

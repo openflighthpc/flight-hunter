@@ -24,7 +24,7 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require_relative 'commands/hello'
+require_relative 'commands/send'
 
 module Hunter
   module Commands
