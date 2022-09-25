@@ -1,4 +1,4 @@
-# #==============================================================================
+#==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
 # This file is part of Flight Hunter.
@@ -27,33 +27,62 @@
 
 require_relative '../command'
 require_relative '../config'
+require_relative '../node'
+require_relative '../node_list'
 
 module Hunter
   module Commands
     class Hunt < Command
       def run
-        buffer = Config.node_buffer
-        parsed = Config.node_list
+        buffer = NodeList.load(Config.node_buffer)
+        parsed = NodeList.load(Config.node_list)
 
         port = @options.port || Config.data.fetch(:port)
         server = TCPServer.open(port)
 
-        Thread.new do
-          loop do
-            client = server.accept
-            hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
+        puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+c to stop\n"
 
+        loop do
+          client = server.accept
+          hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
 
+          node = {
+            "hostname" => hostname,
+            "ip" => (client.peeraddr[2] || 'unknown'),
+            "payload" => payload
+          }.reject { |k,v| v.empty? }
+
+          node = Node.new(
+            id: hostid,
+            hostname: hostname,
+            ip: (client.peeraddr[2] || 'unknown'),
+            payload: payload
+          )
+
+          puts <<~EOF
+          Found node.
+          ID: #{node.id}
+          name: #{node.hostname}
+          IP: #{node.ip}
+
+          EOF
+
+          if @options.allow_existing
+            buffer.nodes << node
+            puts "Node added to buffer"
+          else
+            if buffer.has_node?(node.id)
+              puts "ID already exists in buffer"
+            elsif parsed.has_node?(node.id)
+              puts "ID already exists in parsed node list"
+            else
+              buffer.nodes << node
+              puts "Node added to buffer"
+            end
           end
+
+          buffer.save
           client.close
-        end
-        puts "Hunter running on #{server.addr[3]}:#{server.addr[1]}\n"
-        trap "SIGINT" do
-          puts "\nExiting..."
-          exit 130
-        end
-        while true do
-          sleep 1
         end
       end
     end

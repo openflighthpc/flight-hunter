@@ -54,11 +54,11 @@ module Hunter
       end
 
       def node_buffer
-        YAML.load_file(var_file('buffer.yaml'))
+        var_file('buffer.yaml')
       end
 
       def node_list
-        YAML.load_file(var_file('parsed.yaml'))
+        var_file('parsed.yaml')
       end
 
       def save_data

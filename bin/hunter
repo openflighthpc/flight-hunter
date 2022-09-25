@@ -45,5 +45,5 @@ rescue Interrupt
   else
     $stderr.puts "\nWARNING: Cancelled by user"
   end
-  raise SignelException.new(2)
+  raise SignalException.new(2)
 end

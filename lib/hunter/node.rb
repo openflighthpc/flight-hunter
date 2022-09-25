@@ -27,9 +27,18 @@
 
 module Hunter
   class Node
+    def to_h
+      {
+        'id' => id,
+        'hostname' => hostname,
+        'ip' => ip,
+        'payload' => payload
+      }
+    end
+
     attr_reader :id, :hostname, :ip, :payload
 
-    def initialize(id, hostname, ip, payload)
+    def initialize(id:, hostname:, ip:, payload:)
       @id = id
       @hostname = hostname
       @ip = ip

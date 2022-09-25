@@ -36,8 +36,12 @@ module Hunter
       end
     end
 
+    def has_node?(id)
+      nodes.any? { |n| n.id == id }
+    end
+
     def to_yaml
-      nodes.to_yaml
+      YAML.dump(to_yaml)
     end
 
     def save
@@ -49,16 +53,20 @@ module Hunter
 
     private
 
+    def to_yaml
+      nodes.map(&:to_h).to_yaml
+    end
+
     def initialize(filepath)
       @filepath = filepath
       @nodes = [].tap do |l|
         list = YAML.load_file(filepath) || {}
         list.each do |node|
           l << Node.new(
-            node['id'],
-            node['hostname'],
-            node['ip'],
-            node['payload']
+            id: node['id'],
+            hostname: node['hostname'],
+            ip: node['ip'],
+            payload: node['payload']
           )
         end
       end
