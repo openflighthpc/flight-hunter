@@ -41,7 +41,7 @@ module Hunter
     end
 
     def to_yaml
-      YAML.dump(to_yaml)
+      YAML.dump(nodes.map(&:to_h))
     end
 
     def save
@@ -52,10 +52,6 @@ module Hunter
     attr_accessor :nodes
 
     private
-
-    def to_yaml
-      nodes.map(&:to_h).to_yaml
-    end
 
     def initialize(filepath)
       @filepath = filepath

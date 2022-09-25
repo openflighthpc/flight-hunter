@@ -35,14 +35,27 @@ module Hunter
     class List < Command
       def run
         list = NodeList.load(args[0])
-        raise "No nodes to display" if list.nodes.empty?
 
-        t = Table.new
-        t.headers('ID', 'Hostname', 'IP')
-        list.nodes.each do |node|
-          t.row(node.id, node.hostname, node.ip)
+        if $stdout.tty?
+          raise "No nodes to display" if list.nodes.empty?
+
+          t = Table.new
+          t.headers('ID', 'Hostname', 'IP')
+          list.nodes.each do |node|
+            t.row(node.id, node.hostname, node.ip)
+          end
+          t.emit
+        else
+          list.nodes.each do |n|
+            a = [
+              n.id,
+              n.hostname,
+              n.id,
+              n.payload
+            ]
+            puts a.join("\t")
+          end
         end
-        t.emit
       end
     end
   end
