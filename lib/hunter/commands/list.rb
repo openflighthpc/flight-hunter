@@ -24,33 +24,25 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require_relative 'commands/hunt'
-require_relative 'commands/list'
-require_relative 'commands/send'
+
+require 'yaml'
+
+require_relative '../command'
+require_relative '../table'
 
 module Hunter
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class List < Command
+      def run
+        list = NodeList.load(args[0])
+        raise "No nodes to display" if list.nodes.empty?
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+        t = Table.new
+        t.headers('ID', 'Hostname', 'IP')
+        list.nodes.each do |node|
+          t.row(node.id, node.hostname, node.ip)
         end
-      rescue NameError
-        nil
+        t.emit
       end
     end
   end

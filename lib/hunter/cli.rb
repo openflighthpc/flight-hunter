@@ -65,6 +65,24 @@ module Hunter
       c.action Commands, :hunt
     end
 
+    command 'list-buffer' do |c|
+      cli_syntax(c)
+      c.summary = 'Show the nodes in the buffer list'
+      c.action do |args, opts|
+        args = args.unshift(Config.node_buffer)
+        Commands::List.new(args, opts).run!
+      end
+    end
+
+    command 'list-parsed' do |c|
+      cli_syntax(c)
+      c.summary = 'Show the nodes in the parsed list'
+      c.action do |args, opts|
+        args = args.unshift(Config.node_list)
+        Commands::List.new(args, opts).run!
+      end
+    end
+
     command :send do |c|
       cli_syntax(c)
       c.summary = 'Push my identity plus optional payload to server.'
