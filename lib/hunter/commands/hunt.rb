@@ -68,6 +68,7 @@ module Hunter
           EOF
 
           if @options.allow_existing
+            buffer.nodes.delete_if { |n| n.id == node.id }
             buffer.nodes << node
             puts "Node added to buffer"
           else
