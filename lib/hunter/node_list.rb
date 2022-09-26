@@ -44,6 +44,11 @@ module Hunter
       YAML.dump(nodes.map(&:to_h))
     end
 
+    def empty
+      @nodes = []
+      save
+    end
+
     def save
       File.open(filepath, 'w+') { |f| f.write(to_yaml) }
     end

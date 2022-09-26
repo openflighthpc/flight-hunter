@@ -83,6 +83,12 @@ module Hunter
       end
     end
 
+    command :parse do |c|
+      cli_syntax(c)
+      c.summary = 'Interactively assign hostnames to nodes in the buffer'
+      c.action Commands, :parse
+    end
+
     command :send do |c|
       cli_syntax(c)
       c.summary = 'Push my identity plus optional payload to server.'

@@ -26,6 +26,7 @@
 #==============================================================================
 require_relative 'commands/hunt'
 require_relative 'commands/list'
+require_relative 'commands/parse'
 require_relative 'commands/send'
 
 module Hunter
