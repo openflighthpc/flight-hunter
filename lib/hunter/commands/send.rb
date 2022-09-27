@@ -27,6 +27,7 @@
 
 require 'socket'
 require 'yaml'
+require 'json'
 
 require_relative '../command'
 require_relative '../collector'
@@ -49,7 +50,7 @@ module Hunter
         if @options.file
           file_content = File.read(@options.file)
         else
-          file_content = Collector.collect.to_yaml
+          file_content = Collector.collect.to_json
         end
 
         hostname = @options.spoof || Socket.gethostname
