@@ -90,6 +90,14 @@ module Hunter
       end
     end
 
+    command 'show' do |c|
+      cli_syntax(c, 'NODE')
+      c.summary = 'Show details of particular node in parsed list'
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.slop.bool '--plain', "Print in machine-readable format"
+      c.action Commands, :show
+    end
+
     command 'list-parsed' do |c|
       cli_syntax(c)
       c.summary = 'Show the nodes in the parsed list'

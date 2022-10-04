@@ -24,59 +24,29 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
+require_relative '../command'
+require_relative '../table'
 
 module Hunter
-  class NodeList
+  module Commands
+    class Show < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
 
-    class << self
-      def load(filepath)
-        filename = filepath.split("/").compact.last
-        raise "Node list #{filename} doesn't exist" if !File.file?(filepath)
-        new(filepath)
-      end
-    end
+        node = list.find(args[0])
 
-    def has_node?(id)
-      nodes.any? { |n| n.id == id }
-    end
+        raise "Node with id '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
 
-    def find(id)
-      nodes.find { |n| n.id == id }
-    end
-
-    def to_yaml
-      YAML.dump(nodes.map(&:to_h))
-    end
-
-    def empty
-      @nodes = []
-      save
-    end
-
-    def name
-      filepath.split("/").last.split(".").first
-    end
-
-    def save
-      File.open(filepath, 'w+') { |f| f.write(to_yaml) }
-    end
-
-    attr_reader :filepath
-    attr_accessor :nodes
-
-    private
-
-    def initialize(filepath)
-      @filepath = filepath
-      @nodes = [].tap do |l|
-        list = YAML.load_file(filepath) || {}
-        list.each do |node|
-          l << Node.new(
-            id: node['id'],
-            hostname: node['hostname'],
-            ip: node['ip'],
-            payload: node['payload']
-          )
+        if @options.plain
+          puts node.to_h.values.join("\t")
+        else
+          t = Table.new
+          t.headers('ID', 'Hostname', 'IP')
+          t.row(node.id, node.hostname, node.ip)
+          t.emit
+          puts node.payload
         end
       end
     end
