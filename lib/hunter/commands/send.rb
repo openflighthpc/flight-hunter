@@ -50,7 +50,7 @@ module Hunter
         if @options.file
           file_content = File.read(@options.file)
         else
-          file_content = Collector.collect.to_json
+          file_content = Collector.collect.to_yaml
         end
 
         hostname = @options.spoof || Socket.gethostname

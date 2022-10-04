@@ -36,16 +36,7 @@ module Hunter
       def run
         list = NodeList.load(args[0])
 
-        if $stdout.tty?
-          raise "No nodes to display" if list.nodes.empty?
-
-          t = Table.new
-          t.headers('ID', 'Hostname', 'IP')
-          list.nodes.each do |node|
-            t.row(node.id, node.hostname, node.ip)
-          end
-          t.emit
-        else
+        if @options.plain
           list.nodes.each do |n|
             a = [
               n.id,
@@ -54,6 +45,15 @@ module Hunter
             ]
             puts a.join("\t")
           end
+        else
+          raise "No nodes to display" if list.nodes.empty?
+
+          t = Table.new
+          t.headers('ID', 'Hostname', 'IP')
+          list.nodes.each do |node|
+            t.row(node.id, node.hostname, node.ip)
+          end
+          t.emit
         end
       end
     end

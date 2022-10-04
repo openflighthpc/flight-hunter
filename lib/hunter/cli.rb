@@ -84,6 +84,7 @@ module Hunter
     command 'list-buffer' do |c|
       cli_syntax(c)
       c.summary = 'Show the nodes in the buffer list'
+      c.slop.bool '--plain', 'Print in machine-readable manner'
       c.action do |args, opts|
         args = args.unshift(Config.node_buffer)
         Commands::List.new(args, opts).run!
@@ -101,6 +102,7 @@ module Hunter
     command 'list-parsed' do |c|
       cli_syntax(c)
       c.summary = 'Show the nodes in the parsed list'
+      c.slop.bool '--plain', 'Print in machine-readable manner'
       c.action do |args, opts|
         args = args.unshift(Config.node_list)
         Commands::List.new(args, opts).run!
