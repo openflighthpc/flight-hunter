@@ -50,8 +50,7 @@ module Hunter
             a = [
               n.id,
               n.hostname,
-              n.ip,
-              n.payload
+              n.ip
             ]
             puts a.join("\t")
           end
