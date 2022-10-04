@@ -49,6 +49,10 @@ module Hunter
         data.fetch(:port)
       end
 
+      def autorun_mode
+        ENV['flight_HUNTER_autorun_mode'] || data.fetch(:mode)
+      end
+
       def ipaddr
         data.fetch(:ipaddr)
       end

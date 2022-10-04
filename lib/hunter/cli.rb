@@ -65,6 +65,22 @@ module Hunter
       c.action Commands, :hunt
     end
 
+    command :autorun do |c|
+      cli_syntax(c)
+      c.summary = 'Interpret running mode from config or environment'
+      c.action do |args, opts|
+        case Config.autorun_mode
+        when 'hunt'
+          Commands::Hunt.new(args, opts).run!
+        when 'send'
+          Commands::SendPayload.new(args, opts).run!
+        else
+          raise "Autorun mode provided is invalid."
+        end
+      end
+    end
+
+
     command 'list-buffer' do |c|
       cli_syntax(c)
       c.summary = 'Show the nodes in the buffer list'

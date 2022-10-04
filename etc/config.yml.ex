@@ -4,3 +4,6 @@
 #
 # Port to listen/send over. This must match on both server and client.
 # port:
+#
+# Mode to use when autorun
+# mode:
