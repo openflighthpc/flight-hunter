@@ -68,9 +68,10 @@ module Hunter
           end
           return groups
         end
-        a.sort { |n| n.id }
+        a.sort_by { |n| n.id }
       end
     end
+
 
     def name
       filepath.split("/").last.split(".").first

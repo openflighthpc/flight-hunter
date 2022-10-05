@@ -92,7 +92,7 @@ module Hunter
       end
     end
 
-    command 'show' do |c|
+    command :show do |c|
       cli_syntax(c, 'NODE')
       c.summary = 'Show details of node in parsed list by ID'
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
@@ -126,6 +126,12 @@ module Hunter
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
       c.slop.bool '--regex', "Match all hostnames with regex NODE"
       c.action Commands, :modify_groups
+    end
+
+    command 'rename-group' do |c|
+      cli_syntax(c, 'GROUP NEW_NAME')
+      c.summary = 'Rename group and keep all nodes it contains'
+      c.action Commands, :rename_group
     end
 
     command :parse do |c|

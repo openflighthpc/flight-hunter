@@ -24,38 +24,29 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require_relative 'commands/hunt'
-require_relative 'commands/list'
-require_relative 'commands/modify_groups'
-require_relative 'commands/parse'
-require_relative 'commands/remove_node'
-require_relative 'commands/rename_group'
-require_relative 'commands/send'
-require_relative 'commands/show'
+require_relative '../command'
 
 module Hunter
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class RenameGroup < Command
+      def run
+        buffer = NodeList.load(Config.node_buffer)
+        parsed = NodeList.load(Config.node_list)
+        old = args[0]
+        new = args[1]
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+        unless [buffer, parsed].any? { |list| list.nodes.map(&:groups).flatten.uniq.include?(old) }
+          raise "Group '#{old}' does not exist in either node list"
         end
-      rescue NameError
-        nil
+
+        [buffer, parsed].each do |list|
+          list.nodes.each do |node|
+            node.groups.map! { |g| g == old ? new : g }.uniq!
+          end
+          list.save
+        end
+
+        puts "Group '#{old}' renamed to '#{new}'"
       end
     end
   end
