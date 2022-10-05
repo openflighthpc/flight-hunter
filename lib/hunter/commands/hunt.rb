@@ -56,7 +56,8 @@ module Hunter
             id: hostid,
             hostname: hostname,
             ip: (client.peeraddr[2] || 'unknown'),
-            payload: payload
+            payload: payload,
+            groups: []
           )
 
           puts <<~EOF

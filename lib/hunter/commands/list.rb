@@ -41,7 +41,8 @@ module Hunter
             a = [
               n.id,
               n.hostname,
-              n.ip
+              n.ip,
+              n.groups.any? ? n.groups.join("|") : "|"
             ]
             puts a.join("\t")
           end
@@ -49,9 +50,9 @@ module Hunter
           raise "No nodes to display" if list.nodes.empty?
 
           t = Table.new
-          t.headers('ID', 'Hostname', 'IP')
+          t.headers('ID', 'Hostname', 'IP', 'Groups')
           list.nodes.each do |node|
-            t.row(node.id, node.hostname, node.ip)
+            t.row(node.id, node.hostname, node.ip, node.groups.join(", "))
           end
           t.emit
         end

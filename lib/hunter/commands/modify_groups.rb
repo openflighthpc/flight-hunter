@@ -24,36 +24,45 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require_relative 'commands/hunt'
-require_relative 'commands/list'
-require_relative 'commands/modify_groups'
-require_relative 'commands/parse'
-require_relative 'commands/send'
-require_relative 'commands/show'
+require_relative '../command'
+require_relative '../table'
 
 module Hunter
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class ModifyGroups < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
+        to_add = @options.add&.split(",") || []
+        to_remove = @options.remove&.split(",") || []
 
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+        nodes = 
+          case @options.regex
+          when true
+            list.match(Regexp.new(args[0]))
+          when false
+            [list.find(args[0])]
+          end
+        
+        raise "No nodes in list '#{list.name}' match pattern '#{args[0]}'" unless nodes.any?
+
+        nodes.each do |n|
+          n.add_groups(to_add)
+          n.remove_groups(to_remove)
         end
-      rescue NameError
-        nil
+
+        list.save
+
+        puts "Node(s) updated successfully:"
+        
+        t = Table.new
+        t.headers('ID', 'Hostname', 'Groups')
+        nodes.each do |n|
+          t.row(n.id, n.hostname, n.groups.join(", "))
+        end
+        t.emit
       end
     end
   end

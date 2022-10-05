@@ -32,17 +32,31 @@ module Hunter
         'id' => id,
         'hostname' => hostname,
         'ip' => ip,
-        'payload' => payload
+        'payload' => payload,
+        'groups' => groups
       }
     end
 
-    attr_reader :id, :hostname, :ip, :payload
+    def add_groups(new_groups)
+      groups.concat(new_groups).uniq!
+    end
 
-    def initialize(id:, hostname:, ip:, payload:)
+    def remove_groups(to_remove)
+      self.groups = groups - to_remove
+    end
+
+    attr_reader :id, :hostname, :ip, :payload, :groups
+
+    def initialize(id:, hostname:, ip:, payload:, groups: [])
       @id = id
       @hostname = hostname
       @ip = ip
       @payload = payload
+      @groups = groups
     end
+
+    private
+
+    attr_writer :groups
   end
 end

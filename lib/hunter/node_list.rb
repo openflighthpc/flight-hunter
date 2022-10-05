@@ -44,6 +44,10 @@ module Hunter
       nodes.find { |n| n.id == id }
     end
 
+    def match(regex)
+      nodes.select { |n| regex.match(n.hostname) }
+    end
+
     def to_yaml
       YAML.dump(nodes.map(&:to_h))
     end
@@ -75,7 +79,8 @@ module Hunter
             id: node['id'],
             hostname: node['hostname'],
             ip: node['ip'],
-            payload: node['payload']
+            payload: node['payload'],
+            groups: node['groups']
           )
         end
       end

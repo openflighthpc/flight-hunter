@@ -109,6 +109,16 @@ module Hunter
       end
     end
 
+    command 'modify-groups' do |c|
+      cli_syntax(c, 'NODE')
+      c.summary = 'Add or remove groups from a node'
+      c.slop.string '--add', 'Comma separated list of groups to add', meta: 'GROUPS'
+      c.slop.string '--remove', 'Comma separated list of groups to remove', meta: 'GROUPS'
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.slop.bool '--regex', "Treat NODE argument as regular expression"
+      c.action Commands, :modify_groups
+    end
+
     command :parse do |c|
       cli_syntax(c)
       c.summary = 'Interactively assign hostnames to nodes in the buffer'

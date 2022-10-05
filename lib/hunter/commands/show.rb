@@ -40,11 +40,17 @@ module Hunter
         raise "Node with id '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
 
         if @options.plain
-          puts node.to_h.values.join("\t")
+          a = [
+            node.id,
+            node.hostname,
+            node.ip,
+            node.groups.any? ? node.groups.join("|") : "|"
+          ]
+          puts a.join("\t")
         else
           t = Table.new
-          t.headers('ID', 'Hostname', 'IP')
-          t.row(node.id, node.hostname, node.ip)
+          t.headers('ID', 'Hostname', 'IP', 'Groups')
+          t.row(node.id, node.hostname, node.ip, node.groups.join(", "))
           t.emit
           puts node.payload
         end
