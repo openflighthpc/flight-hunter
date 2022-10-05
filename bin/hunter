@@ -39,23 +39,6 @@ begin
   Dir.chdir(ENV.fetch('FLIGHT_CWD','.'))
   OpenFlight.set_standard_env rescue nil
 
-  require 'pidfile'
-
-  pidpath = ENV['flight_HUNTER_pidfile']
-
-  case pidpath.nil?
-  when true
-    pf = PidFile.new
-  when false
-    piddir, pidfile = pidpath.yield_self do |s|
-      [File.dirname(s), s.split("/").pop]
-    end
-    pf = PidFile.new(
-      piddir: piddir,
-      pidfile: pidfile
-    )
-  end
-
   Hunter::CLI.run!(*ARGV)
 rescue Interrupt
   if Kernel.const_defined?(:Paint)

@@ -24,11 +24,13 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
+require 'pidfile'
 
 require_relative '../command'
 require_relative '../config'
 require_relative '../node'
 require_relative '../node_list'
+
 
 module Hunter
   module Commands
@@ -41,6 +43,20 @@ module Hunter
         server = TCPServer.open(port)
 
         puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+c to stop\n"
+        pidpath = ENV['flight_HUNTER_pidfile']
+
+        case pidpath.nil?
+        when true
+          pf = PidFile.new
+        when false
+          piddir, pidfile = pidpath.yield_self do |s|
+            [File.dirname(s), s.split("/").pop]
+          end
+          pf = PidFile.new(
+            piddir: piddir,
+            pidfile: pidfile
+          )
+        end
 
         loop do
           client = server.accept
