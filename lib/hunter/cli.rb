@@ -80,6 +80,11 @@ module Hunter
       end
     end
 
+    command 'dump-buffer' do |c|
+      cli_syntax(c)
+      c.summary = 'Drop all nodes in the buffer list'
+      c.action Commands, :dump_buffer
+    end
 
     command 'list-buffer' do |c|
       cli_syntax(c)
