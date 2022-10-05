@@ -93,10 +93,17 @@ module Hunter
 
     command 'show' do |c|
       cli_syntax(c, 'NODE')
-      c.summary = 'Show details of particular node in parsed list'
+      c.summary = 'Show details of node in parsed list by ID'
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
       c.slop.bool '--plain', "Print in machine-readable format"
       c.action Commands, :show
+    end
+
+    command 'remove-node' do |c|
+      cli_syntax(c, 'NODE')
+      c.summary = 'Remove node from parsed list by ID'
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.action Commands, :remove_node
     end
 
     command 'list-parsed' do |c|
@@ -111,11 +118,11 @@ module Hunter
 
     command 'modify-groups' do |c|
       cli_syntax(c, 'NODE')
-      c.summary = 'Add or remove groups from a node'
+      c.summary = 'Add or remove groups from a node by ID'
       c.slop.string '--add', 'Comma separated list of groups to add', meta: 'GROUPS'
       c.slop.string '--remove', 'Comma separated list of groups to remove', meta: 'GROUPS'
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
-      c.slop.bool '--regex', "Treat NODE argument as regular expression"
+      c.slop.bool '--regex', "Match all hostnames with regex NODE"
       c.action Commands, :modify_groups
     end
 

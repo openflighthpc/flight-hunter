@@ -24,37 +24,24 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require_relative 'commands/hunt'
-require_relative 'commands/list'
-require_relative 'commands/modify_groups'
-require_relative 'commands/parse'
-require_relative 'commands/remove_node'
-require_relative 'commands/send'
-require_relative 'commands/show'
+require_relative '../command'
 
 module Hunter
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class RemoveNode < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
+        node = list.find(args[0])
 
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+        raise "Node with id '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
+
+        if list.nodes.delete(node)
+          puts "Node '#{args[0]}' removed from list '#{list.name}'"
+          list.save
         end
-      rescue NameError
-        nil
       end
     end
   end
