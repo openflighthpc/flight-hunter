@@ -57,6 +57,21 @@ module Hunter
       save
     end
 
+    def nodes(by_group: false)
+      @nodes.tap do |a|
+        if by_group
+          groups = a.map(&:groups).flatten.uniq.sort.reduce({}) do |h, i|
+            h.merge(Hash[i, Array.new])
+          end
+          a.each do |node|
+            node.groups.each { |g| groups[g] << node }
+          end
+          return groups
+        end
+        a.sort { |n| n.id }
+      end
+    end
+
     def name
       filepath.split("/").last.split(".").first
     end
@@ -66,7 +81,7 @@ module Hunter
     end
 
     attr_reader :filepath
-    attr_accessor :nodes
+    attr_writer :nodes
 
     private
 

@@ -85,6 +85,7 @@ module Hunter
       cli_syntax(c)
       c.summary = 'Show the nodes in the buffer list'
       c.slop.bool '--plain', 'Print in machine-readable manner'
+      c.slop.bool '--by-group', 'Group nodes by group'
       c.action do |args, opts|
         args = args.unshift(Config.node_buffer)
         Commands::List.new(args, opts).run!
@@ -110,6 +111,7 @@ module Hunter
       cli_syntax(c)
       c.summary = 'Show the nodes in the parsed list'
       c.slop.bool '--plain', 'Print in machine-readable manner'
+      c.slop.bool '--by-group', 'Group nodes by group'
       c.action do |args, opts|
         args = args.unshift(Config.node_list)
         Commands::List.new(args, opts).run!
@@ -128,13 +130,13 @@ module Hunter
 
     command :parse do |c|
       cli_syntax(c)
-      c.summary = 'Interactively assign hostnames to nodes in the buffer'
+      c.summary = 'Interactively move nodes from buffer to parsed list'
       c.action Commands, :parse
     end
 
     command :send do |c|
       cli_syntax(c)
-      c.summary = 'Push my identity plus optional payload to server.'
+      c.summary = 'Push my identity plus optional payload to server'
       c.slop.string '-f', '--file', "Specify a payload file"
       c.slop.string '-s', '--server', "Override server hostname"
       c.slop.integer '-p', '--port', "Override server port"

@@ -49,12 +49,25 @@ module Hunter
         else
           raise "No nodes to display" if list.nodes.empty?
 
-          t = Table.new
-          t.headers('ID', 'Hostname', 'IP', 'Groups')
-          list.nodes.each do |node|
-            t.row(node.id, node.hostname, node.ip, node.groups.join(", "))
+          case @options.by_group
+          when true
+            list.nodes(by_group: true).each do |group, nodes|
+              t = Table.new
+              t.headers('ID', 'Hostname', 'IP')
+              nodes.each do |node|
+                t.row(node.id, node.hostname, node.ip)
+              end
+              puts "Group '#{group}':"
+              t.emit
+            end
+          when false
+            t = Table.new
+            t.headers('ID', 'Hostname', 'IP', 'Groups')
+            list.nodes.each do |node|
+              t.row(node.id, node.hostname, node.ip, node.groups.join(", "))
+            end
+            t.emit
           end
-          t.emit
         end
       end
     end
