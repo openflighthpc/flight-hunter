@@ -55,7 +55,6 @@ module Hunter
 
         final = existing.any? ? kept & overwrite : kept
         parsed.nodes.concat(final)
-        buffer.empty
         parsed.save
         puts "Nodes saved to parsed node list."
       end

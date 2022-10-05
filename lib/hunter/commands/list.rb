@@ -64,7 +64,7 @@ module Hunter
             t = Table.new
             t.headers('ID', 'Hostname', 'IP', 'Groups')
             list.nodes.each do |node|
-              t.row(node.id, node.hostname, node.ip, node.groups.join(", "))
+              t.row(node.id, node.hostname, node.ip, node.groups&.join(", "))
             end
             t.emit
           end
