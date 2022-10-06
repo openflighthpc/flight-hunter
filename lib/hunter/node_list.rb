@@ -44,6 +44,10 @@ module Hunter
       nodes.find { |n| n.id == id }
     end
 
+    def remove_nodes(nodes)
+      @nodes = @nodes - nodes
+    end
+
     def match(regex)
       nodes.select { |n| regex.match(n.hostname) }
     end

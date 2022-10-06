@@ -47,12 +47,12 @@ module Hunter
 
     attr_reader :id, :hostname, :ip, :payload, :groups
 
-    def initialize(id:, hostname:, ip:, payload:, groups: [])
+    def initialize(id:, hostname:, ip:, payload:, groups:)
       @id = id
       @hostname = hostname
       @ip = ip
       @payload = payload
-      @groups = groups
+      @groups = groups || []
     end
 
     private

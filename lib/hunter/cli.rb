@@ -109,6 +109,7 @@ module Hunter
       cli_syntax(c, 'NODE')
       c.summary = 'Remove node from parsed list by ID'
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.slop.bool '--name', "Specify node by regex on hostname instead of ID"
       c.action Commands, :remove_node
     end
 

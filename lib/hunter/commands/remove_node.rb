@@ -25,6 +25,7 @@
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
 require_relative '../command'
+require_relative '../table'
 
 module Hunter
   module Commands
@@ -34,13 +35,27 @@ module Hunter
         list_file = buffer ? Config.node_buffer : Config.node_list
         list = NodeList.load(list_file)
 
-        node = list.find(args[0])
+        search_term = args[0]
 
-        raise "Node with id '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
+        nodes =
+          case @options.name
+          when true
+            list.match(Regexp.new(args[0]))
+          when false
+            [list.find(args[0])]
+          end
+        
+        raise "No nodes in list '#{list.name}' match pattern '#{args[0]}'" unless nodes&.any?
 
-        if list.nodes.delete(node)
-          puts "Node '#{args[0]}' removed from list '#{list.name}'"
-          list.save
+        if list.remove_nodes(nodes) && list.save
+          puts "The following nodes have successfully been removed from list '#{list.name}'"
+
+          t = Table.new
+          t.headers('ID', 'Hostname', 'Groups')
+          nodes.each do |n|
+            t.row(n.id, n.hostname, n.groups.join(", "))
+          end
+          t.emit
         end
       end
     end
