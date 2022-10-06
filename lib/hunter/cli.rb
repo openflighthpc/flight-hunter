@@ -86,15 +86,13 @@ module Hunter
       c.action Commands, :dump_buffer
     end
 
-    command 'list-buffer' do |c|
+    command 'list' do |c|
       cli_syntax(c)
-      c.summary = 'Show the nodes in the buffer list'
+      c.summary = 'Show the nodes in the parsed list'
       c.slop.bool '--plain', 'Print in machine-readable manner'
       c.slop.bool '--by-group', 'Group nodes by group'
-      c.action do |args, opts|
-        args = args.unshift(Config.node_buffer)
-        Commands::List.new(args, opts).run!
-      end
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.action Commands, :list
     end
 
     command :show do |c|
@@ -111,17 +109,6 @@ module Hunter
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
       c.slop.bool '--name', "Specify node by regex on hostname instead of ID"
       c.action Commands, :remove_node
-    end
-
-    command 'list-parsed' do |c|
-      cli_syntax(c)
-      c.summary = 'Show the nodes in the parsed list'
-      c.slop.bool '--plain', 'Print in machine-readable manner'
-      c.slop.bool '--by-group', 'Group nodes by group'
-      c.action do |args, opts|
-        args = args.unshift(Config.node_list)
-        Commands::List.new(args, opts).run!
-      end
     end
 
     command 'modify-groups' do |c|

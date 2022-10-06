@@ -34,7 +34,8 @@ module Hunter
   module Commands
     class List < Command
       def run
-        list = NodeList.load(args[0])
+        list_file = @options.buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
 
         if @options.plain
           list.nodes.each do |n|
