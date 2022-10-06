@@ -124,6 +124,7 @@ module Hunter
     command 'rename-group' do |c|
       cli_syntax(c, 'GROUP NEW_NAME')
       c.summary = 'Rename group and keep all nodes it contains'
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
       c.action Commands, :rename_group
     end
 
