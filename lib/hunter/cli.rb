@@ -134,6 +134,15 @@ module Hunter
       c.action Commands, :parse
     end
 
+    command :process do |c|
+      cli_syntax(c)
+      c.slop.string '--prefix', "Prefix for the generated hostnames"
+      c.slop.string '--start', "Start value for the numeric portion of the hostnames"
+      c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
+      c.summary = 'Automatically move nodes from buffer to parsed list'
+      c.action Commands, :process
+    end
+
     command :send do |c|
       cli_syntax(c)
       c.summary = 'Push my identity plus optional payload to server'

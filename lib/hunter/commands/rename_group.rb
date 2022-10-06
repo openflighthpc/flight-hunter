@@ -36,7 +36,7 @@ module Hunter
         old = args[0]
         new = args[1]
 
-        unless list.nodes.map(&:groups).flatten.uniq.include?(old) }
+        unless list.nodes.map(&:groups).flatten.uniq.include?(old)
           raise "Group '#{old}' does not exist in list '#{list.name}'"
         end
 

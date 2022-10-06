@@ -45,7 +45,8 @@ module Hunter
       self.groups = groups - to_remove
     end
 
-    attr_reader :id, :hostname, :ip, :payload, :groups
+    attr_reader :id, :ip, :payload, :groups
+    attr_accessor :hostname
 
     def initialize(id:, hostname:, ip:, payload:, groups:)
       @id = id
