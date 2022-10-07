@@ -54,6 +54,9 @@ module Hunter
       end
 
       def target_host
+        if !data.fetch(:target_host)
+          raise "No hostname given!"
+        end
         data.fetch(:target_host)
       end
 
