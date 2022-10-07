@@ -6,4 +6,4 @@
 # port:
 #
 # Mode to use when autorun
-# mode:
+# autorun_mode:

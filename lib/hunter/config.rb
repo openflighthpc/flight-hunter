@@ -50,7 +50,7 @@ module Hunter
       end
 
       def autorun_mode
-        ENV['flight_HUNTER_autorun_mode'] || data.fetch(:mode)
+        ENV['flight_HUNTER_autorun_mode'] || data.fetch(:autorun_mode)
       end
 
       def target_host
