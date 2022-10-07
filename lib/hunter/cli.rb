@@ -62,6 +62,7 @@ module Hunter
       c.summary = 'Listen for broadcasting clients'
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
       c.slop.string '--port', 'Override port'
+      c.slop.bool '--include-self', 'Immediately try to send payload to self'
       c.action Commands, :hunt
     end
 

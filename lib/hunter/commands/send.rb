@@ -57,7 +57,7 @@ module Hunter
 
         payload = [hostid, hostname, file_content].pack('Z*Z*Z*')
 
-        host = @options.server || Config.ipaddr
+        host = @options.server || Config.target_host
         port = @options.port || Config.port
 
         begin

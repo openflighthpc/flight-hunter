@@ -53,8 +53,8 @@ module Hunter
         ENV['flight_HUNTER_autorun_mode'] || data.fetch(:mode)
       end
 
-      def ipaddr
-        data.fetch(:ipaddr)
+      def target_host
+        data.fetch(:target_host)
       end
 
       def node_buffer
