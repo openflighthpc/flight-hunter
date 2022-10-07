@@ -49,12 +49,12 @@ module Hunter
 
       payload[:disks] = disks.compact
 
-      addr = `ipmitool lan print 1 \
+      addr = `ipmitool lan print 1 2> /dev/null \
               | grep -e "IP Address" \
               | grep -vi "Source" \
               | awk '{ print $4 }'`.chomp rescue nil
       payload[:bmcip] = addr unless addr.to_s.empty?
-      mac = `ipmitool lan print 1 \
+      mac = `ipmitool lan print 1 2> /dev/null \
              | grep 'MAC Address' \
              | awk '{ print $4 }'`.chomp rescue nil
       payload[:bmcmac] = mac unless mac.to_s.empty?
