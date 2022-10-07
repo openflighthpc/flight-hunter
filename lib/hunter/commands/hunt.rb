@@ -58,7 +58,18 @@ module Hunter
           )
         end
 
+        first = true
+
         loop do
+          if first && @options.include_self
+            opts = OpenStruct.new(
+              port: port,
+              server: 'localhost'
+            )
+
+            Commands::SendPayload.new(OpenStruct.new, opts).run!
+            first = false
+          end
           client = server.accept
           hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
 
