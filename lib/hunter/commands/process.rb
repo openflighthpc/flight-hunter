@@ -63,7 +63,7 @@ module Hunter
             when true
               node.hostname
             when false
-              iteration = start.to_i + (idx - 1)
+              iteration = start.to_i + idx
               padding = '0' * (start.length - iteration.to_s.length)
               count = padding + iteration.to_s
               prefix + count
