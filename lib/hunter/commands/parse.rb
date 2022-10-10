@@ -24,9 +24,7 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-
 require 'tty-prompt'
-require 'yaml'
 
 require_relative '../command'
 require_relative '../config'
@@ -41,7 +39,7 @@ module Hunter
         
         choices = to_choices(buffer.nodes)
 
-        kept = prompt.multi_select("Select the nodes that you wish to save:", choices)
+        kept = prompt.ordered_multi_select("Select the nodes that you wish to save:", choices)
         existing = kept.select { |n| parsed.nodes.any? { |o| o.id == n.id } }
         overwrite = []
         if existing.any?

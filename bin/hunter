@@ -36,6 +36,7 @@ begin
   Bundler.setup(:default)
 
   require 'hunter/cli'
+  require 'hunter/prompt'
   Dir.chdir(ENV.fetch('FLIGHT_CWD','.'))
   OpenFlight.set_standard_env rescue nil
 
