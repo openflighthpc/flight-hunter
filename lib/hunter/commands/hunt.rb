@@ -42,7 +42,7 @@ module Hunter
         port = @options.port || Config.data.fetch(:port)
         server = TCPServer.open(port)
 
-        puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+c to stop\n"
+        puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+C to stop\n"
         pidpath = ENV['flight_HUNTER_pidfile']
 
         case pidpath.nil?
@@ -100,9 +100,9 @@ module Hunter
             buffer.nodes << node
             puts "Node added to buffer"
           else
-            if buffer.has_node?(node.id)
+            if buffer.include?(node.id)
               puts "ID already exists in buffer"
-            elsif parsed.has_node?(node.id)
+            elsif parsed.include?(node.id)
               puts "ID already exists in parsed node list"
             else
               buffer.nodes << node

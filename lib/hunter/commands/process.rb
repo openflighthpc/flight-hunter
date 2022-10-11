@@ -54,7 +54,7 @@ module Hunter
                 "#{existing.map(&:id).join("\n")}"
         end
 
-        parsed.remove_nodes(existing)
+        parsed.delete(existing)
 
         new_nodes = []
         buffer.nodes.each_with_index do |node, idx|

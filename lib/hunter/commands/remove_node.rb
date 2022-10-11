@@ -47,7 +47,7 @@ module Hunter
         
         raise "No nodes in list '#{list.name}' match pattern '#{args[0]}'" unless nodes&.any?
 
-        if list.remove_nodes(nodes) && list.save
+        if list.delete(nodes) && list.save
           puts "The following nodes have successfully been removed from list '#{list.name}'"
 
           t = Table.new

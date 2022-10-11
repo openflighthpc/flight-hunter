@@ -36,7 +36,7 @@ module Hunter
       end
     end
 
-    def has_node?(id)
+    def include?(id)
       nodes.any? { |n| n.id == id }
     end
 
@@ -44,7 +44,7 @@ module Hunter
       nodes.find { |n| n.id == id }
     end
 
-    def remove_nodes(nodes)
+    def delete(nodes)
       @nodes = @nodes - nodes
     end
 
