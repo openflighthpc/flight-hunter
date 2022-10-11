@@ -68,7 +68,6 @@ module Hunter
             )
 
             Commands::SendPayload.new(OpenStruct.new, opts).run!
-            first = false
           end
           client = server.accept
           hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
@@ -90,7 +89,7 @@ module Hunter
           puts <<~EOF
           Found node.
           ID: #{node.id}
-          name: #{node.hostname}
+          Name: #{node.hostname}
           IP: #{node.ip}
 
           EOF
@@ -112,6 +111,7 @@ module Hunter
 
           buffer.save
           client.close
+          first = false
         end
       end
     end

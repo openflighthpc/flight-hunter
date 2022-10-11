@@ -31,6 +31,7 @@ module Hunter
       {
         'id' => id,
         'hostname' => hostname,
+        'label' => label,
         'ip' => ip,
         'payload' => payload,
         'groups' => groups
@@ -45,15 +46,16 @@ module Hunter
       self.groups = groups - to_remove
     end
 
-    attr_reader :id, :ip, :payload, :groups
-    attr_accessor :hostname
+    attr_reader :id, :ip, :payload, :groups, :hostname
+    attr_accessor :label
 
-    def initialize(id:, hostname:, ip:, payload:, groups:)
+    def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [])
       @id = id
       @hostname = hostname
+      @label = label
       @ip = ip
       @payload = payload
-      @groups = groups || []
+      @groups = groups
     end
 
     private

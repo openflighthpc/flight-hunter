@@ -56,16 +56,16 @@ module Hunter
               t = Table.new
               t.headers('ID', 'Hostname', 'IP')
               nodes.each do |node|
-                t.row(node.id, node.hostname, node.ip)
+                t.row(node.id, node.label, node.hostname, node.ip)
               end
               puts "Group '#{group}':"
               t.emit
             end
           when false
             t = Table.new
-            t.headers('ID', 'Hostname', 'IP', 'Groups')
+            t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
             list.nodes.each do |node|
-              t.row(node.id, node.hostname, node.ip, node.groups&.join(", "))
+              t.row(node.id, node.label, node.hostname, node.ip, node.groups&.join(", "))
             end
             t.emit
           end

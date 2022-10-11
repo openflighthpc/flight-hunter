@@ -58,7 +58,7 @@ module Hunter
 
         new_nodes = []
         buffer.nodes.each_with_index do |node, idx|
-          name =
+          label =
             case prefix.nil?
             when true
               node.hostname
@@ -69,16 +69,16 @@ module Hunter
               prefix + count
             end
 
-          new_nodes << node.dup.tap { |n| n.hostname = name }
+          new_nodes << node.dup.tap { |n| n.label = label }
         end
 
         if parsed.nodes.concat(new_nodes) && parsed.save
           puts "Nodes saved to parsed node list:"
 
           t = Table.new
-          t.headers('ID', 'Hostname', 'Groups')
+          t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
           new_nodes.each do |n|
-            t.row(n.id, n.hostname, n.groups&.join(", "))
+            t.row(n.id, n.label, n.hostname, n.ip, n.groups&.join(", "))
           end
           t.emit
           buffer.empty

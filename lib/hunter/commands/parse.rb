@@ -39,7 +39,13 @@ module Hunter
         
         choices = to_choices(buffer.nodes)
 
-        kept = prompt.ordered_multi_select("Select the nodes that you wish to save:", choices)
+        kept = prompt.ordered_multi_select(
+          "Select the nodes that you wish to save:",
+          choices,
+          help: "(Scroll for more nodes)",
+          show_help: :always,
+          per_page: 10
+        )
         existing = kept.select { |n| parsed.nodes.any? { |o| o.id == n.id } }
         overwrite = []
         if existing.any?
@@ -52,6 +58,7 @@ module Hunter
         end
 
         final = existing.any? ? kept & overwrite : kept
+        final.each { |n| n.label = n.hostname }
         parsed.nodes.concat(final)
         buffer.delete(final)
         if parsed.save && buffer.save

@@ -98,6 +98,7 @@ module Hunter
           l << Node.new(
             id: node['id'],
             hostname: node['hostname'],
+            label: node['label'],
             ip: node['ip'],
             payload: node['payload'],
             groups: node['groups']
