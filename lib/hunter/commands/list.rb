@@ -43,7 +43,8 @@ module Hunter
               n.id,
               n.hostname,
               n.ip,
-              n.groups.any? ? n.groups.join("|") : "|"
+              n.groups.any? ? n.groups.join("|") : "|",
+              n.label
             ]
             puts a.join("\t")
           end
@@ -54,7 +55,7 @@ module Hunter
           when true
             list.nodes(by_group: true).each do |group, nodes|
               t = Table.new
-              t.headers('ID', 'Hostname', 'IP')
+              t.headers('ID', 'Label', 'Hostname', 'IP')
               nodes.each do |node|
                 t.row(node.id, node.label, node.hostname, node.ip)
               end

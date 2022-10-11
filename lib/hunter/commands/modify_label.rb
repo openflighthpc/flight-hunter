@@ -24,42 +24,30 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
+require_relative '../command'
 
 module Hunter
-  class Node
-    def to_h
-      {
-        'id' => id,
-        'hostname' => hostname,
-        'label' => label,
-        'ip' => ip,
-        'payload' => payload,
-        'groups' => groups
-      }
+  module Commands
+    class ModifyLabel < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
+        id = args[0]
+        new_label = args[1]
+
+        node = list.find(id) 
+
+        unless node
+          raise "Node '#{id}' does not exist in list '#{list.name}'"
+        end
+
+        node.label = new_label
+
+        if list.save
+          puts "Node '#{id}' in list '#{list.name}' relabeled to '#{new_label}'"
+        end
+      end
     end
-
-    def add_groups(new_groups)
-      groups.concat(new_groups).uniq!
-    end
-
-    def remove_groups(to_remove)
-      self.groups = groups - to_remove
-    end
-
-    attr_reader :id, :ip, :payload, :groups, :hostname
-    attr_accessor :label
-
-    def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [])
-      @id = id
-      @hostname = hostname
-      @label = label
-      @ip = ip
-      @payload = payload
-      @groups = groups || []
-    end
-
-    private
-
-    attr_writer :groups
   end
 end
