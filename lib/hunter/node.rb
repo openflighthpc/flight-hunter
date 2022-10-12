@@ -46,11 +46,8 @@ module Hunter
       @groups = @groups - to_remove
     end
 
-    def modify_label(new_label)
-      @label = new_label
-    end
-
     attr_reader :id, :ip, :payload, :groups, :hostname, :label
+    attr_accessor :label
 
     def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [])
       @id = id

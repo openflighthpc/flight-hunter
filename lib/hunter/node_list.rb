@@ -41,7 +41,7 @@ module Hunter
     end
 
     def include_label?(label)
-      nodes.any? { |n| n.id == id }
+      nodes.any? { |n| n.label == label }
     end
 
     def find(**kwargs)

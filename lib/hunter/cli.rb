@@ -138,16 +138,11 @@ module Hunter
     command :parse do |c|
       cli_syntax(c)
       c.summary = 'Interactively move nodes from buffer to parsed list'
-      c.action Commands, :parse
-    end
-
-    command :process do |c|
-      cli_syntax(c)
       c.slop.string '--prefix', "Prefix for the generated labels"
       c.slop.string '--start', "Start value for the numeric portion of the labels"
+      c.slop.bool '--auto', "Automatically process everything in buffer list"
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
-      c.summary = 'Automatically move nodes from buffer to parsed list'
-      c.action Commands, :process
+      c.action Commands, :parse
     end
 
     command :send do |c|
