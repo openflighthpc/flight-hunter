@@ -33,19 +33,19 @@ module Hunter
         buffer = @options.buffer
         list_file = buffer ? Config.node_buffer : Config.node_list
         list = NodeList.load(list_file)
-        id = args[0]
+        old_label = args[0]
         new_label = args[1]
 
-        node = list.find(id: id) 
+        node = list.find(label: old_label) 
 
         unless node
-          raise "Node '#{id}' does not exist in list '#{list.name}'"
+          raise "Node '#{old_label}' does not exist in list '#{list.name}'"
         end
 
-        node.label = new_label
+        node.modify_label(new_label)
 
         if list.save
-          puts "Node '#{id}' in list '#{list.name}' relabeled to '#{new_label}'"
+          puts "Node '#{old_label}' in list '#{list.name}' relabeled to '#{new_label}'"
         end
       end
     end

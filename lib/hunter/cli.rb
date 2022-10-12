@@ -123,7 +123,7 @@ module Hunter
     end
 
     command 'modify-label' do |c|
-      cli_syntax(c, 'NODE LABEL')
+      cli_syntax(c, 'OLD_LABEL NEW_LABEL')
       c.summary = 'Change label of node by ID'
       c.slop.bool '--buffer', "Use node buffer list instead of parsed"
       c.action Commands, :modify_label
