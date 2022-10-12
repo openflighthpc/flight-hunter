@@ -30,8 +30,7 @@ module Hunter
   module Commands
     class ModifyLabel < Command
       def run
-        buffer = @options.buffer
-        list_file = buffer ? Config.node_buffer : Config.node_list
+        list_file = Config.node_list
         list = NodeList.load(list_file)
         old_label = args[0]
         new_label = args[1]

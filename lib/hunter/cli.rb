@@ -98,34 +98,33 @@ module Hunter
 
     command :show do |c|
       cli_syntax(c, 'NODE')
-      c.summary = 'Show details of node in parsed list by ID'
-      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.summary = 'Show details of node in parsed list by label'
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed (use ID instead of label here)"
       c.slop.bool '--plain', "Print in machine-readable format"
       c.action Commands, :show
     end
 
     command 'remove-node' do |c|
       cli_syntax(c, 'NODE')
-      c.summary = 'Remove node from parsed list by ID'
-      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.summary = 'Remove node from parsed list by label'
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed (use ID instead of label here)"
       c.slop.bool '--name', "Specify node by regex on hostname instead of ID"
       c.action Commands, :remove_node
     end
 
     command 'modify-groups' do |c|
       cli_syntax(c, 'NODE')
-      c.summary = 'Add or remove groups from a node by ID'
+      c.summary = 'Add or remove groups from a node by label'
       c.slop.string '--add', 'Comma separated list of groups to add', meta: 'GROUPS'
       c.slop.string '--remove', 'Comma separated list of groups to remove', meta: 'GROUPS'
-      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.slop.bool '--buffer', "Use node buffer list instead of parsed (use ID instead of label here)"
       c.slop.bool '--regex', "Match all hostnames with regex NODE"
       c.action Commands, :modify_groups
     end
 
     command 'modify-label' do |c|
       cli_syntax(c, 'OLD_LABEL NEW_LABEL')
-      c.summary = 'Change label of node by ID'
-      c.slop.bool '--buffer', "Use node buffer list instead of parsed"
+      c.summary = 'Change label of node OLD_LABEL to NEW_LABEL'
       c.action Commands, :modify_label
     end
 

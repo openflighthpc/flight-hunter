@@ -35,6 +35,16 @@ module Hunter
       @options = OpenStruct.new(options)
     end
 
+    def search_field(buffer=false)
+      @term ||=
+        case @buffer
+        when true
+          :id
+        when false
+          :label
+        end
+    end
+
     # this wrapper is here to later enable error handling &/ logging
     def run!
       run

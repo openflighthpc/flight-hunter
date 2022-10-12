@@ -43,10 +43,10 @@ module Hunter
           when true
             list.match(Regexp.new(args[0]))
           when false
-            [list.find(id: args[0])]
+            [list.find(search_field => args[0])]
           end
         
-        raise "No nodes in list '#{list.name}' match pattern '#{args[0]}'" unless nodes.any?
+        raise "No #{search_field}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes.any?
 
         nodes.each do |n|
           n.add_groups(to_add)
@@ -58,9 +58,9 @@ module Hunter
         puts "Node(s) updated successfully:"
         
         t = Table.new
-        t.headers('ID', 'Hostname', 'Groups')
+        t.headers('ID', 'Label', 'Hostname', 'Groups')
         nodes.each do |n|
-          t.row(n.id, n.hostname, n.groups.join(", "))
+          t.row(n.id, n.label, n.hostname, n.groups.join(", "))
         end
         t.emit
       end
