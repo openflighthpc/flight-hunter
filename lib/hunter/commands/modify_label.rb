@@ -36,7 +36,7 @@ module Hunter
         id = args[0]
         new_label = args[1]
 
-        node = list.find(id) 
+        node = list.find(id: id) 
 
         unless node
           raise "Node '#{id}' does not exist in list '#{list.name}'"

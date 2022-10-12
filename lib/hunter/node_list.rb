@@ -36,12 +36,21 @@ module Hunter
       end
     end
 
-    def include?(id)
+    def include_id?(id)
       nodes.any? { |n| n.id == id }
     end
 
-    def find(id)
-      nodes.find { |n| n.id == id }
+    def include_label?(label)
+      nodes.any? { |n| n.id == id }
+    end
+
+    def find(**kwargs)
+      nodes.find do |n|
+        kwargs.compact.all? do |k, v|
+          next unless [:id, :label].include?(k)
+          n.send(k) == v if n.respond_to?(k)
+        end
+      end
     end
 
     def delete(nodes)

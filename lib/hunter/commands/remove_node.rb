@@ -42,7 +42,7 @@ module Hunter
           when true
             list.match(Regexp.new(args[0]))
           when false
-            [list.find(args[0])]
+            [list.find(id: args[0])]
           end
         
         raise "No nodes in list '#{list.name}' match pattern '#{args[0]}'" unless nodes&.any?

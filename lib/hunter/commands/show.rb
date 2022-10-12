@@ -35,7 +35,7 @@ module Hunter
         list_file = buffer ? Config.node_buffer : Config.node_list
         list = NodeList.load(list_file)
 
-        node = list.find(args[0])
+        node = list.find(id: args[0])
 
         raise "Node with id '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
 

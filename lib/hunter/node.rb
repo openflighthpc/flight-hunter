@@ -39,15 +39,18 @@ module Hunter
     end
 
     def add_groups(new_groups)
-      groups.concat(new_groups).uniq!
+      @groups.concat(new_groups).uniq!
     end
 
     def remove_groups(to_remove)
-      self.groups = groups - to_remove
+      @groups = @groups - to_remove
     end
 
-    attr_reader :id, :ip, :payload, :groups, :hostname
-    attr_accessor :label
+    def modify_label(new_label)
+      @label = new_label
+    end
+
+    attr_reader :id, :ip, :payload, :groups, :hostname, :label
 
     def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [])
       @id = id
@@ -60,6 +63,5 @@ module Hunter
 
     private
 
-    attr_writer :groups
   end
 end

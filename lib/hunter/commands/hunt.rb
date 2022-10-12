@@ -99,9 +99,9 @@ module Hunter
             buffer.nodes << node
             puts "Node added to buffer"
           else
-            if buffer.include?(node.id)
+            if buffer.include_id?(node.id)
               puts "ID already exists in buffer"
-            elsif parsed.include?(node.id)
+            elsif parsed.include_id?(node.id)
               puts "ID already exists in parsed node list"
             else
               buffer.nodes << node
