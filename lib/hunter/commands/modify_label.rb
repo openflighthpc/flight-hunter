@@ -35,6 +35,10 @@ module Hunter
         old_label = args[0]
         new_label = args[1]
 
+        if list.find(label: new_label)
+          raise "Label '#{new_label}' already exists in list '#{list.name}'"
+        end
+
         node = list.find(label: old_label) 
 
         unless node
