@@ -65,6 +65,10 @@ module Hunter
         ENV['flight_HUNTER_payload_file'] || data.fetch(:payload_file)
       end
 
+      def allow_existing
+        ENV['flight_HUNTER_allow_existing'] || data.fetch(:allow_existing)
+      end
+
       def node_buffer
         var_file('buffer.yaml')
       end

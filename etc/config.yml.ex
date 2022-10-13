@@ -13,3 +13,6 @@
 #
 # File to use as a payload
 # payload_file:
+#
+# Allow existing nodes when hunting
+# allow_existing: false

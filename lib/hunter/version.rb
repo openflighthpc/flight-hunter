@@ -25,5 +25,5 @@
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
 module Hunter
-  VERSION = '0.1.0-rc2'
+  VERSION = '0.1.0-rc3'
 end
