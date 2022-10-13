@@ -36,8 +36,11 @@ Flight Hunter has some required configuration based on the environment it is bei
 
 - `port` - The port for the server to listen over; also the port for the client to send to.
 - `target_host` - The hostname/IP for the client to attempt to send to.
-- `autorun_mode` - Which mode to run when running the `autorun` command. Must be one of `hunt` or `send`. This setting can also be set (and is overridden by) the `flight_HUNTER_autorun_mode` environment variable.
-- `include-self` - Toggle to automatically run `send` for itself when a `hunt` server is started.
+- `autorun_mode` - Which mode to run when running the `autorun` command. Must be one of `hunt` or `send`.
+- `include_self` - Toggle to automatically run `send` for itself when a `hunt` server is started.
+- `payload_file` - File to send as a payload when running `send`
+
+Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
 
 Flight Hunter uses a PID file to track the `hunt` server process. By default, this PID file is created at `/tmp/hunter.pid`. The filepath used can be changed by setting the environment varaible `flight_HUNTER_pidfile`.
 

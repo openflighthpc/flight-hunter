@@ -7,3 +7,9 @@
 #
 # Mode to use when autorun
 # autorun_mode:
+#
+# Automatically include self when hunting
+# include_self: false
+#
+# File to use as a payload
+# payload_file:

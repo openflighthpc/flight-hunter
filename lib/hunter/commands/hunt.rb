@@ -36,10 +36,11 @@ module Hunter
   module Commands
     class Hunt < Command
       def run
+        port = @options.port || Config.port
+        raise "No port provided!" if !port
+
         buffer = NodeList.load(Config.node_buffer)
         parsed = NodeList.load(Config.node_list)
-
-        port = @options.port || Config.data.fetch(:port)
         server = TCPServer.open(port)
 
         puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+C to stop\n"
@@ -61,7 +62,7 @@ module Hunter
         first = true
 
         loop do
-          if first && @options.include_self
+          if first && @options.include_self || Config.include_self
             opts = OpenStruct.new(
               port: port,
               server: 'localhost'
@@ -94,7 +95,7 @@ module Hunter
 
           EOF
 
-          if @options.allow_existing
+          if @options.allow_existing || Config.allow_existing
             buffer.nodes.delete_if { |n| n.id == node.id }
             buffer.nodes << node
             puts "Node added to buffer"

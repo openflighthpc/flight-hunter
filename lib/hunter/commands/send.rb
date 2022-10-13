@@ -38,6 +38,12 @@ module Hunter
       include Hunter::Collector
 
       def run
+        host = @options.server || Config.target_host
+        port = @options.port || Config.port
+
+        raise "No target_host provided!" if !host
+        raise "No port provided!" if !port
+
         syshostid = `hostid`.chomp
         hostid = begin
                     File.read('/proc/cmdline').split.map do |a|
@@ -47,8 +53,10 @@ module Hunter
                   rescue
                     syshostid
                   end
-        if @options.file
-          file_content = File.read(@options.file)
+
+        payload_file = @options.file || Config.payload_file
+        if payload_file && File.file?(payload_file)
+          file_content = File.read(payload_file)
         else
           file_content = Collector.collect.to_yaml
         end
@@ -56,9 +64,6 @@ module Hunter
         hostname = @options.spoof || Socket.gethostname
 
         payload = [hostid, hostname, file_content].pack('Z*Z*Z*')
-
-        host = @options.server || Config.target_host
-        port = @options.port || Config.port
 
         begin
           server = TCPSocket.open(host, port)

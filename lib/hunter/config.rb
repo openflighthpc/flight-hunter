@@ -46,7 +46,11 @@ module Hunter
       end
 
       def port
-        data.fetch(:port)
+        ENV['flight_HUNTER_port'] || data.fetch(:port)
+      end
+
+      def include_self
+        ENV['flight_HUNTER_include_self'] || data.fetch(:include_self)
       end
 
       def autorun_mode
@@ -54,10 +58,11 @@ module Hunter
       end
 
       def target_host
-        if !data.fetch(:target_host)
-          raise "No hostname given!"
-        end
-        data.fetch(:target_host)
+        ENV['flight_HUNTER_target_host'] || data.fetch(:target_host)
+      end
+
+      def payload_file
+        ENV['flight_HUNTER_payload_file'] || data.fetch(:payload_file)
       end
 
       def node_buffer
