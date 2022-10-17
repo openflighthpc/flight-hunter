@@ -62,7 +62,7 @@ module Hunter
         first = true
 
         loop do
-          if first && @options.include_self || Config.include_self
+          if first && (@options.include_self || Config.include_self)
             opts = OpenStruct.new(
               port: port,
               server: 'localhost'
@@ -71,6 +71,7 @@ module Hunter
             Commands::SendPayload.new(OpenStruct.new, opts).run!
           end
           client = server.accept
+          first = false
           hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
 
           node = {
@@ -112,7 +113,6 @@ module Hunter
 
           buffer.save
           client.close
-          first = false
         end
       end
     end
