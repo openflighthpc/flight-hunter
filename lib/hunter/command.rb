@@ -37,7 +37,7 @@ module Hunter
 
     def search_field(buffer=false)
       @term ||=
-        case @buffer
+        case buffer
         when true
           :id
         when false
