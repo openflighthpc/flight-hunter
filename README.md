@@ -5,65 +5,71 @@ A tool for tracking MAC addresses of nodes in a cluster.
 ## Overview
 
 Hunter facilitates a communication between a two machines,
-allowing one machine running the client script to send it's hostname
-and MAC address to another machine running the server script.
+allowing one machine to send some diagnostic data and a payload
+file to another machine listening for other nodes running Hunter.
 
 ## Installation
 
-For installation instructions see INSTALL.md
+### Installing with the OpenFlight package repos
+Flight Hunter is available in the OpenFlight User repos for Centos 7/8. This is the easiest way to install it, using the package manager of your choice.
+
+### Manual installation
+
+#### Prerequisites
+Flight Hunter is developed and tested with Ruby version `2.7.1` and `bundler` `2.1.4`. Other versions may work but currently are not officially supported.
+
+#### Steps
+The following will install from source using `git`. The `master`. branch is the current development version and may not be appropriate for a production installation. Instead a tagged version should be checked out.
+
+```bash
+git clone https://github.com/alces-flight/flight-hunter.git
+cd flight-hunter
+git checkout <tag>
+bundle install
+```
+
+Use the script located at `bin/hunter` to execute the tool.
 
 ## Configuration
 
-Both the client and server utilities are built as an all-in-one package with Flight Hunter. The only configuration that needs to be done is setting the IP and port on the client and server machines. If using the pre-installed image, this can be done by changing the `hunter_ip` environment variable in your PXE config file. 
+Flight Hunter has some required configuration based on the environment it is being run on. A `config.yml.ex` file exists which gives examples of all configuration keys, required or optional.
+
+- `port` - The port for the server to listen over; also the port for the client to send to.
+- `target_host` - The hostname/IP for the client to attempt to send to.
+- `autorun_mode` - Which mode to run when running the `autorun` command. Must be one of `hunt` or `send`.
+- `include_self` - Toggle to automatically run `send` for itself when a `hunt` server is started.
+- `payload_file` - File to send as a payload when running `send`
+
+Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
+
+Flight Hunter uses a PID file to track the `hunt` server process. By default, this PID file is created at `/tmp/hunter.pid`. The filepath used can be changed by setting the environment varaible `flight_HUNTER_pidfile`.
+
 
 ## Operation
 
-The commands' syntax is as follows:
-```
-dump-buffer
-help
-hunt [allow-existing]
-list-buffer
-list-parsed
-modify-client-port PORT
-modify-ip IP
-modify-mac CURRENT_MAC NEW_MAC
-modify-name CURRENT_NAME NEW_NAME
-modify-server-port PORT
-parse-automatic PREFIX LENGTH START_INT
-parse-manual
-remove-mac MAC
-remove-name NAME
-send [--file FILE_PATH]
-show-node NODE_NAME
-```
+A brief usage guide is given below. See the `help` command for further details and information about other commands.
 
-The `hunt` command starts the server script and begins listening for clients executing the send script. When a client is found, it will be saved to the buffer list file stored at `var/flight-hunter/server/buffer.yaml`. The buffer can then be processed with either `parse-manual` or `parse-automatic`. The optional argument `[allow-existing]` lets the `hunt` script accept new clients with names that already exist in either the buffer or parsed nodelists.
+Run the Hunter listening server with `hunt`. By default, nodes that already exist in the Hunter nodelist are ignored. Override existing nodes with `hunt --allow-existing`. The server can immediately `send` to itself with `--include-self`.
 
-The `send` command tells the `client` script to connect to a currently running `server` script, using the IP and port specified in the client's `config.yaml` file as the target. If the target exists, a connection will be attempted. If the server refuses the connection, an error will be thrown. The optional argument `[--file FILE_PATH]` allows a text-based payload to be attached to the TCP packet. Use an explicit file path when specifying the payload path.
+Run the Hunter payload transmitter with `send`. The system's hostid, IP, hostname, and a default payload of diagnostic data will be sent to the Hunter server running at the configured IP/port. The system hostname and payload can be overwritten via command line options.
 
-The `modify-ip` and `modify-[server,client]-port` are each used to change parts of the client/server config files. They change the IP and ports communicated over by the client and server scripts.
+Select nodes from the buffer list to move to the processed node list with `parse`. Generate labels automatically with the `prefix` and `start` command line options. For example:
+`bin/hunter parse --prefix cnode --start 001`
+will label each node in order `cnode001`, `cnode002`, and so on. When generating labels like this, the order that nodes are selected in will persist. If no label scheme is specified, the hostname of the node will be used instead. You may provide the `--auto` command line option to automatically process every node in the buffer in order. Please be aware that labels are considered unique across Hunter.
 
-The `list-buffer` and `list-parsed` commands output a markdown formatted table of all nodes in the buffer and parsed lists, respectively.
+See all nodes in the node list with `list`.
 
-The `show-node` command will show the markdown formatted entry of one particular node using its name as the key, as well as printing the payload associated with it (if there is one).
+Remove nodes from the node list with `remove-node`. When accessing the processed node list, specify the node by label; otherwise, specify the node by ID.
 
-The `parse-manual` command will process the buffer list in order of reception, and prompt the user to input a name for each node to be saved as in the parsed node list. Once all nodes have been named, the list will be written and the buffer emptied.
+Add/remove groups to/from a node from the node list with `modify-groups`.
 
-The `parse-automatic` command will parse each node in the buffer iteratively. It takes three subsequent arguments: `PREFIX`, `LENGTH`, and `START`. The `PREFIX` argument defines a string of characters that the all nodes' names will begin with. The `LENGTH` argument defines how long the integer suffix will be, and the `START` argument defines where the integer suffix will start counting from. For example: the command `bin/hunter.rb parse-automatic node 3 001` on a list of three arbitrary nodes will produce the nodelist:
+Update the label of a node in the processed list with `modify-label`.
 
-```
-7E-8F-89-4F-47-9F: node001
-0E-CC-B1-F2-23-DD: node002
-59-D2-AE-26-D6-BA: node003
-```
+Rename a group across a list with `rename-group`. All nodes with that group will be updated.
 
-The `modify-mac` and `modify-name` commands change either the MAC or name of a node in the parsed list. 
+### Switching between buffer and processed list
 
-The `remove-mac` and `remove-name` commands remove a node from the parsed list using either a MAC address or name as removal key, respectively.
-
-The `dump-buffer` command simply empties the node buffer.
-
+Any command that accesses a node list (`show`, `remove-node`, etc.) will access the processed list by default. You may use the argument `--buffer` to instead use the buffer list.
 
 # Contributing
 
@@ -101,3 +107,4 @@ TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR
 PURPOSE. See the [Creative Commons Attribution-ShareAlike 4.0
 International License](https://creativecommons.org/licenses/by-sa/4.0/) for more
 details.
+

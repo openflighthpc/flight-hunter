@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,37 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
+require_relative '../command'
+require_relative '../table'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+module Hunter
+  module Commands
+    class Show < Command
+      def run
+        @buffer = @options.buffer
+        list_file = @buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
+
+        node = list.find(search_field => args[0])
+
+        raise "Node with #{search_field} '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
+
+        if @options.plain
+          a = [
+            node.id,
+            node.hostname,
+            node.ip,
+            node.groups.any? ? node.groups.join("|") : "|"
+          ]
+          puts a.join("\t")
+        else
+          t = Table.new
+          t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
+          t.row(node.id, node.label, node.hostname, node.ip, node.groups.join(", "))
+          t.emit
+          puts node.payload
+        end
+      end
+    end
+  end
+end

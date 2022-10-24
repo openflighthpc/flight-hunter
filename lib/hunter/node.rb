@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,41 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+module Hunter
+  class Node
+    def to_h
+      {
+        'id' => id,
+        'hostname' => hostname,
+        'label' => label,
+        'ip' => ip,
+        'payload' => payload,
+        'groups' => groups
+      }
+    end
+
+    def add_groups(new_groups)
+      @groups.concat(new_groups).uniq!
+    end
+
+    def remove_groups(to_remove)
+      @groups = @groups - to_remove
+    end
+
+    attr_reader :id, :ip, :payload, :groups, :hostname, :label
+    attr_accessor :label
+
+    def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [])
+      @id = id
+      @hostname = hostname
+      @label = label
+      @ip = ip
+      @payload = payload
+      @groups = groups || []
+    end
+
+    private
+
+  end
+end

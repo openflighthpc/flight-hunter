@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,46 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
+require_relative '../command'
+require_relative '../table'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+module Hunter
+  module Commands
+    class ModifyGroups < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
+
+        to_add = @options.add&.split(",") || []
+        to_remove = @options.remove&.split(",") || []
+
+        nodes = 
+          case @options.regex
+          when true
+            list.match(Regexp.new(args[0]))
+          when false
+            [list.find(search_field => args[0])]
+          end
+        
+        raise "No #{search_field}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes.any?
+
+        nodes.each do |n|
+          n.add_groups(to_add)
+          n.remove_groups(to_remove)
+        end
+
+        list.save
+
+        puts "Node(s) updated successfully:"
+        
+        t = Table.new
+        t.headers('ID', 'Label', 'Hostname', 'Groups')
+        nodes.each do |n|
+          t.row(n.id, n.label, n.hostname, n.groups.join(", "))
+        end
+        t.emit
+      end
+    end
+  end
+end
