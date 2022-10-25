@@ -65,7 +65,7 @@ module Hunter
           if first && (@options.include_self || Config.include_self)
             opts = OpenStruct.new(
               port: port,
-              server: 'localhost'
+              server: Config.target_host || 'localhost'
             )
 
             Commands::SendPayload.new(OpenStruct.new, opts).run!
