@@ -45,7 +45,7 @@ module Hunter
           raise "Node '#{old_label}' does not exist in list '#{list.name}'"
         end
 
-        node.modify_label(new_label)
+        node.label = new_label
 
         if list.save
           puts "Node '#{old_label}' in list '#{list.name}' relabeled to '#{new_label}'"
