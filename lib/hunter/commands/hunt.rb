@@ -39,8 +39,6 @@ module Hunter
         port = @options.port || Config.port
         raise "No port provided!" if !port
 
-        buffer = NodeList.load(Config.node_buffer)
-        parsed = NodeList.load(Config.node_list)
         server = TCPServer.open(port)
 
         puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+C to stop\n"
@@ -70,6 +68,7 @@ module Hunter
 
             Commands::SendPayload.new(OpenStruct.new, opts).run!
           end
+
           client = server.accept
           first = false
           hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
@@ -95,6 +94,9 @@ module Hunter
           IP: #{node.ip}
 
           EOF
+
+          buffer = NodeList.load(Config.node_buffer)
+          parsed = NodeList.load(Config.node_list)
 
           if @options.allow_existing || Config.allow_existing
             buffer.nodes.delete_if { |n| n.id == node.id }
