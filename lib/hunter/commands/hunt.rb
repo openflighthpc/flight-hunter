@@ -73,12 +73,6 @@ module Hunter
           first = false
           hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
 
-          node = {
-            "hostname" => hostname,
-            "ip" => (client.peeraddr[2] || 'unknown'),
-            "payload" => payload
-          }.reject { |k,v| v.empty? }
-
           node = Node.new(
             id: hostid,
             hostname: hostname,
