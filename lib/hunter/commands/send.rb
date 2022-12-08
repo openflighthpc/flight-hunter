@@ -61,7 +61,7 @@ module Hunter
           file_content = Collector.collect.to_yaml
         end
 
-        hostname = @options.spoof || Socket.gethostname
+        hostname = Socket.gethostname
 
         payload = [hostid, hostname, file_content].pack('Z*Z*Z*')
 
