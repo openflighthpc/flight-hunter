@@ -63,7 +63,8 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        payload = [hostid, hostname, file_content].pack('Z*Z*Z*')
+        puts @options.prefix
+        payload = [hostid, hostname, file_content, @options.label, @options.prefix, @options.group].pack('Z*Z*Z*Z*Z*Z*')
 
         begin
           server = TCPSocket.open(host, port)
