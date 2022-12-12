@@ -63,7 +63,6 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        puts @options.prefix
         payload = [hostid, hostname, file_content, @options.label, @options.prefix, @options.group].pack('Z*Z*Z*Z*Z*Z*')
 
         begin
