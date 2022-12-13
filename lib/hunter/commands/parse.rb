@@ -78,8 +78,8 @@ module Hunter
 
       private
 
-      def check_label_range(list, labels)
-        if list.nodes.length > labels.length
+      def check_label_range(list, start)
+        if list.nodes.length > 10 ** start.length - start.to_i
           raise "The number of nodes to process is greater than the number "\
                 "of names possible with the given PREFIX and START."
         end
@@ -93,7 +93,7 @@ module Hunter
           [].tap do |arr|
             @buffer.nodes.length.times do |idx|
               iteration = start.to_i + idx
-              padding = '0' * (start.length - iteration.to_s.length)
+              padding = '0' * (start.length - iteration.to_s.length).abs
               count = padding + iteration.to_s
               arr << prefix + count
             end
@@ -115,13 +115,19 @@ module Hunter
 
       def manual_parse(labels)
         choices = to_choices(@buffer.nodes)
+        
+        max = nil
+        if @options.start
+          max = 10 ** @options.start.length - @options.start.to_i
+        end
 
         kept = prompt.ordered_multi_select(
           "Select the nodes that you wish to save:",
           choices,
           help: "(Scroll for more nodes)",
           show_help: :always,
-          per_page: 10
+          per_page: 10,
+          max: max
         )
         existing = kept.select { |n| @parsed.nodes.any? { |o| o.id == n.id } }
         overwrite = []
@@ -139,7 +145,7 @@ module Hunter
       end
 
       def automatic_parse(labels)
-        check_label_range(@buffer, labels)
+        check_label_range(@buffer, @options.start)
         existing = @parsed.nodes.select { |pn| @buffer.nodes.any? { |bn| pn.id == bn.id } }
         if !@options.allow_existing && existing.any?
           raise "The following IDs already exist in the parsed list:\n"\
