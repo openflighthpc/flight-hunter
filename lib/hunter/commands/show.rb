@@ -35,9 +35,9 @@ module Hunter
         list_file = @buffer ? Config.node_buffer : Config.node_list
         list = NodeList.load(list_file)
 
-        node = list.find(search_field => args[0])
+        node = list.find(search_field(@buffer) => args[0])
 
-        raise "Node with #{search_field} '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
+        raise "Node with #{search_field(@buffer)} '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
 
         if @options.plain
           a = [
