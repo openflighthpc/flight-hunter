@@ -79,8 +79,10 @@ module Hunter
             ip: (client.peeraddr[2] || 'unknown'),
             payload: payload,
             groups: groups,
-            label: label,
-            prefix: prefix
+            label: nil,
+            presets: {label: label,
+                      prefix: prefix
+                     }
           )
 
           puts <<~EOF
