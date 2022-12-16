@@ -151,9 +151,9 @@ module Hunter
       c.slop.string '-f', '--file', "Specify a payload file"
       c.slop.string '-s', '--server', "Override server hostname"
       c.slop.integer '-p', '--port', "Override server port"
-      c.slop.string "--label", "Specify a lable to use for this node"
+      c.slop.string "--label", "Specify a label to use for this node"
       c.slop.string "--prefix", "Specify a prefix to use for this node"
-      c.slop.string "--group", "Specify a group for this node"
+      c.slop.array "--groups", "Specify a comma-separated list of groups for this node"
       c.action Commands, :send_payload
     end
   end
