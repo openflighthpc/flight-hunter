@@ -78,11 +78,12 @@ module Hunter
             hostname: hostname,
             ip: (client.peeraddr[2] || 'unknown'),
             payload: payload,
-            groups: groups,
+            groups: groups.split(","),
             label: nil,
-            presets: {label: label,
-                      prefix: prefix
-                     }
+            presets: {
+              label: label,
+              prefix: prefix
+            }
           )
 
           puts <<~EOF
