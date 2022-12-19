@@ -71,20 +71,19 @@ module Hunter
 
           client = server.accept
           first = false
-          hostid, hostname, payload = client.read.unpack("Z*Z*Z*")
-
-          node = {
-            "hostname" => hostname,
-            "ip" => (client.peeraddr[2] || 'unknown'),
-            "payload" => payload
-          }.reject { |k,v| v.empty? }
+          hostid, hostname, payload, label, prefix, groups = client.read.unpack("Z*Z*Z*Z*Z*Z*")
 
           node = Node.new(
             id: hostid,
             hostname: hostname,
             ip: (client.peeraddr[2] || 'unknown'),
             payload: payload,
-            groups: []
+            groups: groups.split(","),
+            label: nil,
+            presets: {
+              label: label,
+              prefix: prefix
+            }
           )
 
           puts <<~EOF

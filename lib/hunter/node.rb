@@ -34,7 +34,8 @@ module Hunter
         'label' => label,
         'ip' => ip,
         'payload' => payload,
-        'groups' => groups
+        'groups' => groups,
+        'presets' => presets
       }
     end
 
@@ -46,16 +47,17 @@ module Hunter
       @groups = @groups - to_remove
     end
 
-    attr_reader :id, :ip, :payload, :groups, :hostname, :label
+    attr_reader :id, :ip, :payload, :groups, :hostname, :presets
     attr_accessor :label
 
-    def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [])
+    def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [], presets: {})
       @id = id
       @hostname = hostname
       @label = label
       @ip = ip
       @payload = payload
       @groups = groups || []
+      @presets = presets
     end
 
     private
