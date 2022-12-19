@@ -43,10 +43,10 @@ module Hunter
           when true
             list.match(Regexp.new(args[0]))
           when false
-            [list.find(search_field => args[0])]
+            [list.find(search_field(buffer) => args[0])]
           end
         
-        raise "No #{search_field}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes.any?
+        raise "No #{search_field(buffer)}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes.any?
 
         nodes.each do |n|
           n.add_groups(to_add)
