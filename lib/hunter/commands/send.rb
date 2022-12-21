@@ -28,6 +28,8 @@
 require 'socket'
 require 'yaml'
 require 'json'
+require 'net/http'
+require 'uri'
 
 require_relative '../command'
 require_relative '../collector'
@@ -63,12 +65,24 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        payload = [hostid, hostname, file_content, @options.label, @options.prefix, @options.groups.join(",")].pack('Z*Z*Z*Z*Z*Z*')
+        uri = URI.parse("http://" + host + ":" + port)
 
+        header = {'Content-Type': 'hunter-node'}
+        
+        data = {hostid: hostid,
+                hostname: hostname,
+                file_content: file_content,
+                label: @options.label,
+                prefix: @options.prefix,
+                groups: @options.groups
+               }
+
+        http = Net::HTTP.new(uri.host, uri.port)
+        request = Net::HTTP::Post.new(uri.request_uri, header)
+        request.body = data.to_yaml
+        
         begin
-          server = TCPSocket.open(host, port)
-          server.write(payload)
-          server.close
+          response = http.request(request)
           puts "Successful transmission"
         rescue Errno::ECONNREFUSED => e
           puts "The server is unavailable"
