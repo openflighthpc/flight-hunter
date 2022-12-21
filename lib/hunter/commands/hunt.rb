@@ -71,48 +71,60 @@ module Hunter
 
           client = server.accept
           first = false
-          hostid, hostname, payload, label, prefix, groups = client.read.unpack("Z*Z*Z*Z*Z*Z*")
 
-          node = Node.new(
-            id: hostid,
-            hostname: hostname,
-            ip: (client.peeraddr[2] || 'unknown'),
-            payload: payload,
-            groups: groups.split(","),
-            label: nil,
-            presets: {
-              label: label,
-              prefix: prefix
-            }
-          )
+          headers = {}
+          while line = client.gets.split(' ', 2)
+            break if line[0] == ""
+            headers[line[0].chop] = line[1].strip
+          end
+          
+          if headers["Content-Type"] == "hunter-node"
+            data = client.read(headers["Content-Length"].to_i)
 
-          puts <<~EOF
-          Found node.
-          ID: #{node.id}
-          Name: #{node.hostname}
-          IP: #{node.ip}
+            payload = YAML.load(data)
 
-          EOF
+            client.puts "HTTP/1.1 200\r\n"
+            
+            node = Node.new(
+              id: payload[:hostid],
+              hostname: payload[:hostname],
+              ip: (client.peeraddr[2] || 'unknown'),
+              payload: payload[:file_content],
+              groups: payload[:groups],
+              presets: {
+                label: payload[:label],
+                prefix: payload[:prefix]
+              }
+            )
 
-          buffer = NodeList.load(Config.node_buffer)
-          parsed = NodeList.load(Config.node_list)
+            puts <<~EOF
+            Found node.
+            ID: #{node.id}
+            Name: #{node.hostname}
+            IP: #{node.ip}
 
-          if @options.allow_existing || Config.allow_existing
-            buffer.nodes.delete_if { |n| n.id == node.id }
-            buffer.nodes << node
-            puts "Node added to buffer"
-          else
-            if buffer.include_id?(node.id)
-              puts "ID already exists in buffer"
-            elsif parsed.include_id?(node.id)
-              puts "ID already exists in parsed node list"
-            else
+            EOF
+
+            buffer = NodeList.load(Config.node_buffer)
+            parsed = NodeList.load(Config.node_list)
+
+            if @options.allow_existing || Config.allow_existing
+              buffer.nodes.delete_if { |n| n.id == node.id }
               buffer.nodes << node
               puts "Node added to buffer"
+            else
+              if buffer.include_id?(node.id)
+                puts "ID already exists in buffer"
+              elsif parsed.include_id?(node.id)
+                puts "ID already exists in parsed node list"
+              else
+                buffer.nodes << node
+                puts "Node added to buffer"
+              end
             end
-          end
 
-          buffer.save
+            buffer.save
+          end
           client.close
         end
       end
