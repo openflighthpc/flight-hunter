@@ -39,7 +39,7 @@ module Hunter
 
       def run
         host = @options.server || Config.target_host
-        port = @options.port || Config.port
+        port = @options.port || Config.port.to_s
 
         raise "No target_host provided!" if !host
         raise "No port provided!" if !port
