@@ -25,6 +25,7 @@
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
 require 'tty-prompt'
+require 'logger'
 
 require_relative '../command'
 require_relative '../config'
@@ -37,61 +38,89 @@ module Hunter
         raise "No nodes in buffer" if @buffer.nodes.empty?
         @parsed = NodeList.load(Config.node_list)
 
+        @logger = Logger.new("/home/jack/code/flight-hunter/log.log")
+        # Convert node objects to a hash that TTYPrompt can utilise.
+        # Returns a hash of the form:
+        # { String => Node, ... }
         choices = to_choices(@buffer.nodes)
+
+        # Initialize which nodes should be preselected.
+        # This is used to 'remember' which nodes were selected on each
+        # subsequent re-render of the multi-select.
         defaults = []
-        @original = []
+
         @continue = true
 
         while @continue
           answers = prompt.ordered_multi_select(
             "Select nodes:",
             choices,
-            edit_labels: true,
             quiet: true,
             default: defaults,
             help: "(Scroll for more nodes)",
             show_help: :start,
             per_page: 10,
+            edit_labels: true,
             original: @original
           )
 
+          # If return value is a hash, the select has been intentionally aborted
+          # early, so that we can mutate the frozen state. If it's anything
+          # else, the select has *probably* returned successfully, and we can
+          # end the while loop.
           if !answers.is_a?(Hash)
             @continue = false
             next
           end
 
-          choices = answers[:choices].map { |c| { c.name => c.value } }.reduce({}, :merge)
-          @original = answers[:choices].dup
+          # Convert immutable choice objects to a mutable array object.
+          # We convert it to an array instead of a hash because we need to
+          # maintain the order of the choices. While hashes in Ruby *do*
+          # have a deterministic order, they aren't meant to be be used that
+          # way, and may not remain that way forever.
+          choices = answers[:choices].map { |c| [c.name, c.value] }.reduce([], :<<)
 
+          # While we have the original choice objects in hand, take the
+          # opportunity to initialize the @original array. This is only run
+          # on the first iteration of the loop, thanks to `||=`.
+          #
+          # This implementation prevents us from having to extend/monkey-patch
+          # the TTY::Prompt::Choice class to make it mutable.
+          @original ||= answers[:choices].dup
+
+          # Initialize array of labels already in used for input validation
           reserved = []
+
+          # Labels from nodes that already exist
           @parsed.nodes.each { |n| reserved << n.label }
+
+          # Labels from nodes that are currently selected in the parse menu
           choices.each { |c| reserved << c[1].label }
 
+          # Ask the user for a label
           name = prompt.ask("Choose label:", quiet: true) do |q|
             q.validate ->(input) { !reserved.include?(input) }, "Label already exists"
           end
 
+          # Set the label of the node belonging to the mutating choice
+          # to be the label that the user has entered
           new_node = answers[:active_choice].value.tap do |n|
             n.label = name
           end
 
-          new_key = { "#{answers[:active_choice]} (#{name})" => new_node }
+          # Update the name of the mutating choice to reflect the label change
+          new_key = ["#{answers[:active_choice]} (#{name})", new_node]
 
-          insertable_index = choices.find_index { |k,_| k == answers[:active_choice].name }
+          # Replace old choice array with new one, maintaining position,
+          # then convert to hash so that multi-select will accept it
+          @logger.info("CHOICES: #{choices}")
+          choices = choices.map do |c|
+            c[0] == answers[:active_choice].name ? Hash[*new_key] : Hash[*c]
+          end.reduce({}, :merge)
 
-          left_half = choices.reject do |c|
-            choices.find_index { |k,_| k == c } >= insertable_index
-          end
-
-          right_half = choices.reject do |c|
-            choices.find_index { |k,_| k == c } <= insertable_index
-          end
-
-          choices.delete(answers[:active_choice].name)
-          choices = left_half.merge(new_key).merge(right_half)
-          #choices = new_key.merge(mutable_choices)
-
-          defaults << new_key.keys.first
+          # Add new name to defaults array so that the re-rendered multi-select
+          # can maintain which choices were selected before.
+          defaults << new_key[0]
         end
 
         existing = @parsed.nodes.select { |old| answers.any? { |n| old.id == n.id } }

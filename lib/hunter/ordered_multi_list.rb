@@ -24,22 +24,28 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-require 'logger'
 
 module TTY
   class Prompt
     class OrderedMultiList < MultiList
       def initialize(prompt, **options)
         super
-        @logger = Logger.new("/home/jack/code/flight-hunter/log.log")
+        @selected = OrderedSelectedChoices.new
+
+        # Array of Choice objects that any modified choice can revert to
         @original = options[:original]
 
-        @logger.info("STARTING_OGS: #{@original.map(&:name)}")
-        @selected = OrderedSelectedChoices.new
+        # Allow early abort? (used in interactive parser)
         @editable = options[:edit_labels]
+        
+        # Switch for returning either 'final answers' or 
+        # a frozen copy of the multi-select's current state
+        # (only used internally)
         @return_choices = options[:return_choices]
       end
 
+      # Override render parent method to allow switching
+      # between which data is returned 
       def render
         @prompt.print(@prompt.hide)
         until @done
@@ -54,16 +60,19 @@ module TTY
           @prompt.print(refresh(question_lines_count(question_lines)))
         end
         @prompt.print(render_question) unless @quiet
+
         case !!@return_choices
         when false
+          # Base case; return answers hash as usual
           answer
         when true
+          # If user is running an editable multi-select, they are expecting
+          # a frozen state of the current select to be returned.
           {
             choices: @choices,
             selected_choices: @selected,
             active_choice: choices[@active - 1]
           }
-          # return the hash of choices
         end
       ensure
         @prompt.print(@prompt.show)
@@ -74,9 +83,13 @@ module TTY
         if @selected.include?(active_choice)
           @selected.delete(active_choice)
           @default.delete(active_choice.name)
+
+          # When de-selecting a choice, reset its name to
+          # its original value (set on prompt initialization)
           update_choices
         else
           if @editable
+            # 'Activate' switch to abort menu and return frozen choice state
             @return_choices = true
             @done = true
           else
@@ -88,6 +101,9 @@ module TTY
       end
 
       def update_choices
+        # For each choice: if the choice no longer exists in the @selected
+        # array, it has been deselected since last render. Replace it with
+        # the corresponding choice in @original.
         new_choices = @choices.each_with_index.map do |choice, idx|
           if !@selected.any? { |c| c.name == choice.name }
             @original[idx]
@@ -96,7 +112,6 @@ module TTY
           end
         end
 
-        @logger.info new_choices
         @choices = new_choices
       end
 
@@ -165,13 +180,6 @@ module TTY
       def insert(choice)
         @selected << choice
         self
-      end
-
-      def replace(index, choice)
-        to_replace = @selected[index]
-        return nil unless to_replace
-        @selected.insert(index, choice)
-        delete(to_replace)
       end
 
       def delete(choice)
