@@ -16,3 +16,6 @@
 #
 # Allow existing nodes when hunting
 # allow_existing: false
+#
+# Key used to authenticate data
+# auth_key: flight-hunter
