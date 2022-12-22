@@ -24,24 +24,80 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
+require 'logger'
 
 module TTY
   class Prompt
     class OrderedMultiList < MultiList
       def initialize(prompt, **options)
         super
+        @logger = Logger.new("/home/jack/code/flight-hunter/log.log")
+        @original = options[:original]
+
+        @logger.info("STARTING_OGS: #{@original.map(&:name)}")
         @selected = OrderedSelectedChoices.new
+        @editable = options[:edit_labels]
+        @return_choices = options[:return_choices]
+      end
+
+      def render
+        @prompt.print(@prompt.hide)
+        until @done
+          question = render_question
+          @prompt.print(question)
+          @prompt.read_keypress
+
+          # Split manually; if the second line is blank (when there are no
+          # matching lines), it won't be included by using String#lines.
+          question_lines = question.split($INPUT_RECORD_SEPARATOR, -1)
+
+          @prompt.print(refresh(question_lines_count(question_lines)))
+        end
+        @prompt.print(render_question) unless @quiet
+        case !!@return_choices
+        when false
+          answer
+        when true
+          {
+            choices: @choices,
+            selected_choices: @selected,
+            active_choice: choices[@active - 1]
+          }
+          # return the hash of choices
+        end
+      ensure
+        @prompt.print(@prompt.show)
       end
 
       def keyspace(*)
         active_choice = choices[@active - 1]
         if @selected.include?(active_choice)
           @selected.delete(active_choice)
+          @default.delete(active_choice.name)
+          update_choices
         else
-          return if @max && @selected.size >= @max
+          if @editable
+            @return_choices = true
+            @done = true
+          else
+            return if @max && @selected.size >= @max
 
-          @selected.insert(active_choice)
+            @selected.insert(active_choice)
+          end
         end
+      end
+
+      def update_choices
+        new_choices = @choices.each_with_index.map do |choice, idx|
+          if !@selected.any? { |c| c.name == choice.name }
+            @original[idx]
+          else
+            choice
+          end
+        end
+
+        @logger.info new_choices
+        @choices = new_choices
       end
 
       def keyctrl_a(*)
@@ -82,8 +138,14 @@ module TTY
     class OrderedSelectedChoices
       include Enumerable
 
+      attr_reader :selected
+
       def initialize(selected = [])
         @selected = selected
+      end
+
+      def index(choice)
+        @selected.index(choice)
       end
 
       def clear
@@ -103,6 +165,13 @@ module TTY
       def insert(choice)
         @selected << choice
         self
+      end
+
+      def replace(index, choice)
+        to_replace = @selected[index]
+        return nil unless to_replace
+        @selected.insert(index, choice)
+        delete(to_replace)
       end
 
       def delete(choice)

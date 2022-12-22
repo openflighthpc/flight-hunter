@@ -26,6 +26,7 @@
 #==============================================================================
 require_relative 'commands/dump_buffer'
 require_relative 'commands/hunt'
+require_relative 'commands/interactive'
 require_relative 'commands/list'
 require_relative 'commands/modify_groups'
 require_relative 'commands/modify_label'
