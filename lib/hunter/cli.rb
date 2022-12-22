@@ -63,6 +63,7 @@ module Hunter
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
       c.slop.string '--port', 'Override port'
       c.slop.bool '--include-self', 'Immediately try to send payload to self'
+      c.slop.string "--auth", "Override default authentication key"
       c.action Commands, :hunt
     end
 
@@ -154,6 +155,7 @@ module Hunter
       c.slop.string "--label", "Specify a label to use for this node"
       c.slop.string "--prefix", "Specify a prefix to use for this node"
       c.slop.array "--groups", "Specify a comma-separated list of groups for this node"
+      c.slop.string "--auth", "Override default authentication key"
       c.action Commands, :send_payload
     end
   end
