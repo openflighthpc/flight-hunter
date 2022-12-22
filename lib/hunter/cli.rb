@@ -145,12 +145,6 @@ module Hunter
       c.action Commands, :parse
     end
 
-    command :interactive do |c|
-      cli_syntax(c)
-      c.summary = 'interative parse test'
-      c.action Commands, :interactive
-    end
-
     command :send do |c|
       cli_syntax(c)
       c.summary = 'Push my identity plus optional payload to server'
