@@ -78,7 +78,7 @@ module Hunter
             headers[line[0].chop] = line[1].strip
           end
           
-          if headers["Content-Type"] == "hunter-node"
+          if headers["Content-Type"] == "application/json"
             data = client.read(headers["Content-Length"].to_i)
 
             payload = YAML.load(data)
