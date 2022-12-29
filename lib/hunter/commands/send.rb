@@ -29,7 +29,6 @@ require 'socket'
 require 'yaml'
 require 'json'
 require 'net/http'
-require 'uri'
 
 require_relative '../command'
 require_relative '../collector'
@@ -65,21 +64,24 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        uri = URI.parse("http://" + host + ":" + port)
-
-        header = {'Content-Type': 'hunter-node'}
-        
-        data = {hostid: hostid,
-                hostname: hostname,
-                file_content: file_content,
-                label: @options.label,
-                prefix: @options.prefix,
-                groups: @options.groups
-               }
+        uri = URI::HTTPS.build(host: host, port: port)
 
         http = Net::HTTP.new(uri.host, uri.port)
-        request = Net::HTTP::Post.new(uri.request_uri, header)
-        request.body = data.to_yaml
+        request = Net::HTTP::Post.new(
+          uri,
+          'Content-Type' => 'application/json'
+        )
+
+        data = {
+          hostid: hostid,
+          hostname: hostname,
+          file_content: file_content,
+          label: @options.label,
+          prefix: @options.prefix,
+          groups: @options.groups
+        }
+
+        request.body = data.to_json
         
         begin
           response = http.request(request)
