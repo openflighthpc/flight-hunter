@@ -176,7 +176,11 @@ module Hunter
           choices.each { |c| reserved << c[1].label }
 
           # Ask the user for a label
-          name = prompt.ask("Choose label:", quiet: true) do |q|
+          prefill = answers[:active_choice].value.presets.yield_self do |h|
+            h[:label] || h[:prefix] || ''
+          end
+
+          name = prompt.ask("Choose label:", quiet: true, value: prefill) do |q|
             q.validate ->(input) { !reserved.include?(input) }, "Label already exists"
           end
 
