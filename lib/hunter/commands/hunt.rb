@@ -84,19 +84,19 @@ module Hunter
 
             payload = JSON.parse(data)
 
-            client.puts "HTTP/1.1 200\r\n"
-            
-            node = Node.new(
-              id: payload['hostid'],
-              hostname: payload['hostname'],
-              ip: (client.peeraddr[2] || 'unknown'),
-              payload: payload['file_content'],
-              groups: payload['groups'],
-              presets: {
-                label: payload['label'],
-                prefix: payload['prefix']
-              }
-            )
+            if payload["auth_key"] == auth_key
+              client.puts "HTTP/1.1 200\r\n"
+              node = Node.new(
+                id: payload["hostid"],
+                hostname: payload["hostname"],
+                ip: (client.peeraddr[2] || 'unknown'),
+                payload: payload["file_content"],
+                groups: payload["groups"],
+                presets: {
+                  label: payload["label"],
+                  prefix: payload["prefix"]
+                }
+              )
 
               puts <<~EOF
               Found node.
