@@ -106,7 +106,7 @@ module TTY
         # the corresponding choice in @original.
         new_choices = @choices.each_with_index.map do |choice, idx|
           if !@selected.any? { |c| c.name == choice.name }
-            @original[idx]
+            @original[idx].tap { |c| c.value.label = nil }
           else
             choice
           end
