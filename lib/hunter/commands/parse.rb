@@ -182,7 +182,9 @@ module Hunter
 
           name = prompt.ask("Choose label:", quiet: true, value: prefill) do |q|
             q.validate ->(input) { !reserved.include?(input) }, "Label already exists"
-          end
+          end.to_s.strip
+
+          name = name == '' ? answers[:active_choice].value.hostname : name
 
           # Set the label of the node belonging to the mutating choice
           # to be the label that the user has entered
