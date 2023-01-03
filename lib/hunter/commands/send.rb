@@ -28,6 +28,7 @@
 require 'socket'
 require 'yaml'
 require 'json'
+require 'net/http'
 
 require_relative '../command'
 require_relative '../collector'
@@ -39,7 +40,7 @@ module Hunter
 
       def run
         host = @options.server || Config.target_host
-        port = @options.port || Config.port
+        port = @options.port || Config.port.to_s
 
         raise "No target_host provided!" if !host
         raise "No port provided!" if !port
@@ -63,12 +64,27 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        payload = [hostid, hostname, file_content, @options.label, @options.prefix, @options.groups.join(",")].pack('Z*Z*Z*Z*Z*Z*')
+        uri = URI::HTTPS.build(host: host, port: port)
 
+        http = Net::HTTP.new(uri.host, uri.port)
+        request = Net::HTTP::Post.new(
+          uri,
+          'Content-Type' => 'application/json'
+        )
+
+        data = {
+          hostid: hostid,
+          hostname: hostname,
+          file_content: file_content,
+          label: @options.label,
+          prefix: @options.prefix,
+          groups: @options.groups
+        }
+
+        request.body = data.to_json
+        
         begin
-          server = TCPSocket.open(host, port)
-          server.write(payload)
-          server.close
+          response = http.request(request)
           puts "Successful transmission"
         rescue Errno::ECONNREFUSED => e
           puts "The server is unavailable"
