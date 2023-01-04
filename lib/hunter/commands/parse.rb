@@ -37,6 +37,13 @@ module Hunter
         raise "No nodes in buffer" if @buffer.nodes.empty?
         @parsed = NodeList.load(Config.node_list)
 
+        # Initialize label counts
+        @label_increments = {}
+        @used_strings = [].tap do |a|
+          a << @parsed.nodes.map(&:label)
+          a.flatten!.uniq!
+        end
+
         final = 
           case @options.auto
           when true
@@ -65,7 +72,9 @@ module Hunter
       private
 
       def automatic_parse
-        labels = generate_labels
+        if @buffer.nodes.group_by { |n| n.presets[:label] }.any? { |g| g.count > 1 }
+          raise "Duplicate preset labels in buffer list. Please resolve any duplicates before continuing."
+        end
 
         existing = @parsed.nodes.select { |pn| @buffer.nodes.any? { |bn| pn.id == bn.id } }
 
@@ -74,46 +83,46 @@ module Hunter
                 "#{existing.map(&:id).join("\n")}"
         end
 
-        @buffer.nodes.each_with_index do |node, idx|
-          node.label = labels[idx] 
+        @buffer.nodes.each do |node|
+          prefix = node.presets[:prefix] || @options.prefix
+          if node.presets[:label]
+            label = node.presets[:label]
+          elsif prefix
+            loop do
+              label = generate_label(prefix)
+              
+              break unless label_exists?(label) && @options.skip_used_index
+            end
+          else
+            label = node.hostname
+          end
+
+          if label_exists?(label)
+            raise "Automatically generated label '#{label}' already exists."
+          end
+
+          @used_strings << label
+
+          node.label = label
         end
 
         @buffer.nodes
       end
 
-      def generate_labels
-        if auto_labels?
-          prefix = @options.prefix
-          start = @options.start
-
-          [].tap do |arr|
-            @buffer.nodes.length.times do |idx|
-              iteration = start.to_i + idx
-              padding = '0' * [start.length - iteration.to_s.length, 0].max
-              count = padding + iteration.to_s
-              arr << prefix + count
-            end
-          end
-        else
-          @buffer.nodes.map(&:hostname)
-        end
+      def label_exists?(label)
+        @used_strings.any? { |n| n == label }
       end
 
-      def auto_labels?
-        if @options.prefix && @options.start
-          true
-        elsif @options.prefix.nil? != @options.start.nil?
-          raise 'Please specify both a PREFIX *and* a START value or omit both.'
-        else
-          false
-        end
-      end
+      def generate_label(prefix)
+        start = @options.start
 
-      def check_label_range(list, labels)
-        if list.nodes.length > labels.length
-          raise "The number of nodes to process is greater than the number "\
-                "of names possible with the given PREFIX and START."
-        end
+        @label_increments[prefix] ||= { count: 0 }
+        iteration = start.to_i + @label_increments[prefix][:count]
+        padding = '0' * [(start.length - iteration.to_s.length), 0].max
+        count = padding + iteration.to_s
+
+        @label_increments[prefix][:count] += 1
+        return prefix + count
       end
 
       def manual_parse
@@ -175,14 +184,28 @@ module Hunter
           # Labels from nodes that are currently selected in the parse menu
           choices.each { |c| reserved << c[1].label }
 
-          # Ask the user for a label
-          prefill = answers[:active_choice].value.presets.yield_self do |h|
-            h[:label] || h[:prefix] || ''
+          # Pre-generate the label, if possible
+          prefill = answers[:active_choice].value.yield_self do |node|
+            prefix = node.presets[:prefix] || @options.prefix
+            if node.presets[:label]
+              node.presets[:label]
+            elsif prefix
+              loop do
+                label = generate_label(prefix)
+
+                break label unless label_exists?(label) && @options.skip_used_index
+              end
+            else
+              node.hostname
+            end
           end
 
+          # Ask the user for a label
           name = prompt.ask("Choose label:", quiet: true, value: prefill) do |q|
             q.validate ->(input) { !reserved.include?(input) }, "Label already exists"
           end.to_s.strip
+
+          @used_strings << name
 
           name = name == '' ? answers[:active_choice].value.hostname : name
 
