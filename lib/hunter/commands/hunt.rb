@@ -57,10 +57,8 @@ module Hunter
           )
         end
 
-        first = true
-
-        loop do
-          if first && (@options.include_self || Config.include_self)
+        Thread.new do
+          if @options.include_self || Config.include_self
             opts = OpenStruct.new(
               port: port,
               server: Config.target_host || 'localhost'
@@ -68,9 +66,10 @@ module Hunter
 
             Commands::SendPayload.new(OpenStruct.new, opts).run!
           end
+        end
 
+        loop do
           client = server.accept
-          first = false
 
           headers = {}
           while line = client.gets.split(' ', 2)
