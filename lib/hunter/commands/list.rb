@@ -44,7 +44,7 @@ module Hunter
               n.hostname,
               n.ip,
               n.groups.any? ? n.groups.join("|") : "|",
-              n.label
+              @options.buffer ? n.presets[:label] : n.label
             ]
             puts a.join("\t")
           end
@@ -57,7 +57,7 @@ module Hunter
               t = Table.new
               t.headers('ID', 'Label', 'Hostname', 'IP')
               nodes.each do |node|
-                t.row(node.id, node.label, node.hostname, node.ip)
+                t.row(node.id, @options.buffer ? node.presets[:label] : node.label, node.hostname, node.ip)
               end
               puts "Group '#{group}':"
               t.emit
@@ -66,7 +66,7 @@ module Hunter
             t = Table.new
             t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
             list.nodes.each do |node|
-              t.row(node.id, node.label, node.hostname, node.ip, node.groups&.join(", "))
+              t.row(node.id, @options.buffer ? node.presets[:label] : node.label, node.hostname, node.ip, node.groups&.join(", "))
             end
             t.emit
           end

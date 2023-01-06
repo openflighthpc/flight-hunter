@@ -110,7 +110,8 @@ module Hunter
             label: node['label'],
             ip: node['ip'],
             payload: node['payload'],
-            groups: node['groups']
+            groups: node['groups'],
+            presets: node['presets']
           )
         end
       end
