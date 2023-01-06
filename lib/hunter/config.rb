@@ -68,6 +68,10 @@ module Hunter
       def allow_existing
         ENV['flight_HUNTER_allow_existing'] || data.fetch(:allow_existing)
       end
+      
+      def auth_key
+        ENV['flight_HUNTER_auth_key'] || data.fetch(:auth_key)
+      end
 
       def node_buffer
         var_file('buffer.yaml')

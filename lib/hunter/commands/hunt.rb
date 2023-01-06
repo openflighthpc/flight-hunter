@@ -37,6 +37,7 @@ module Hunter
     class Hunt < Command
       def run
         port = @options.port || Config.port
+        auth_key = @options.auth || Config.auth_key
         raise "No port provided!" if !port
 
         server = TCPServer.open(port)
@@ -82,47 +83,51 @@ module Hunter
 
             payload = JSON.parse(data)
 
-            client.puts "HTTP/1.1 200\r\n"
-            
-            node = Node.new(
-              id: payload['hostid'],
-              hostname: payload['hostname'],
-              ip: (client.peeraddr[2] || 'unknown'),
-              payload: payload['file_content'],
-              groups: payload['groups'],
-              presets: {
-                label: payload['label'],
-                prefix: payload['prefix']
-              }
-            )
+            if payload["auth_key"] == auth_key
+              client.puts "HTTP/1.1 200\r\n"
+              node = Node.new(
+                id: payload["hostid"],
+                hostname: payload["hostname"],
+                ip: (client.peeraddr[2] || 'unknown'),
+                payload: payload["file_content"],
+                groups: payload["groups"],
+                presets: {
+                  label: payload["label"],
+                  prefix: payload["prefix"]
+                }
+              )
 
-            puts <<~EOF
-            Found node.
-            ID: #{node.id}
-            Name: #{node.hostname}
-            IP: #{node.ip}
+              puts <<~EOF
+              Found node.
+              ID: #{node.id}
+              Name: #{node.hostname}
+              IP: #{node.ip}
 
-            EOF
+              EOF
 
-            buffer = NodeList.load(Config.node_buffer)
-            parsed = NodeList.load(Config.node_list)
+              buffer = NodeList.load(Config.node_buffer)
+              parsed = NodeList.load(Config.node_list)
 
-            if @options.allow_existing || Config.allow_existing
-              buffer.nodes.delete_if { |n| n.id == node.id }
-              buffer.nodes << node
-              puts "Node added to buffer"
-            else
-              if buffer.include_id?(node.id)
-                puts "ID already exists in buffer"
-              elsif parsed.include_id?(node.id)
-                puts "ID already exists in parsed node list"
-              else
+              if @options.allow_existing || Config.allow_existing
+                buffer.nodes.delete_if { |n| n.id == node.id }
                 buffer.nodes << node
                 puts "Node added to buffer"
+              else
+                if buffer.include_id?(node.id)
+                  puts "ID already exists in buffer"
+                elsif parsed.include_id?(node.id)
+                  puts "ID already exists in parsed node list"
+                else
+                  buffer.nodes << node
+                  puts "Node added to buffer"
+                end
               end
-            end
 
-            buffer.save
+              buffer.save
+            else
+              client.puts "HTTP/1.1 401\r\n"
+              puts "Unauthorised node attempted to connect"
+            end
           end
           client.close
         end
