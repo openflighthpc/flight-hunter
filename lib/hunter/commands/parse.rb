@@ -78,13 +78,6 @@ module Hunter
 
       private
 
-      def check_label_range(list, labels)
-        if list.nodes.length > labels.length
-          raise "The number of nodes to process is greater than the number "\
-                "of names possible with the given PREFIX and START."
-        end
-      end
-
       def generate_labels
         if auto_labels?
           prefix = @options.prefix
@@ -93,7 +86,7 @@ module Hunter
           [].tap do |arr|
             @buffer.nodes.length.times do |idx|
               iteration = start.to_i + idx
-              padding = '0' * (start.length - iteration.to_s.length)
+              padding = '0' * [start.length - iteration.to_s.length, 0].max
               count = padding + iteration.to_s
               arr << prefix + count
             end
@@ -139,7 +132,6 @@ module Hunter
       end
 
       def automatic_parse(labels)
-        check_label_range(@buffer, labels)
         existing = @parsed.nodes.select { |pn| @buffer.nodes.any? { |bn| pn.id == bn.id } }
         if !@options.allow_existing && existing.any?
           raise "The following IDs already exist in the parsed list:\n"\
