@@ -1,10 +1,7 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-
 #==============================================================================
-# Copyright (C) 2019-present Alces Flight Ltd.
+# Copyright (C) 2022-present Alces Flight Ltd.
 #
-# This file is part of Hunter.
+# This file is part of Flight Hunter.
 #
 # This program and the accompanying materials are made available under
 # the terms of the Eclipse Public License 2.0 which is available at
@@ -12,7 +9,7 @@
 # terms made available by Alces Flight Ltd - please direct inquiries
 # about licensing to licensing@alces-flight.com.
 #
-# Hunter is distributed in the hope that it will be useful, but
+# Flight Hunter is distributed in the hope that it will be useful, but
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
 # IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS
 # OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A
@@ -20,15 +17,24 @@
 # details.
 #
 # You should have received a copy of the Eclipse Public License 2.0
-# along with Hunter. If not, see:
+# along with Flight Hunter. If not, see:
 #
 #  https://opensource.org/licenses/EPL-2.0
 #
-# For more information on Hunter, please visit:
-# https://github.com/openflighthpc/hunter
-#===============================================================================
+# For more information on Flight Hunter, please visit:
+# https://github.com/openflighthpc/flight-hunter
+#==============================================================================
 
-def modify_nodelist(config,newname)
-	config['nodelist'] = newname
-	File.open('server/config.yaml','w+') { |file| file.write(config.to_yaml) }
+require_relative '../command'
+
+module Hunter
+  module Commands
+    class DumpBuffer < Command
+      def run
+        list = NodeList.load(Config.node_buffer)
+        list.empty
+        puts "Node buffer emptied."
+      end
+    end
+  end
 end

@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,33 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
+require_relative '../command'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+module Hunter
+  module Commands
+    class ModifyLabel < Command
+      def run
+        list_file = Config.node_list
+        list = NodeList.load(list_file)
+        old_label = args[0]
+        new_label = args[1]
+
+        if list.find(label: new_label)
+          raise "Label '#{new_label}' already exists in list '#{list.name}'"
+        end
+
+        node = list.find(label: old_label) 
+
+        unless node
+          raise "Node '#{old_label}' does not exist in list '#{list.name}'"
+        end
+
+        node.label = new_label
+
+        if list.save
+          puts "Node '#{old_label}' in list '#{list.name}' relabeled to '#{new_label}'"
+        end
+      end
+    end
+  end
+end

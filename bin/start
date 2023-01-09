@@ -1,0 +1,16 @@
+#!/bin/bash
+pid_file="$1"
+if [ -z "$pid_file" ]; then
+  echo "No pid_file provided!" >&2
+  exit 1
+fi
+if [ -z "$flight_ROOT" ]; then
+  echo "flight_ROOT has not been set!" >&2
+  exit 1
+fi
+
+install_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." &> /dev/null && pwd)"
+
+exec \
+  env flight_HUNTER_pidfile=$1 \
+  "${flight_ROOT}"/bin/flexec ruby $install_dir/bin/hunter autorun

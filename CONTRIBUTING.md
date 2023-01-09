@@ -85,7 +85,7 @@ to close or to not process bug reports with insufficient detail in
 favour of those which are very cleanly documented and easy to
 reproduce. Even though we would like to solve each well-documented
 issue, there is always the chance that it will not happen - remember:
-Hunter is Open Source and comes without warranty.
+Flight Hunter is Open Source and comes without warranty.
 
 Bug report analysis support is very welcome! (e.g. pre-analysis or
 proposing solutions)
@@ -97,13 +97,13 @@ Flight Hunter in order to fix bugs or to implement new features.
 
 There are three important things to know:
 
-1. You must be aware of the Creative Commons Attribution-ShareAlike
-   4.0 International License and **agree to the Contributors License
+1. You must be aware of the Eclipse Public License 2.0 (which
+   describes contributions) and **agree to the Contributors License
    Agreement**. This is common practice in all major Open Source
    projects.
 2. **Not all proposed contributions can be accepted**. Some features
    may e.g. just fit a third-party add-on better. The change must fit
-   the overall direction of Hunter and really improve it. The more
+   the overall direction of Flight Hunter and really improve it. The more
    effort you invest, the better you should clarify in advance whether
    the contribution fits: the best way would be to just open an issue
    to discuss the feature you plan to implement (make it clear you
@@ -112,9 +112,8 @@ There are three important things to know:
 ### Contributor License Agreement
 
 When you contribute (code, documentation, or anything else), you have
-to be aware that your contribution is covered by the same [Creative
-Commons Attribution-ShareAlike 4.0 International
-License](https://creativecommons.org/licenses/by-sa/4.0/) that is
+to be aware that your contribution is covered by the same [Eclipse
+Public License 2.0](https://opensource.org/licenses/EPL-2.0) that is
 applied to Flight Hunter itself.
 
 In particular you need to agree to the Contributor License Agreement,

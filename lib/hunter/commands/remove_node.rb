@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,40 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
+require_relative '../command'
+require_relative '../table'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+module Hunter
+  module Commands
+    class RemoveNode < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
+
+        search_term = args[0]
+
+        nodes =
+          case @options.name
+          when true
+            list.match(Regexp.new(args[0]))
+          when false
+            [list.find(search_field(buffer) =>  args[0])]
+          end
+        
+        raise "No #{search_field(buffer)}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes&.any?
+
+        if list.delete(nodes) && list.save
+          puts "The following nodes have successfully been removed from list '#{list.name}'"
+
+          t = Table.new
+          t.headers('ID', 'Label', 'Hostname', 'Groups')
+          nodes.each do |n|
+            t.row(n.id, n.label, n.hostname, n.groups.join(", "))
+          end
+          t.emit
+        end
+      end
+    end
+  end
+end

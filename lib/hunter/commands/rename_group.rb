@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,30 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
+require_relative '../command'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+module Hunter
+  module Commands
+    class RenameGroup < Command
+      def run
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
+        list = NodeList.load(list_file)
+        old = args[0]
+        new = args[1]
+
+        unless list.nodes.map(&:groups).flatten.uniq.include?(old)
+          raise "Group '#{old}' does not exist in list '#{list.name}'"
+        end
+
+        list.nodes.each do |node|
+          node.groups.map! { |g| g == old ? new : g }.uniq!
+        end
+
+        if list.save
+          puts "Group '#{old}' in list '#{list.name}' renamed to '#{new}'"
+        end
+      end
+    end
+  end
+end

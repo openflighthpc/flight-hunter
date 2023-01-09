@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 #==============================================================================
 # Copyright (C) 2022-present Alces Flight Ltd.
 #
@@ -25,11 +24,48 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
-source 'https://rubygems.org'
 
-gem 'commander-openflighthpc', '~> 2.2.0'
-gem 'tty-prompt'
-gem 'tty-table'
-gem 'tty-config'
-gem 'pidfile'
-gem 'xdg', git: 'https://github.com/bkuhlmann/xdg', tag: '3.0.2'
+require 'tty-table'
+
+module Hunter
+  class Table
+    def initialize
+      @table = TTY::Table.new(header: [''])
+      @table.header.fields.clear
+      @padding = [0,1]
+    end
+
+    def emit
+      puts @table.render(
+        :unicode,
+        {}.tap do |o|
+          o[:padding] = @padding unless @padding.nil?
+          o[:multiline] = true
+        end
+      )
+    end
+
+    def padding(*pads)
+      @padding = pads.length == 1 ? pads.first : pads
+    end
+
+    def headers(*titles)
+      titles.each_with_index do |title, i|
+        @table.header[i] = title
+      end
+    end
+
+    # Add single row from single array
+    def row(*vals)
+      @table << vals
+    end
+    
+    # Add multiple rows from nested array
+    def rows(*vals)
+      vals.each do |r|
+        @table << r
+      end
+    end
+  end
+end
+
