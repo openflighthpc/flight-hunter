@@ -4,7 +4,7 @@ A tool for tracking MAC addresses of nodes in a cluster.
 
 ## Overview
 
-Hunter facilitates a communication between a two machines, allowing one machine to send some diagnostic data and a payload file to another machine listening for other nodes running Hunter.
+Hunter facilitates a communication between two machines, allowing one machine to send some diagnostic data and a payload file to another machine listening for other nodes running Hunter.
 
 ## Installation
 
