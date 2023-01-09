@@ -4,9 +4,7 @@ A tool for tracking MAC addresses of nodes in a cluster.
 
 ## Overview
 
-Hunter facilitates a communication between a two machines,
-allowing one machine to send some diagnostic data and a payload
-file to another machine listening for other nodes running Hunter.
+Hunter facilitates a communication between a two machines, allowing one machine to send some diagnostic data and a payload file to another machine listening for other nodes running Hunter.
 
 ## Installation
 
@@ -39,6 +37,8 @@ Flight Hunter has some required configuration based on the environment it is bei
 - `autorun_mode` - Which mode to run when running the `autorun` command. Must be one of `hunt` or `send`.
 - `include_self` - Toggle to automatically run `send` for itself when a `hunt` server is started.
 - `payload_file` - File to send as a payload when running `send`
+- `allow_existing` - Overwrite existing nodes when hunting/parsing a node that already exists
+- `auth_key` - Specify an authentication key allowing only nodes with a matching key to connect
 
 Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
 
@@ -51,11 +51,7 @@ A brief usage guide is given below. See the `help` command for further details a
 
 Run the Hunter listening server with `hunt`. By default, nodes that already exist in the Hunter nodelist are ignored. Override existing nodes with `hunt --allow-existing`. The server can immediately `send` to itself with `--include-self`.
 
-Run the Hunter payload transmitter with `send`. The system's hostid, IP, hostname, and a default payload of diagnostic data will be sent to the Hunter server running at the configured IP/port. The system hostname and payload can be overwritten via command line options.
-
-Select nodes from the buffer list to move to the processed node list with `parse`. Generate labels automatically with the `prefix` and `start` command line options. For example:
-`bin/hunter parse --prefix cnode --start 001`
-will label each node in order `cnode001`, `cnode002`, and so on. When generating labels like this, the order that nodes are selected in will persist. If no label scheme is specified, the hostname of the node will be used instead. You may provide the `--auto` command line option to automatically process every node in the buffer in order. Please be aware that labels are considered unique across Hunter.
+Run the Hunter payload transmitter with `send`. The system's hostid, IP, hostname, and a default payload of diagnostic data will be sent to the Hunter server running at the configured IP/port. The system hostname and payload can be overwritten via command line options. You may also provide a label or a prefix to use for the node's label when being parsed by the host machine.
 
 See all nodes in the node list with `list`.
 
@@ -66,6 +62,34 @@ Add/remove groups to/from a node from the node list with `modify-groups`.
 Update the label of a node in the processed list with `modify-label`.
 
 Rename a group across a list with `rename-group`. All nodes with that group will be updated.
+
+### Parsing nodes
+
+Flight Hunter provides both interactive and command line methods for parsing nodes. Both methods support quasi-automatic label generation for parsed nodes with the `--prefix` and `--start` options.
+
+#### Interactive menu
+
+Launch the interactive parser with `bin/hunter parse` to be presented with a multi-selection menu:
+
+```yaml
+Select nodes: (Scroll for more nodes)
+‣ ⬡ hostname1 - 10.50.0.40
+  ⬡ hostname2 - 10.50.0.41
+  ⬡ hostname3 - 10.50.0.42
+```
+
+Selecting a node from this menu will prompt the user for a label to assign to the node. If the node was sent with a `--label` or a `--prefix` (or if the user has chosen command line options for `prefix` and `start`), the input prompt will be pre-populated with the given data.
+
+#### Automatic parser
+
+Launch the automatic parser with `bin/hunter parse --auto`, along with any desired label generation options.  For example:
+
+```bash
+bin/hunter parse --prefix cnode --start 001
+
+```
+
+will label each node in order `cnode001`, `cnode002`, and so on. When generating labels like this, the order that nodes are selected in will persist. If no label scheme is specified, the hostname of the node will be used instead. You may provide the `--auto` command line option to automatically process every node in the buffer in order. Please be aware that labels are considered unique across Hunter.
 
 ### Switching between buffer and processed list
 
@@ -107,4 +131,5 @@ TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR
 PURPOSE. See the [Creative Commons Attribution-ShareAlike 4.0
 International License](https://creativecommons.org/licenses/by-sa/4.0/) for more
 details.
+
 
