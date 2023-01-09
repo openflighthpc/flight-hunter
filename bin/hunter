@@ -37,10 +37,6 @@ begin
 
   require 'hunter/cli'
   require 'hunter/prompt'
-  if $stdout.tty?
-    $stdout.reopen("out.txt", "w")
-    $stderr.reopen("out.txt", "w")
-  end
   Dir.chdir(ENV.fetch('FLIGHT_CWD','.'))
   OpenFlight.set_standard_env rescue nil
 
