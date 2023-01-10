@@ -37,6 +37,13 @@ module Hunter
         raise "No nodes in buffer" if @buffer.nodes.empty?
         @parsed = NodeList.load(Config.node_list)
 
+
+        if !/\A\d+\z/.match(@options.start)
+          raise "Please provide a valid positive integer value for `--start`"
+        end
+
+        @start = @options.start.to_i
+
         # Initialize label counts
         @label_increments = {}
         @used_strings = [].tap do |a|
@@ -114,7 +121,7 @@ module Hunter
       end
 
       def generate_label(prefix)
-        start = @options.start
+        start = @start
 
         @label_increments[prefix] ||= { count: 0 }
         iteration = start.to_i + @label_increments[prefix][:count]
