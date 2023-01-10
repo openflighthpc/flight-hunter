@@ -62,7 +62,8 @@ module Hunter
           if @options.include_self || Config.include_self
             opts = OpenStruct.new(
               port: port,
-              server: Config.target_host || 'localhost'
+              server: Config.target_host || 'localhost',
+              auth: auth_key
             )
 
             Commands::SendPayload.new(OpenStruct.new, opts).run!
