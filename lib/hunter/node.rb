@@ -47,6 +47,10 @@ module Hunter
       @groups = @groups - to_remove
     end
 
+    def pretty_presets
+      presets.map { |k,v| "#{k}: '#{v}'" }.join("\n")
+    end
+
     attr_reader :id, :ip, :payload, :groups, :hostname, :presets
     attr_accessor :label
 
@@ -57,7 +61,7 @@ module Hunter
       @ip = ip
       @payload = payload
       @groups = groups || []
-      @presets = presets
+      @presets = presets.reject { |k,v| v.nil? || v.empty? }
     end
 
     private

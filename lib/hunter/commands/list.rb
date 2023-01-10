@@ -44,7 +44,8 @@ module Hunter
               n.hostname,
               n.ip,
               n.groups.any? ? n.groups.join("|") : "|",
-              n.label
+              n.label,
+              n.presets.to_json
             ]
             puts a.join("\t")
           end
@@ -55,18 +56,36 @@ module Hunter
           when true
             list.nodes(by_group: true).each do |group, nodes|
               t = Table.new
-              t.headers('ID', 'Label', 'Hostname', 'IP')
-              nodes.each do |node|
-                t.row(node.id, node.label, node.hostname, node.ip)
+              case @options.buffer
+              when true
+                t.headers('ID', 'Hostname', 'IP', 'Presets')
+                nodes.each do |node|
+                  t.row(node.id, node.hostname, node.ip, node.pretty_presets)
+                end
+              when false
+                t.headers('ID', 'Label', 'Hostname', 'IP')
+                nodes.each do |node|
+                  t.row(node.id, node.label, node.hostname, node.ip)
+                end
               end
+
               puts "Group '#{group}':"
               t.emit
             end
           when false
             t = Table.new
-            t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
-            list.nodes.each do |node|
-              t.row(node.id, node.label, node.hostname, node.ip, node.groups&.join(", "))
+
+            case @options.buffer
+            when true
+              t.headers('ID', 'Hostname', 'IP', 'Groups', 'Presets')
+              list.nodes.each do |node|
+                t.row(node.id, node.hostname, node.ip, node.groups&.join(", "), node.pretty_presets)
+              end
+            when false
+              t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
+              list.nodes.each do |node|
+                t.row(node.id, node.label, node.hostname, node.ip, node.groups&.join(", "))
+              end
             end
             t.emit
           end
