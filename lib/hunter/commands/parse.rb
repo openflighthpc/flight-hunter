@@ -37,6 +37,10 @@ module Hunter
         raise "No nodes in buffer" if @buffer.nodes.empty?
         @parsed = NodeList.load(Config.node_list)
 
+        if @options.start && !/\A\d+\z/.match(@options.start)
+          raise "Please provide a valid positive integer value for `--start`"
+        end
+
         # Initialize label counts
         @label_increments = {}
         @used_strings = [].tap do |a|
@@ -72,7 +76,10 @@ module Hunter
       private
 
       def automatic_parse
-        if @buffer.nodes.group_by { |n| n.presets[:label] }.any? { |g| g.count > 1 }
+        duplicates = @buffer.nodes.group_by { |n| n.presets[:label] }
+                                  .reject { |k, v| k.nil? }
+                                  .any? { |k, v| v.count > 1 }
+        if duplicates
           raise "Duplicate preset labels in buffer list. Please resolve any duplicates before continuing."
         end
 
@@ -87,7 +94,9 @@ module Hunter
           prefix = node.presets[:prefix] || @options.prefix
           if node.presets[:label]
             label = node.presets[:label]
-          elsif prefix
+          elsif prefix && !@options.start
+            raise "Please provide a valid positive integer value for `--start`"
+          elsif prefix && @options.start
             loop do
               label = generate_label(prefix)
               
@@ -189,7 +198,9 @@ module Hunter
             prefix = node.presets[:prefix] || @options.prefix
             if node.presets[:label]
               node.presets[:label]
-            elsif prefix
+            elsif prefix && !@options.start
+              prefix
+            elsif prefix && @options.start
               loop do
                 label = generate_label(prefix)
 
