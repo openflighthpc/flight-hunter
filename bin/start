@@ -11,6 +11,8 @@ fi
 
 install_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." &> /dev/null && pwd)"
 
+mkdir -p $install_dir/var/log
+
 exec \
   env flight_HUNTER_pidfile=$1 \
-  "${flight_ROOT}"/bin/flexec ruby $install_dir/bin/hunter autorun
+  "${flight_ROOT}"/bin/flexec ruby $install_dir/bin/hunter autorun |& tee $install_dir/var/log/log.txt
