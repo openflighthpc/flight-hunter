@@ -41,10 +41,41 @@ module Hunter
       def run
         host = @options.server || Config.target_host
         port = @options.port || Config.port.to_s
-        auth_key = @options.auth || Config.auth_key.to_s
 
         raise "No target_host provided!" if !host
         raise "No port provided!" if !port
+
+        uri = URI::HTTPS.build(host: host, port: port)
+
+        http = Net::HTTP.new(uri.host, uri.port)
+        request = Net::HTTP::Post.new(
+          uri,
+          'Content-Type' => 'application/json'
+        )
+
+        data = prepare_payload
+        request.body = data.to_json
+        
+        begin
+          response = http.request(request)
+          response.value
+          puts "Successful transmission"
+        rescue Errno::ECONNREFUSED => e
+          puts "The server is unavailable"
+          puts e.message
+        rescue Net::HTTPServerException => e
+          if response.code == "401"
+            raise "Authentication key mismatch"
+          else
+            raise "Unknown HTTP error"
+          end
+        end
+      end
+
+      private
+
+      def prepare_payload
+        auth_key = @options.auth || Config.auth_key.to_s
 
         syshostid = `hostid`.chomp
         hostid = begin
@@ -65,15 +96,7 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        uri = URI::HTTPS.build(host: host, port: port)
-
-        http = Net::HTTP.new(uri.host, uri.port)
-        request = Net::HTTP::Post.new(
-          uri,
-          'Content-Type' => 'application/json'
-        )
-
-        data = {
+        {
           hostid: hostid,
           hostname: hostname,
           file_content: file_content,
@@ -82,23 +105,6 @@ module Hunter
           groups: @options.groups,
           auth_key: auth_key
         }
-
-        request.body = data.to_json
-        
-        begin
-          response = http.request(request)
-          response.value
-          puts "Successful transmission"
-        rescue Errno::ECONNREFUSED => e
-          puts "The server is unavailable"
-          puts e.message
-        rescue Net::HTTPServerException => e
-          if response.code == "401"
-            raise "Authentication key mismatch"
-          else
-            raise "Unknown HTTP error"
-          end
-        end
       end
     end
   end
