@@ -52,7 +52,7 @@ module Hunter
           t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
           t.row(node.id, node.label, node.hostname, node.ip, node.groups.join(", "))
           t.emit
-          puts node.payload
+          puts node.content
         end
       end
     end

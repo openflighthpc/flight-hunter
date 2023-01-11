@@ -33,7 +33,7 @@ module Hunter
         'hostname' => hostname,
         'label' => label,
         'ip' => ip,
-        'payload' => payload,
+        'content' => content,
         'groups' => groups,
         'presets' => presets
       }
@@ -51,15 +51,15 @@ module Hunter
       presets.map { |k,v| "#{k}: '#{v}'" }.join("\n")
     end
 
-    attr_reader :id, :ip, :payload, :groups, :hostname, :presets
+    attr_reader :id, :ip, :content, :groups, :hostname, :presets
     attr_accessor :label
 
-    def initialize(id:, hostname:, label: nil, ip:, payload:, groups: [], presets: {})
+    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {})
       @id = id
       @hostname = hostname
       @label = label
       @ip = ip
-      @payload = payload
+      @content = content
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
     end

@@ -65,8 +65,8 @@ module Hunter
         ENV['flight_HUNTER_target_host'] || data.fetch(:target_host)
       end
 
-      def payload_file
-        ENV['flight_HUNTER_payload_file'] || data.fetch(:payload_file)
+      def content_command
+        ENV['flight_HUNTER_content_command'] || data.fetch(:content_command)
       end
 
       def allow_existing

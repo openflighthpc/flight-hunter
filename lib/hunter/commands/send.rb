@@ -110,7 +110,7 @@ module Hunter
         {
           hostid: hostid,
           hostname: hostname,
-          file_content: file_content,
+          content: content,
           label: @options.label,
           prefix: @options.prefix,
           groups: @options.groups,

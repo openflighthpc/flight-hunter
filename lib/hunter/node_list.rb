@@ -109,7 +109,7 @@ module Hunter
             hostname: node['hostname'],
             label: node['label'],
             ip: node['ip'],
-            payload: node['payload'],
+            content: node['content'],
             groups: node['groups'],
             presets: node['presets']
           )
