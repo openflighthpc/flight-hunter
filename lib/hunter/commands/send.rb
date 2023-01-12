@@ -102,7 +102,7 @@ module Hunter
         if cmd.nil?
           content = Collector.collect.to_yaml
         else
-          content = `#{cmd}`
+          content = `#{cmd}`.chomp
         end
 
         hostname = Socket.gethostname
