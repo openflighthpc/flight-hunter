@@ -45,31 +45,36 @@ module Hunter
         raise "No target_host provided!" if !host
         raise "No port provided!" if !port
 
-        uri = URI::HTTPS.build(host: host, port: port)
+        #uri = URI::HTTPS.build(host: host, port: port)
 
-        http = Net::HTTP.new(uri.host, uri.port)
-        request = Net::HTTP::Post.new(
-          uri,
-          'Content-Type' => 'application/json'
-        )
+        #http = Net::HTTP.new(uri.host, uri.port)
+        #request = Net::HTTP::Post.new(
+        #  uri,
+        #  'Content-Type' => 'application/json'
+        #)
 
         data = prepare_payload
-        request.body = data.to_json
+        socket = UDPSocket.new
+        socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+        socket.send(data.to_json, 0, Config.broadcast_address, port)
+        #request.body = data.to_json
+
         
-        begin
-          response = http.request(request)
-          response.value
-          puts "Successful transmission"
-        rescue Errno::ECONNREFUSED => e
-          puts "The server is unavailable"
-          puts e.message
-        rescue Net::HTTPServerException => e
-          if response.code == "401"
-            raise "Authentication key mismatch"
-          else
-            raise "Unknown HTTP error"
-          end
-        end
+        
+        #begin
+        #  response = http.request(request)
+        #  response.value
+        #  puts "Successful transmission"
+        #rescue Errno::ECONNREFUSED => e
+        #  puts "The server is unavailable"
+        #  puts e.message
+        #rescue Net::HTTPServerException => e
+        #  if response.code == "401"
+        #    raise "Authentication key mismatch"
+        #  else
+        #    raise "Unknown HTTP error"
+        #  end
+        #end
       end
 
       private

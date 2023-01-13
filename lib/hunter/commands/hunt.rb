@@ -25,6 +25,7 @@
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
 require 'pidfile'
+require 'thwait'
 
 require_relative '../command'
 require_relative '../config'
@@ -36,13 +37,10 @@ module Hunter
   module Commands
     class Hunt < Command
       def run
-        port = @options.port || Config.port
-        auth_key = @options.auth || Config.auth_key
-        raise "No port provided!" if !port
+        @port = @options.port || Config.port
+        @auth_key = @options.auth || Config.auth_key
+        raise "No port provided!" if !@port
 
-        server = TCPServer.open(port)
-
-        puts "Hunter running on #{server.addr[3]}:#{server.addr[1]} Ctrl+C to stop\n"
         pidpath = ENV['flight_HUNTER_pidfile']
 
         case pidpath.nil?
@@ -58,10 +56,15 @@ module Hunter
           )
         end
 
+        threads = [tcp_thread, udp_thread]
+        puts "Hunter running on port #{@port} - Ctrl+C to stop\n"
+
+        ThreadsWait.all_waits(*threads)
+
         Thread.new do
           if @options.include_self || Config.include_self
             opts = OpenStruct.new(
-              port: port,
+              port: @port,
               server: Config.target_host || 'localhost',
               auth: auth_key
             )
@@ -69,69 +72,105 @@ module Hunter
             Commands::SendPayload.new(OpenStruct.new, opts).run!
           end
         end
+      end
 
-        loop do
-          client = server.accept
+      private
 
-          headers = {}
-          while line = client.gets.split(' ', 2)
-            break if line[0] == ""
-            headers[line[0].chop] = line[1].strip
+      def udp_thread
+        # UDP socket for broadcasted connections
+        Thread.new do
+          #UDPSocket.do_not_reverse_lookup = true
+
+          # Create socket and bind to address
+          server = UDPSocket.new
+          server.bind('0.0.0.0', @port)
+
+          loop do
+            data, addr = server.recvfrom(1024)
+            puts "From addr: '#{addr[0]}', msg:\n'#{data}'"
+            process_packet(headers: {}, data: data)
           end
-          
-          if headers["Content-Type"] == "application/json"
-            data = client.read(headers["Content-Length"].to_i)
+        end
+      end
 
+      def tcp_thread
+        # TCP socket for targeted connections
+        Thread.new do
+          server = TCPServer.open(@port)
+
+          loop do
+            client = server.accept
+
+            headers = {}
+            while line = client.gets.split(' ', 2)
+              break if line[0] == ""
+              headers[line[0].chop] = line[1].strip
+            end
+
+            data = client.read(headers["Content-Length"].to_i)
             payload = JSON.parse(data)
 
-            if payload["auth_key"] == auth_key
-              client.puts "HTTP/1.1 200\r\n"
-              node = Node.new(
-                id: payload["hostid"],
-                hostname: payload["hostname"],
-                ip: (client.peeraddr[2] || 'unknown'),
-                payload: payload["file_content"],
-                groups: payload["groups"],
-                presets: {
-                  label: payload["label"],
-                  prefix: payload["prefix"]
-                }
-              )
-
-              puts <<~EOF
-              Found node.
-              ID: #{node.id}
-              Name: #{node.hostname}
-              IP: #{node.ip}
-
-              EOF
-
-              buffer = NodeList.load(Config.node_buffer)
-              parsed = NodeList.load(Config.node_list)
-
-              if @options.allow_existing || Config.allow_existing
-                buffer.nodes.delete_if { |n| n.id == node.id }
-                buffer.nodes << node
-                puts "Node added to buffer"
-              else
-                if buffer.include_id?(node.id)
-                  puts "ID already exists in buffer"
-                elsif parsed.include_id?(node.id)
-                  puts "ID already exists in parsed node list"
-                else
-                  buffer.nodes << node
-                  puts "Node added to buffer"
-                end
-              end
-
-              buffer.save
-            else
-              client.puts "HTTP/1.1 401\r\n"
-              puts "Unauthorised node attempted to connect"
-            end
+            process_packet(headers: headers, data: payload)
           end
-          client.close
         end
+      end
+
+      def process_packet(headers:, data:)
+        unless headers["Content-Type"] == "application/json"
+          # invalid content type
+          client.puts "HTTP/1.1 415\r\n"
+          return
+        end
+        
+        unless payload["auth_key"] == auth_key
+          client.puts "HTTP/1.1 401\r\n"
+          puts "Unauthorised node attempted to connect"
+          return
+        end
+
+        # Node is acceptable
+        client.puts "HTTP/1.1 200\r\n"
+        client.close
+
+        node = Node.new(
+          id: payload["hostid"],
+          hostname: payload["hostname"],
+          ip: (client.peeraddr[2] || 'unknown'),
+          payload: payload["file_content"],
+          groups: payload["groups"],
+          presets: {
+            label: payload["label"],
+            prefix: payload["prefix"]
+          }
+        )
+
+        puts <<~EOF
+        Found node.
+        ID: #{node.id}
+        Name: #{node.hostname}
+        IP: #{node.ip}
+
+        EOF
+
+        buffer = NodeList.load(Config.node_buffer)
+        parsed = NodeList.load(Config.node_list)
+
+        if @options.allow_existing || Config.allow_existing
+          buffer.nodes.delete_if { |n| n.id == node.id }
+          buffer.nodes << node
+          puts "Node added to buffer"
+        else
+          if buffer.include_id?(node.id)
+            puts "ID already exists in buffer"
+          elsif parsed.include_id?(node.id)
+            puts "ID already exists in parsed node list"
+          else
+            buffer.nodes << node
+            puts "Node added to buffer"
+          end
+        end
+
+        buffer.save
       end
     end
   end
