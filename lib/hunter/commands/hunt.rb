@@ -79,16 +79,22 @@ module Hunter
       def udp_thread
         # UDP socket for broadcasted connections
         Thread.new do
-          #UDPSocket.do_not_reverse_lookup = true
-
           # Create socket and bind to address
           server = UDPSocket.new
           server.bind('0.0.0.0', @port)
 
           loop do
-            data, addr = server.recvfrom(1024)
-            puts "From addr: '#{addr[0]}', msg:\n'#{data}'"
-            process_packet(headers: {}, data: data)
+            msg, addr_info, rflags, *controls = server.recvmsg
+
+            data = JSON.parse(msg)
+            data.merge!({ 'ip' => addr_info.ip_address })
+
+            unless data["auth_key"] == @auth_key
+              puts "Unauthorised node attempted to connect"
+              next
+            end
+
+            #process_packet(data: data)
           end
         end
       end
@@ -107,40 +113,41 @@ module Hunter
               headers[line[0].chop] = line[1].strip
             end
 
+            unless headers["Content-Type"] == "application/json"
+              # invalid content type
+              client.puts "HTTP/1.1 415\r\n"
+              next
+            end
+
             data = client.read(headers["Content-Length"].to_i)
             payload = JSON.parse(data)
+            payload.merge!({ 'ip' => client.peeraddr[2] || 'unknown' })
 
-            process_packet(headers: headers, data: payload)
+            unless payload["auth_key"] == @auth_key
+              client.puts "HTTP/1.1 401\r\n"
+              puts "Unauthorised node attempted to connect"
+              next
+            end
+
+            # Node is acceptable
+            client.puts "HTTP/1.1 200\r\n"
+            client.close
+
+            process_packet(data: payload)
           end
         end
       end
 
-      def process_packet(headers:, data:)
-        unless headers["Content-Type"] == "application/json"
-          # invalid content type
-          client.puts "HTTP/1.1 415\r\n"
-          return
-        end
-        
-        unless payload["auth_key"] == auth_key
-          client.puts "HTTP/1.1 401\r\n"
-          puts "Unauthorised node attempted to connect"
-          return
-        end
-
-        # Node is acceptable
-        client.puts "HTTP/1.1 200\r\n"
-        client.close
-
+      def process_packet(data:)
         node = Node.new(
-          id: payload["hostid"],
-          hostname: payload["hostname"],
-          ip: (client.peeraddr[2] || 'unknown'),
-          payload: payload["file_content"],
-          groups: payload["groups"],
+          id: data["hostid"],
+          hostname: data["hostname"],
+          ip: data["ip"],
+          data: data["file_content"],
+          groups: data["groups"],
           presets: {
-            label: payload["label"],
-            prefix: payload["prefix"]
+            label: data["label"],
+            prefix: data["prefix"]
           }
         )
 
