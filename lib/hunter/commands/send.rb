@@ -39,42 +39,47 @@ module Hunter
       include Hunter::Collector
 
       def run
-        host = @options.server || Config.target_host
         port = @options.port || Config.port.to_s
-
-        raise "No target_host provided!" if !host
         raise "No port provided!" if !port
 
-        #uri = URI::HTTPS.build(host: host, port: port)
-
-        #http = Net::HTTP.new(uri.host, uri.port)
-        #request = Net::HTTP::Post.new(
-        #  uri,
-        #  'Content-Type' => 'application/json'
-        #)
-
         data = prepare_payload
-        socket = UDPSocket.new
-        socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-        socket.send(data.to_json, 0, Config.broadcast_address, port)
-        #request.body = data.to_json
 
-        
-        
-        #begin
-        #  response = http.request(request)
-        #  response.value
-        #  puts "Successful transmission"
-        #rescue Errno::ECONNREFUSED => e
-        #  puts "The server is unavailable"
-        #  puts e.message
-        #rescue Net::HTTPServerException => e
-        #  if response.code == "401"
-        #    raise "Authentication key mismatch"
-        #  else
-        #    raise "Unknown HTTP error"
-        #  end
-        #end
+        case @options.broadcast
+        when true
+          # UDP datagram to user provided broadcast address
+          socket = UDPSocket.new
+          socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+          socket.send(data.to_json, 0, Config.broadcast_address, port)
+        when false
+          # TCP datagram to specific host
+          host = @options.server || Config.target_host
+          raise "No target_host provided!" if !host
+
+          uri = URI::HTTPS.build(host: host, port: port)
+
+          http = Net::HTTP.new(uri.host, uri.port)
+          request = Net::HTTP::Post.new(
+            uri,
+            'Content-Type' => 'application/json'
+          )
+
+          request.body = data.to_json
+
+          begin
+            response = http.request(request)
+            response.value
+            puts "Successful transmission"
+          rescue Errno::ECONNREFUSED => e
+            puts "The server is unavailable"
+            puts e.message
+          rescue Net::HTTPServerException => e
+            if response.code == "401"
+              raise "Authentication key mismatch"
+            else
+              raise "Unknown HTTP error"
+            end
+          end
+        end
       end
 
       private
