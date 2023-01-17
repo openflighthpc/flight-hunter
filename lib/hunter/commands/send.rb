@@ -47,9 +47,10 @@ module Hunter
         case @options.broadcast
         when true
           # UDP datagram to user provided broadcast address
+          address = @options.broadcast_address || Config.broadcast_address
           socket = UDPSocket.new
           socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-          socket.send(data.to_json, 0, Config.broadcast_address, port)
+          socket.send(data.to_json, 0, address, port)
         when false
           # TCP datagram to specific host
           host = @options.server || Config.target_host

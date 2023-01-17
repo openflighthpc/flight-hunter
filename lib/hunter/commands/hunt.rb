@@ -94,7 +94,7 @@ module Hunter
               next
             end
 
-            #process_packet(data: data)
+            process_packet(data: data)
           end
         end
       end
@@ -143,7 +143,7 @@ module Hunter
           id: data["hostid"],
           hostname: data["hostname"],
           ip: data["ip"],
-          data: data["file_content"],
+          payload: data["file_content"],
           groups: data["groups"],
           presets: {
             label: data["label"],
