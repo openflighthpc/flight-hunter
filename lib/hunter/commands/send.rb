@@ -90,7 +90,7 @@ module Hunter
 
         syshostid = `hostid`.chomp
         hostid = begin
-                    File.read('/proc/cmdline').split.map do |a|
+                    sysinfo = File.read('/proc/cmdline').split.map do |a|
                       a.split('=')
                     end.select { |a| a.length == 2}.to_h
                     sysinfo['SYSUUID'] || syshostid
