@@ -150,9 +150,11 @@ module Hunter
     command :send do |c|
       cli_syntax(c)
       c.summary = 'Push my identity plus optional payload to server'
+      c.slop.bool '--broadcast', "Send identity to all nodes on a given subnet"
       c.slop.string '-f', '--file', "Specify a payload file"
       c.slop.string '-s', '--server', "Override server hostname"
       c.slop.integer '-p', '--port', "Override server port"
+      c.slop.string "--broadcast-address", "Specify a broadcast address to use if broadcasting"
       c.slop.string "--label", "Specify a label to use for this node"
       c.slop.string "--prefix", "Specify a prefix to use for this node"
       c.slop.array "--groups", "Specify a comma-separated list of groups for this node"

@@ -39,6 +39,7 @@ Flight Hunter has some required configuration based on the environment it is bei
 - `payload_file` - File to send as a payload when running `send`
 - `allow_existing` - Overwrite existing nodes when hunting/parsing a node that already exists
 - `auth_key` - Specify an authentication key allowing only nodes with a matching key to connect
+- `broadcast_address` - Specify an IP address range to use when using `send`'s broadcast mode.
 
 Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
 
@@ -52,6 +53,15 @@ A brief usage guide is given below. See the `help` command for further details a
 Run the Hunter listening server with `hunt`. By default, nodes that already exist in the Hunter nodelist are ignored. Override existing nodes with `hunt --allow-existing`. The server can immediately `send` to itself with `--include-self`.
 
 Run the Hunter payload transmitter with `send`. The system's hostid, IP, hostname, and a default payload of diagnostic data will be sent to the Hunter server running at the configured IP/port. The system hostname and payload can be overwritten via command line options. You may also provide a label or a prefix to use for the node's label when being parsed by the host machine.
+
+The `send` command will, by default, attempt to establish a TCP connection with the given `target_host`. You may also use the `--broadcast` option, to send a UDP packet via a given broadcast address. Currently, the only format supported is:
+
+```
+192.168.0.255
+192.168.255.255
+```
+
+and so on. CIDR format IP ranges (e.g. `192.168.0.0/16`) are *not* currently supported. Please be aware that, by default the maximum transmission unit for a UDP broadcast is 1500 bytes. Not all kernels support fragmentation for UDP broadcasts, so please be aware of your kernel's capabilities (and your payload size) before using this transmission mode.
 
 See all nodes in the node list with `list`.
 

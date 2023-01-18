@@ -39,16 +39,58 @@ module Hunter
       include Hunter::Collector
 
       def run
-        host = @options.server || Config.target_host
         port = @options.port || Config.port.to_s
-        auth_key = @options.auth || Config.auth_key.to_s
-
-        raise "No target_host provided!" if !host
         raise "No port provided!" if !port
+
+        data = prepare_payload
+
+        case @options.broadcast
+        when true
+          # UDP datagram to user provided broadcast address
+          address = @options.broadcast_address || Config.broadcast_address
+          socket = UDPSocket.new
+          socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+          socket.send(data.to_json, 0, address, port)
+        when false
+          # TCP datagram to specific host
+          host = @options.server || Config.target_host
+          raise "No target_host provided!" if !host
+
+          uri = URI::HTTPS.build(host: host, port: port)
+
+          http = Net::HTTP.new(uri.host, uri.port)
+          request = Net::HTTP::Post.new(
+            uri,
+            'Content-Type' => 'application/json'
+          )
+
+          request.body = data.to_json
+
+          begin
+            response = http.request(request)
+            response.value
+            puts "Successful transmission"
+          rescue Errno::ECONNREFUSED => e
+            puts "The server is unavailable"
+            puts e.message
+          rescue Net::HTTPServerException => e
+            if response.code == "401"
+              raise "Authentication key mismatch"
+            else
+              raise "Unknown HTTP error"
+            end
+          end
+        end
+      end
+
+      private
+
+      def prepare_payload
+        auth_key = @options.auth || Config.auth_key.to_s
 
         syshostid = `hostid`.chomp
         hostid = begin
-                    File.read('/proc/cmdline').split.map do |a|
+                    sysinfo = File.read('/proc/cmdline').split.map do |a|
                       a.split('=')
                     end.select { |a| a.length == 2}.to_h
                     sysinfo['SYSUUID'] || syshostid
@@ -65,15 +107,7 @@ module Hunter
 
         hostname = Socket.gethostname
 
-        uri = URI::HTTPS.build(host: host, port: port)
-
-        http = Net::HTTP.new(uri.host, uri.port)
-        request = Net::HTTP::Post.new(
-          uri,
-          'Content-Type' => 'application/json'
-        )
-
-        data = {
+        {
           hostid: hostid,
           hostname: hostname,
           file_content: file_content,
@@ -82,23 +116,6 @@ module Hunter
           groups: @options.groups,
           auth_key: auth_key
         }
-
-        request.body = data.to_json
-        
-        begin
-          response = http.request(request)
-          response.value
-          puts "Successful transmission"
-        rescue Errno::ECONNREFUSED => e
-          puts "The server is unavailable"
-          puts e.message
-        rescue Net::HTTPServerException => e
-          if response.code == "401"
-            raise "Authentication key mismatch"
-          else
-            raise "Unknown HTTP error"
-          end
-        end
       end
     end
   end
