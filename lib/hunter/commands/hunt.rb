@@ -59,19 +59,18 @@ module Hunter
         threads = [tcp_thread, udp_thread]
         puts "Hunter running on port #{@port} - Ctrl+C to stop\n"
 
-        ThreadsWait.all_waits(*threads)
+        if @options.include_self || Config.include_self
+          opts = OpenStruct.new(
+            port: @port,
+            server: Config.target_host || 'localhost',
+            auth: @auth_key,
+            broadcast: false
+          )
 
-        Thread.new do
-          if @options.include_self || Config.include_self
-            opts = OpenStruct.new(
-              port: @port,
-              server: Config.target_host || 'localhost',
-              auth: auth_key
-            )
-
-            Commands::SendPayload.new(OpenStruct.new, opts).run!
-          end
+          Commands::SendPayload.new(OpenStruct.new, opts).run!
         end
+
+        ThreadsWait.all_waits(*threads)
       end
 
       private
