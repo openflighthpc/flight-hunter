@@ -84,9 +84,15 @@ module Hunter
 
           loop do
             msg, addr_info, rflags, *controls = server.recvmsg
+            ip = addr_info.ip_address
+
+            if !valid_json?(msg)
+              puts "Malformed packet received from #{ip}"
+              next
+            end
 
             data = JSON.parse(msg)
-            data.merge!({ 'ip' => addr_info.ip_address })
+            data.merge!({ 'ip' => ip })
 
             unless data["auth_key"] == @auth_key
               puts "Unauthorised node attempted to connect"
@@ -115,6 +121,7 @@ module Hunter
             unless headers["Content-Type"] == "application/json"
               # invalid content type
               client.puts "HTTP/1.1 415\r\n"
+              puts "Malformed packet received from #{client.peeraddr[2]}"
               next
             end
 
@@ -177,6 +184,16 @@ module Hunter
         end
 
         buffer.save
+      end
+
+      private
+
+      def valid_json?(str)
+        result = JSON.parse(str)
+
+        result.is_a?(Hash) || result.is_a?(Array)
+      rescue JSON::ParserError, TypeError
+        false
       end
     end
   end
