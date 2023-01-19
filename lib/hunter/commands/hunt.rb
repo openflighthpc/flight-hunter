@@ -142,7 +142,7 @@ module Hunter
           id: data["hostid"],
           hostname: data["hostname"],
           ip: data["ip"],
-          payload: data["file_content"],
+          content: data["content"],
           groups: data["groups"],
           presets: {
             label: data["label"],
