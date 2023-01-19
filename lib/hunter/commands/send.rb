@@ -98,11 +98,11 @@ module Hunter
                     syshostid
                   end
 
-        payload_file = @options.file || Config.payload_file
-        if payload_file && File.file?(payload_file)
-          file_content = File.read(payload_file)
+        cmd = @options.command || Config.content_command
+        if cmd.nil?
+          content = Collector.collect.to_yaml
         else
-          file_content = Collector.collect.to_yaml
+          content = `#{cmd}`.chomp
         end
 
         hostname = Socket.gethostname
@@ -110,7 +110,7 @@ module Hunter
         {
           hostid: hostid,
           hostname: hostname,
-          file_content: file_content,
+          content: content,
           label: @options.label,
           prefix: @options.prefix,
           groups: @options.groups,

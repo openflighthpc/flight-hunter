@@ -11,8 +11,8 @@
 # Automatically include self when hunting
 # include_self: false
 #
-# File to use as a payload
-# payload_file:
+# Command to use to generate content
+# content_command:
 #
 # Allow existing nodes when hunting
 # allow_existing: false
