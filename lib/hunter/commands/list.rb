@@ -45,7 +45,8 @@ module Hunter
               n.ip,
               n.groups.any? ? n.groups.join("|") : "|",
               n.label,
-              n.presets.to_json
+              n.presets.to_json,
+              n.mac
             ]
             puts a.join("\t")
           end
@@ -58,14 +59,14 @@ module Hunter
               t = Table.new
               case @options.buffer
               when true
-                t.headers('ID', 'Hostname', 'IP', 'Presets')
+                t.headers('ID', 'Hostname', 'IP', 'MAC', 'Presets')
                 nodes.each do |node|
-                  t.row(node.id, node.hostname, node.ip, node.pretty_presets)
+                  t.row(node.id, node.hostname, node.ip, node.mac, node.pretty_presets)
                 end
               when false
-                t.headers('ID', 'Label', 'Hostname', 'IP')
+                t.headers('ID', 'Label', 'Hostname', 'IP', 'MAC')
                 nodes.each do |node|
-                  t.row(node.id, node.label, node.hostname, node.ip)
+                  t.row(node.id, node.label, node.hostname, node.ip, node.mac)
                 end
               end
 
@@ -77,14 +78,14 @@ module Hunter
 
             case @options.buffer
             when true
-              t.headers('ID', 'Hostname', 'IP', 'Groups', 'Presets')
+              t.headers('ID', 'Hostname', 'IP', 'MAC', 'Groups', 'Presets')
               list.nodes.each do |node|
-                t.row(node.id, node.hostname, node.ip, node.groups&.join(", "), node.pretty_presets)
+                t.row(node.id, node.hostname, node.ip, node.mac, node.groups&.join(", "), node.pretty_presets)
               end
             when false
-              t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
+              t.headers('ID', 'Label', 'Hostname', 'IP', 'MAC', 'Groups')
               list.nodes.each do |node|
-                t.row(node.id, node.label, node.hostname, node.ip, node.groups&.join(", "))
+                t.row(node.id, node.label, node.hostname, node.ip, node.mac, node.groups&.join(", "))
               end
             end
             t.emit
