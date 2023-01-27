@@ -35,7 +35,8 @@ module Hunter
         'ip' => ip,
         'content' => content,
         'groups' => groups,
-        'presets' => presets
+        'presets' => presets,
+        'mac' => mac
       }
     end
 
@@ -68,10 +69,10 @@ module Hunter
       @groups.sort
     end
 
-    attr_reader :id, :ip, :content, :hostname, :presets
+    attr_reader :id, :ip, :content, :hostname, :presets, :mac
     attr_accessor :label
 
-    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {})
+    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, mac: nil)
       @id = id
       @hostname = hostname
       @label = label
@@ -79,6 +80,12 @@ module Hunter
       @content = content
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
+      if mac.nil?
+        `ping #{ip} -c 1`
+        @mac = `ip neigh | grep #{ip} | awk '{print $5}'`.chomp
+      else
+        @mac = mac
+      end
     end
   end
 end

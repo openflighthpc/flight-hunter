@@ -60,6 +60,17 @@ module Hunter
         puts "Hunter running on port #{@port} - Ctrl+C to stop\n"
 
         if @options.include_self || Config.include_self
+          
+          # Get name of used interface
+          interface = `ip addr show | grep #{Config.target_host} -B 2 | head -n1 | awk '{print $2}'`[0..-3]
+          puts "if is " + interface.inspect
+          # Get mac of used interface
+          mac = `ip addr show #{interface} | grep link/ether | awk '{print $2}'`.chomp
+          puts "mac is " + mac.inspect
+          # Add self to ARP cache
+          resp = `ip neigh add #{Config.target_host} dev #{interface} lladdr #{mac}`
+          puts resp
+          
           opts = OpenStruct.new(
             port: @port,
             server: Config.target_host || 'localhost',
