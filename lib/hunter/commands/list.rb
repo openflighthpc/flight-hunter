@@ -45,7 +45,8 @@ module Hunter
               n.ip,
               n.groups.any? ? n.groups.join("|") : "|",
               n.label,
-              n.presets.to_json
+              n.presets.to_json,
+              n.mac
             ]
             puts a.join("\t")
           end
