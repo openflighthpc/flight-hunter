@@ -63,12 +63,7 @@ module Hunter
       @content = content
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
-      if mac.nil?
-        `ping #{ip} -c 1`
-        @mac = `ip neigh | grep #{ip} | awk '{print $5}'`.chomp
-      else
-        @mac = mac
-      end
+      @mac = mac
     end
 
     private

@@ -107,6 +107,10 @@ module Hunter
 
         hostname = Socket.gethostname
 
+        # Find MAC of the relevant interface
+        interface = `ip route get #{Config.target_host} | head -n1 | awk '{print $5}'`
+        mac = `ip addr show #{interface} | grep link/ether | awk '{print $2}'`.chomp
+
         {
           hostid: hostid,
           hostname: hostname,
@@ -115,6 +119,7 @@ module Hunter
           prefix: @options.prefix,
           groups: @options.groups,
           auth_key: auth_key
+          mac: mac
         }
       end
     end
