@@ -159,7 +159,8 @@ module Hunter
           presets: {
             label: data["label"],
             prefix: data["prefix"]
-          }
+          },
+          mac: data["mac"]
         )
 
         puts <<~EOF
