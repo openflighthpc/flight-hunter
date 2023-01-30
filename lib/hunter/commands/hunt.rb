@@ -60,7 +60,6 @@ module Hunter
         puts "Hunter running on port #{@port} - Ctrl+C to stop\n"
 
         if @options.include_self || Config.include_self
-          
           opts = OpenStruct.new(
             port: @port,
             server: Config.target_host || 'localhost',
