@@ -118,7 +118,7 @@ module Hunter
           label: @options.label,
           prefix: @options.prefix,
           groups: @options.groups,
-          auth_key: auth_key
+          auth_key: auth_key,
           mac: mac
         }
       end
