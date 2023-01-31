@@ -110,36 +110,40 @@ module Hunter
           server = TCPServer.open(@port)
 
           loop do
-            client = server.accept
+            begin # Handler for connection reset error
+              client = server.accept
 
-            headers = {}
-            while line = client.gets.split(' ', 2)
-              break if line[0] == ""
-              headers[line[0].chop] = line[1].strip
+              headers = {}
+              while line = client.gets.split(' ', 2)
+                break if line[0] == ""
+                headers[line[0].chop] = line[1].strip
+              end
+
+              unless headers["Content-Type"] == "application/json"
+                # invalid content type
+                client.puts "HTTP/1.1 415\r\n"
+                puts "Malformed packet received from #{client.peeraddr[2]}"
+                next
+              end
+
+              data = client.read(headers["Content-Length"].to_i)
+              payload = JSON.parse(data)
+              payload.merge!({ 'ip' => client.peeraddr[2] || 'unknown' })
+
+              unless payload["auth_key"] == @auth_key
+                client.puts "HTTP/1.1 401\r\n"
+                puts "Unauthorised node attempted to connect"
+                next
+              end
+
+              # Node is acceptable
+              client.puts "HTTP/1.1 200\r\n"
+              client.close
+
+              process_packet(data: payload)
+            rescue Errno::ECONNRESET => e
+              puts "Caught exception: #{e.message}"
             end
-
-            unless headers["Content-Type"] == "application/json"
-              # invalid content type
-              client.puts "HTTP/1.1 415\r\n"
-              puts "Malformed packet received from #{client.peeraddr[2]}"
-              next
-            end
-
-            data = client.read(headers["Content-Length"].to_i)
-            payload = JSON.parse(data)
-            payload.merge!({ 'ip' => client.peeraddr[2] || 'unknown' })
-
-            unless payload["auth_key"] == @auth_key
-              client.puts "HTTP/1.1 401\r\n"
-              puts "Unauthorised node attempted to connect"
-              next
-            end
-
-            # Node is acceptable
-            client.puts "HTTP/1.1 200\r\n"
-            client.close
-
-            process_packet(data: payload)
           end
         end
       end
