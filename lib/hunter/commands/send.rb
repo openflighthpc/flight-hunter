@@ -47,13 +47,13 @@ module Hunter
         case @options.broadcast
         when true
           # UDP datagram to user provided broadcast address
-          address = @options.broadcast_address || Config.broadcast_address
+          address = broadcast_address
           socket = UDPSocket.new
           socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
           socket.send(data.to_json, 0, address, port)
         when false
           # TCP datagram to specific host
-          host = @options.server || Config.target_host
+          host = target_host
           raise "No target_host provided!" if !host
 
           uri = URI::HTTPS.build(host: host, port: port)
@@ -84,6 +84,14 @@ module Hunter
       end
 
       private
+      
+      def target_host
+        @options.server || Config.target_host
+      end
+      
+      def broadcast_address
+        @options.broadcast_address || Config.broadcase_address
+      end
 
       def prepare_payload
         auth_key = @options.auth || Config.auth_key.to_s
