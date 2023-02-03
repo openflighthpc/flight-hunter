@@ -119,7 +119,7 @@ module Hunter
         host = @options.broadcast ? broadcast_address : target_host
         interface = `ip route get #{host} | sed -n -e 's/^.*dev //p' | awk '{print $1}'`.chomp
         if interface == "lo"
-          interface = `ip route get 8.8.8.8 | sed -n -e 's/^.*dev //p' | awk '{print $1}'`.chomp
+          interface = `ip -br -4 addr show | grep #{host} | awk '{print $1}'`.chomp
         end
         mac = `ip addr show #{interface} | grep link/ether | awk '{print $2}'`.chomp
 
