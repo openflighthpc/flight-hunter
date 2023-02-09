@@ -50,12 +50,7 @@ module Hunter
         if list.delete(nodes) && list.save
           puts "The following nodes have successfully been removed from list '#{list.name}'"
 
-          t = Table.new
-          t.headers('ID', 'Label', 'Hostname', 'Groups')
-          nodes.each do |n|
-            t.row(n.id, n.label, n.hostname, n.groups.join(", "))
-          end
-          t.emit
+          Table.from_nodes(nodes, buffer: buffer).emit
         end
       end
     end

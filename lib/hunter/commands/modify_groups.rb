@@ -57,12 +57,7 @@ module Hunter
 
         puts "Node(s) updated successfully:"
         
-        t = Table.new
-        t.headers('ID', 'Label', 'Hostname', 'Groups')
-        nodes.each do |n|
-          t.row(n.id, n.label, n.hostname, n.groups.join(", "))
-        end
-        t.emit
+        Table.from_nodes(nodes, buffer: buffer).emit
       end
     end
   end
