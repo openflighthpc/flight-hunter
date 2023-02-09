@@ -51,7 +51,11 @@ module Hunter
       presets.map { |k,v| "#{k}: '#{v}'" }.join("\n")
     end
 
-    attr_reader :id, :ip, :content, :groups, :hostname, :presets
+    def groups
+      @groups.sort
+    end
+
+    attr_reader :id, :ip, :content, :hostname, :presets
     attr_accessor :label
 
     def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {})
@@ -63,8 +67,5 @@ module Hunter
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
     end
-
-    private
-
   end
 end
