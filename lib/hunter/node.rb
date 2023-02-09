@@ -51,6 +51,19 @@ module Hunter
       presets.map { |k,v| "#{k}: '#{v}'" }.join("\n")
     end
 
+    def pretty_groups
+      groups.join(", ")
+    end
+
+    def to_table_row(buffer: false)
+      case buffer
+      when true
+        [id, hostname, ip, pretty_groups, pretty_presets]
+      when false
+        [id, label, hostname, ip, pretty_groups]
+      end
+    end
+
     def groups
       @groups.sort
     end

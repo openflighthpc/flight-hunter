@@ -45,6 +45,21 @@ module Hunter
       )
     end
 
+    def self.from_nodes(nodes, buffer: false)
+      new.tap do |table|
+        headers = case buffer
+                  when true
+                    ['ID', 'Hostname', 'IP', 'Groups', 'Presets']
+                  when false
+                    ['ID', 'Label', 'Hostname', 'IP', 'Groups']
+                  end
+        rows = nodes.map { |n| n.to_table_row(buffer: buffer) }
+
+        table.headers(*headers)
+        table.rows(*rows)
+      end
+    end
+
     def padding(*pads)
       @padding = pads.length == 1 ? pads.first : pads
     end
