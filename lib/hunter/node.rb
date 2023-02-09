@@ -58,9 +58,9 @@ module Hunter
     def to_table_row(buffer: false)
       case buffer
       when true
-        [id, hostname, ip, pretty_groups, pretty_presets]
+        [Paint[id, :cyan], hostname, ip, pretty_groups, pretty_presets]
       when false
-        [id, label, hostname, ip, pretty_groups]
+        [Paint[id, :cyan], label, hostname, ip, pretty_groups]
       end
     end
 

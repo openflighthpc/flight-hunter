@@ -31,13 +31,13 @@ module Hunter
   module Commands
     class Show < Command
       def run
-        @buffer = @options.buffer
-        list_file = @buffer ? Config.node_buffer : Config.node_list
+        buffer = @options.buffer
+        list_file = buffer ? Config.node_buffer : Config.node_list
         list = NodeList.load(list_file)
 
-        node = list.find(search_field(@buffer) => args[0])
+        node = list.find(search_field(buffer) => args[0])
 
-        raise "Node with #{search_field(@buffer)} '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
+        raise "Node with #{search_field(buffer)} '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
 
         if @options.plain
           a = [
@@ -48,11 +48,7 @@ module Hunter
           ]
           puts a.join("\t")
         else
-          t = Table.new
-          t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
-          t.row(node.id, node.label, node.hostname, node.ip, node.groups.join(", "))
-          t.emit
-          puts node.content
+          Table.from_nodes([node], buffer: buffer).emit
         end
       end
     end
