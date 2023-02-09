@@ -55,39 +55,12 @@ module Hunter
           case @options.by_group
           when true
             list.nodes(by_group: true).each do |group, nodes|
-              t = Table.new
-              case @options.buffer
-              when true
-                t.headers('ID', 'Hostname', 'IP', 'Presets')
-                nodes.each do |node|
-                  t.row(node.id, node.hostname, node.ip, node.pretty_presets)
-                end
-              when false
-                t.headers('ID', 'Label', 'Hostname', 'IP')
-                nodes.each do |node|
-                  t.row(node.id, node.label, node.hostname, node.ip)
-                end
-              end
-
               puts "Group '#{group}':"
-              t.emit
+              
+              Table.from_nodes(list.nodes, buffer: @options.buffer).emit
             end
           when false
-            t = Table.new
-
-            case @options.buffer
-            when true
-              t.headers('ID', 'Hostname', 'IP', 'Groups', 'Presets')
-              list.nodes.each do |node|
-                t.row(node.id, node.hostname, node.ip, node.groups&.join(", "), node.pretty_presets)
-              end
-            when false
-              t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
-              list.nodes.each do |node|
-                t.row(node.id, node.label, node.hostname, node.ip, node.groups&.join(", "))
-              end
-            end
-            t.emit
+            Table.from_nodes(nodes, buffer: @options.buffer).emit
           end
         end
       end

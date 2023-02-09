@@ -61,15 +61,10 @@ module Hunter
         @parsed.nodes.concat(final)
         @buffer.delete(final)
 
-        if @parsed.save && @buffer.save
+        if final.any? && @parsed.save && @buffer.save
           puts "Nodes saved to parsed node list:"
 
-          t = Table.new
-          t.headers('ID', 'Label', 'Hostname', 'IP', 'Groups')
-          final.each do |n|
-            t.row(n.id, n.label, n.hostname, n.ip, n.groups&.join(", "))
-          end
-          t.emit
+          Table.from_nodes(final).emit
         end
       end
 
