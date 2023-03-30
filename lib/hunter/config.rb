@@ -77,6 +77,23 @@ module Hunter
         ENV['flight_HUNTER_auth_key'] || data.fetch(:auth_key)
       end
 
+      def profile_command
+        command =
+          ENV['flight_HUNTER_profile_command'] ||
+            data.fetch(:profile_command) ||
+            File.join(ENV.fetch('flight_ROOT', '/opt/flight'), 'bin/flight profile')
+        if !File.file?(File.join(command.split[0]))
+          raise "Could not find '#{command.split[0]}'"
+        elsif !File.executable?(File.join(command.split[0]))
+          raies "#{command.split[0]} is not executable"
+        end
+        command.split(' ')
+      end
+
+      def command_path
+        ENV['PATH']
+      end
+
       def node_buffer
         var_file('buffer.yaml')
       end
