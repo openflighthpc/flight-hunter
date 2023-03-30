@@ -29,10 +29,9 @@ module Hunter
   class NodeList
 
     class << self
-      def load(filepath)
-        filename = filepath.split("/").compact.last
-        raise "Node list #{filename} doesn't exist" if !File.file?(filepath)
-        new(filepath)
+      def load(dir)
+        raise "Node directory #{dir} doesn't exist" unless File.directory?(dir)
+        new(dir)
       end
     end
 
@@ -54,6 +53,7 @@ module Hunter
     end
 
     def delete(nodes)
+      nodes.map(&:delete_source)
       @nodes = @nodes - nodes
     end
 
@@ -66,6 +66,7 @@ module Hunter
     end
 
     def empty
+      @nodes.map(&:delete_source)
       @nodes = []
       save
     end
@@ -85,33 +86,37 @@ module Hunter
       end
     end
 
-
     def name
-      filepath.split("/").last.split(".").first
+      dir.split("/").last
     end
 
     def save
-      File.open(filepath, 'w+') { |f| f.write(to_yaml) }
+      @nodes.map(&:save)
     end
 
-    attr_reader :filepath
+    attr_reader :dir
     attr_writer :nodes
 
     private
 
-    def initialize(filepath)
-      @filepath = filepath
-      @nodes = [].tap do |l|
-        list = YAML.load_file(filepath) || {}
+    def initialize(dir)
+      @dir = dir
+      @nodes = [].tap do |ns|
+        list = [].tap do |l|
+          Dir[File.join(dir, "*")].each do |file|
+            l << YAML.load_file(file).merge({"filepath" => file})
+          end
+        end
         list.each do |node|
-          l << Node.new(
+          ns << Node.new(
             id: node['id'],
             hostname: node['hostname'],
             label: node['label'],
             ip: node['ip'],
             content: node['content'],
             groups: node['groups'],
-            presets: node['presets']
+            presets: node['presets'],
+            filepath: node['filepath']
           )
         end
       end

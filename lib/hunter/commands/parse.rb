@@ -58,6 +58,10 @@ module Hunter
 
         existing = @parsed.nodes.select { |old| final.any? { |n| old.id == n.id } }
         @parsed.delete(existing)
+        final.each do |node|
+          node.delete_source
+          node.filepath = File.join(Config.node_list, node.id)
+        end
         @parsed.nodes.concat(final)
         @buffer.delete(final)
 
