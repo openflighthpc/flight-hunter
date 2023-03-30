@@ -68,10 +68,18 @@ module Hunter
       @groups.sort
     end
 
-    attr_reader :id, :ip, :content, :hostname, :presets
-    attr_accessor :label
+    def save
+      File.open(filepath, 'w+') { |f| f.write(YAML.dump(to_h)) }
+    end
 
-    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {})
+    def delete_source
+      File.delete(filepath)
+    end
+
+    attr_reader :id, :ip, :content, :hostname, :presets
+    attr_accessor :label, :filepath
+
+    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, filepath:)
       @id = id
       @hostname = hostname
       @label = label
@@ -79,6 +87,7 @@ module Hunter
       @content = content
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
+      @filepath = filepath
     end
   end
 end

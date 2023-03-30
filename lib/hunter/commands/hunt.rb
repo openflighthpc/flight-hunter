@@ -158,7 +158,8 @@ module Hunter
           presets: {
             label: data["label"],
             prefix: data["prefix"]
-          }
+          },
+          filepath: File.join(Config.node_buffer, data["hostid"])
         )
 
         puts <<~EOF

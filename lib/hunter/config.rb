@@ -78,11 +78,11 @@ module Hunter
       end
 
       def node_buffer
-        var_file('buffer.yaml')
+        var_dir('buffer')
       end
 
       def node_list
-        var_file('parsed.yaml')
+        var_dir('parsed')
       end
 
       def save_data
@@ -133,6 +133,12 @@ module Hunter
         FileUtils.mkdir_p(parent_dir)
         file = File.join(root, 'var', *a)
         FileUtils.touch(file).first
+      end
+
+      def var_dir(*a)
+        dir = File.join(root, 'var', *a)
+        FileUtils.mkdir_p(dir)
+        dir
       end
 
       def xdg_config
