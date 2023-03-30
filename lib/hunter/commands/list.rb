@@ -60,7 +60,7 @@ module Hunter
               Table.from_nodes(list.nodes, buffer: @options.buffer).emit
             end
           when false
-            Table.from_nodes(nodes, buffer: @options.buffer).emit
+            Table.from_nodes(list.nodes, buffer: @options.buffer).emit
           end
         end
       end
