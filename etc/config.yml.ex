@@ -22,3 +22,6 @@
 #
 # Broadcast address to use when sending via a UDP broadcast
 # broadcast_address: 127.0.255.255
+#
+# Command used to run the Flight Profile executable
+# profile_command:
