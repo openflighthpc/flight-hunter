@@ -69,7 +69,7 @@ module Hunter
       @groups.sort
     end
 
-    attr_reader :id, :ip, :content, :hostname, :presets, :mac
+    attr_reader :id, :ip, :content, :groups, :hostname, :presets, :mac
     attr_accessor :label
 
     def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, mac: nil)
