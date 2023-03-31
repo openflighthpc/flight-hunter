@@ -49,9 +49,9 @@ module Hunter
       new.tap do |table|
         headers = case buffer
                   when true
-                    ['ID', 'Hostname', 'IP', 'Groups', 'Presets']
+                    ['ID', 'Hostname', 'IP', 'MAC', 'Groups', 'Presets']
                   when false
-                    ['ID', 'Label', 'Hostname', 'IP', 'Groups']
+                    ['ID', 'Label', 'Hostname', 'IP', 'MAC', 'Groups']
                   end
         rows = nodes.map { |n| n.to_table_row(buffer: buffer) }
 

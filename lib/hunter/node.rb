@@ -35,7 +35,8 @@ module Hunter
         'ip' => ip,
         'content' => content,
         'groups' => groups,
-        'presets' => presets
+        'presets' => presets,
+        'mac' => mac
       }
     end
 
@@ -58,9 +59,9 @@ module Hunter
     def to_table_row(buffer: false)
       case buffer
       when true
-        [Paint[id, :cyan], hostname, ip, pretty_groups, pretty_presets]
+        [Paint[id, :cyan], hostname, ip, mac, pretty_groups, pretty_presets]
       when false
-        [Paint[id, :cyan], label, hostname, ip, pretty_groups]
+        [Paint[id, :cyan], label, hostname, ip, mac, pretty_groups]
       end
     end
 
@@ -68,10 +69,10 @@ module Hunter
       @groups.sort
     end
 
-    attr_reader :id, :ip, :content, :hostname, :presets
+    attr_reader :id, :ip, :content, :groups, :hostname, :presets, :mac
     attr_accessor :label
 
-    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {})
+    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, mac: nil)
       @id = id
       @hostname = hostname
       @label = label
@@ -79,6 +80,7 @@ module Hunter
       @content = content
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
+      @mac = mac
     end
   end
 end

@@ -111,7 +111,8 @@ module Hunter
             ip: node['ip'],
             content: node['content'],
             groups: node['groups'],
-            presets: node['presets']
+            presets: node['presets'],
+            mac: node['mac']
           )
         end
       end
