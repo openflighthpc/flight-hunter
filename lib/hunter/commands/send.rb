@@ -121,7 +121,7 @@ module Hunter
         if interface == "lo"
           interface = `ip -br -4 addr show | grep #{host} | awk '{print $1}'`.chomp
         end
-        mac = `ip addr show #{interface} | grep link/ether | awk '{print $2}'`.chomp
+        mac = `ip addr show #{interface} | grep -o -E ..:..:..:..:..:.. | head -1`.chomp
 
         {
           hostid: hostid,
