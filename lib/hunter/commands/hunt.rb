@@ -149,6 +149,9 @@ module Hunter
       end
 
       def process_packet(data:)
+        buffer = NodeList.load(Config.node_buffer)
+        parsed = NodeList.load(Config.node_list)
+
         node = Node.new(
           id: data["hostid"],
           hostname: data["hostname"],
@@ -159,7 +162,7 @@ module Hunter
             label: data["label"],
             prefix: data["prefix"]
           },
-          filepath: File.join(Config.node_buffer, data["hostid"])
+          node_list: buffer
         )
 
         puts <<~EOF
@@ -169,9 +172,6 @@ module Hunter
         IP: #{node.ip}
 
         EOF
-
-        buffer = NodeList.load(Config.node_buffer)
-        parsed = NodeList.load(Config.node_list)
 
         if @options.allow_existing || Config.allow_existing
           buffer.nodes.delete_if { |n| n.id == node.id }

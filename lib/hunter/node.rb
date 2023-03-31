@@ -68,6 +68,10 @@ module Hunter
       @groups.sort
     end
 
+    def filepath
+      File.join(node_list.dir, "#{id}.yaml") if node_list
+    end
+
     def save
       File.open(filepath, 'w+') { |f| f.write(YAML.dump(to_h)) }
     end
@@ -77,9 +81,9 @@ module Hunter
     end
 
     attr_reader :id, :ip, :content, :hostname, :presets
-    attr_accessor :label, :filepath
+    attr_accessor :label, :node_list
 
-    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, filepath:)
+    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, node_list: nil)
       @id = id
       @hostname = hostname
       @label = label
@@ -87,7 +91,7 @@ module Hunter
       @content = content
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
-      @filepath = filepath
+      @node_list = node_list
     end
   end
 end

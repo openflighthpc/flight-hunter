@@ -101,24 +101,19 @@ module Hunter
 
     def initialize(dir)
       @dir = dir
-      @nodes = [].tap do |ns|
-        list = [].tap do |l|
-          Dir[File.join(dir, "*")].each do |file|
-            l << YAML.load_file(file).merge({"filepath" => file})
-          end
-        end
-        list.each do |node|
-          ns << Node.new(
-            id: node['id'],
-            hostname: node['hostname'],
-            label: node['label'],
-            ip: node['ip'],
-            content: node['content'],
-            groups: node['groups'],
-            presets: node['presets'],
-            filepath: node['filepath']
-          )
-        end
+      @nodes = Dir[File.join(dir, "*")].map do |file|
+        data = YAML.load_file(file)
+        
+        Node.new(
+          id: data['id'],
+          hostname: data['hostname'],
+          label: data['label'],
+          ip: data['ip'],
+          content: data['content'],
+          groups: data['groups'],
+          presets: data['presets'],
+          node_list: self
+        )
       end
     end
   end

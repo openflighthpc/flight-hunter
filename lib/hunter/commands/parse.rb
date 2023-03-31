@@ -60,7 +60,7 @@ module Hunter
         @parsed.delete(existing)
         final.each do |node|
           @buffer.delete([node])
-          node.filepath = File.join(Config.node_list, node.id)
+          node.node_list = @parsed
         end
         @parsed.nodes.concat(final)
 
