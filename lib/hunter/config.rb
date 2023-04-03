@@ -85,7 +85,7 @@ module Hunter
         if !File.file?(File.join(command.split[0]))
           raise "Could not find '#{command.split[0]}'"
         elsif !File.executable?(File.join(command.split[0]))
-          raies "#{command.split[0]} is not executable"
+          raise "#{command.split[0]} is not executable"
         end
         command.split(' ')
       end
