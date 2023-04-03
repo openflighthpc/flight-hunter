@@ -44,7 +44,7 @@ module Hunter
           when false
             [list.find(search_field(buffer) =>  args[0])]
           end
-        
+
         raise "No #{search_field(buffer)}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes&.any?
 
         if list.delete(nodes) && list.save
