@@ -39,6 +39,7 @@ module Hunter
       def run
         @port = @options.port || Config.port
         @auth_key = @options.auth || Config.auth_key
+        @auto_regex = @options.auto_parse || ".^"
         raise "No port provided!" if !@port
 
         pidpath = ENV['flight_HUNTER_pidfile']
@@ -173,22 +174,29 @@ module Hunter
 
         EOF
 
+        buffer = NodeList.load(Config.node_buffer)
+        parsed = NodeList.load(Config.node_list)
+        if node.hostname.match(Regexp.new(@auto_regex))
+          dest = parsed
+          node.label = node.presets[:label] || node.hostname.split(".").first
+        end
+
         if @options.allow_existing || Config.allow_existing
-          buffer.nodes.delete_if { |n| n.id == node.id }
-          buffer.nodes << node
-          puts "Node added to buffer"
+          dest.nodes.delete_if { |n| n.id == node.id }
+          dest.nodes << node
+          puts "Node added to #{File.basename(dest.filepath)} node list"
         else
           if buffer.include_id?(node.id)
             puts "ID already exists in buffer"
           elsif parsed.include_id?(node.id)
             puts "ID already exists in parsed node list"
           else
-            buffer.nodes << node
-            puts "Node added to buffer"
+            dest.nodes << node
+            puts "Node added to #{File.basename(dest.filepath)} node list"
           end
         end
 
-        buffer.save
+        dest.save
       end
 
       private
