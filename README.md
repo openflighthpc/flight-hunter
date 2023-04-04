@@ -20,7 +20,7 @@ Flight Hunter is developed and tested with Ruby version `2.7.1` and `bundler` `2
 The following will install from source using `git`. The `master`. branch is the current development version and may not be appropriate for a production installation. Instead a tagged version should be checked out.
 
 ```bash
-git clone https://github.com/alces-flight/flight-hunter.git
+https://github.com/openflighthpc/flight-hunter.git
 cd flight-hunter
 git checkout <tag>
 bundle install
