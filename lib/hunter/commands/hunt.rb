@@ -174,8 +174,6 @@ module Hunter
 
         EOF
 
-        buffer = NodeList.load(Config.node_buffer)
-        parsed = NodeList.load(Config.node_list)
         dest = buffer
         if node.hostname.match(Regexp.new(@auto_regex))
           dest = parsed
