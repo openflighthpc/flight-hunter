@@ -183,7 +183,7 @@ module Hunter
         if @options.allow_existing || Config.allow_existing
           dest.nodes.delete_if { |n| n.id == node.id }
           dest.nodes << node
-          puts "Node added to #{File.basename(dest.filepath)} node list"
+          puts "Node added to #{dest.name} node list"
         else
           if buffer.include_id?(node.id)
             puts "ID already exists in buffer"
@@ -191,7 +191,7 @@ module Hunter
             puts "ID already exists in parsed node list"
           else
             dest.nodes << node
-            puts "Node added to #{File.basename(dest.filepath)} node list"
+            puts "Node added to #{dest.name} node list"
           end
         end
 
