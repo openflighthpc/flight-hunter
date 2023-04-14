@@ -32,6 +32,20 @@ require 'fileutils'
 module Hunter
   class ProfileCLI
     class << self
+      def apply(node, identity, force: false)
+        args = [
+          "apply",
+          node,
+          identity
+        ]
+        cmd = new(*flight_profile, *args)
+        cmd.run.tap do |result|
+          if result.success?
+            return result.stdout
+          else puts "ERROR"
+          end
+        end
+      end
 
       private
 
