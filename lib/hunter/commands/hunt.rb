@@ -31,6 +31,7 @@ require_relative '../command'
 require_relative '../config'
 require_relative '../node'
 require_relative '../node_list'
+require_relative '../profile_cli'
 
 
 module Hunter
@@ -197,6 +198,10 @@ module Hunter
         end
 
         dest.save
+
+        if @options.auto_parse
+          ProfileCLI.apply(node.label, "all-in-one", force: true)
+        end
       end
 
       private
