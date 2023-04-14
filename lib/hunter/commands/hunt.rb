@@ -162,8 +162,7 @@ module Hunter
           presets: {
             label: data["label"],
             prefix: data["prefix"]
-          },
-          node_list: buffer
+          }
         )
 
         puts <<~EOF
@@ -179,6 +178,8 @@ module Hunter
           dest = parsed
           node.label = node.presets[:label] || node.hostname.split(".").first
         end
+
+        node.node_list = dest
 
         if @options.allow_existing || Config.allow_existing
           dest.nodes.delete_if { |n| n.id == node.id }
