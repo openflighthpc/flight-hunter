@@ -32,7 +32,7 @@ require 'fileutils'
 module Hunter
   class ProfileCLI
     class << self
-      def apply(node, identity, force: false)
+      def apply(node, identity)
         args = [
           "apply",
           node,
@@ -42,7 +42,8 @@ module Hunter
         cmd.run.tap do |result|
           if result.success?
             return result.stdout
-          else puts "ERROR"
+          else
+            puts "ERROR"
           end
         end
       end
