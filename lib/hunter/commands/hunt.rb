@@ -39,7 +39,7 @@ module Hunter
       def run
         @port = @options.port || Config.port
         @auth_key = @options.auth || Config.auth_key
-        @auto_regex = @options.auto_parse || ".^"
+        @auto_regex = @options.auto_parse || Config.auto_parse || ".^"
         raise "No port provided!" if !@port
 
         pidpath = ENV['flight_HUNTER_pidfile']
