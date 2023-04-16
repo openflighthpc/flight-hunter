@@ -40,17 +40,17 @@ Flight Hunter has some required configuration based on the environment it is bei
 - `allow_existing` - Overwrite existing nodes when hunting/parsing a node that already exists
 - `auth_key` - Specify an authentication key allowing only nodes with a matching key to connect
 - `broadcast_address` - Specify an IP address range to use when using `send`'s broadcast mode.
+- `profile_command` - Specify the path to your Flight Profile executable (if it exists).
 
 Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
 
 Flight Hunter uses a PID file to track the `hunt` server process. By default, this PID file is created at `/tmp/hunter.pid`. The filepath used can be changed by setting the environment varaible `flight_HUNTER_pidfile`.
 
-
 ## Operation
 
 A brief usage guide is given below. See the `help` command for further details and information about other commands.
 
-Run the Hunter listening server with `hunt`. By default, nodes that already exist in the Hunter nodelist are ignored. Override existing nodes with `hunt --allow-existing`. The server can immediately `send` to itself with `--include-self`.
+Run the Hunter listening server with `hunt`. By default, nodes that already exist in the Hunter nodelist are ignored. Override existing nodes with `hunt --allow-existing`. The server can immediately `send` to itself with `--include-self`. The `--auto-parse` argument allows the server to attempt to automatically parse nodes whose hostname matches the given regular expression.
 
 Run the Hunter payload transmitter with `send`. The system's hostid, IP, hostname, and a default chunk of diagnostic data will be sent to the Hunter server running at the configured IP/port. The system hostname and data content can be overwritten via command line options. You may also provide a label or a prefix to use for the node's label when being parsed by the host machine.
 
@@ -61,7 +61,7 @@ The `send` command will, by default, attempt to establish a TCP connection with 
 192.168.255.255
 ```
 
-and so on. CIDR format IP ranges (e.g. `192.168.0.0/16`) are *not* currently supported. Please be aware that, by default the maximum transmission unit for a UDP broadcast is 1500 bytes. Not all kernels support fragmentation for UDP broadcasts, so please be aware of your kernel's capabilities (and your payload size) before using this transmission mode.
+and so on. CIDR format IP ranges (e.g. `192.168.0.0/16`) are *not* currently supported. Please be aware that, by default, the maximum transmission unit for a UDP broadcast is 1500 bytes. Not all kernels support fragmentation for UDP broadcasts, so please be aware of your kernel's capabilities (and your payload size) before using this transmission mode.
 
 See all nodes in the node list with `list`.
 
