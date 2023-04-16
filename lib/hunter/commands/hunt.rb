@@ -41,6 +41,14 @@ module Hunter
         @port = @options.port || Config.port
         @auth_key = @options.auth || Config.auth_key
         @auto_regex = @options.auto_parse || Config.auto_parse || ".^"
+        @auto_apply = begin
+                        cli = @options.auto_apply
+                        cli ? YAML.parse(cli) : nil
+                      rescue Psych::SyntaxError
+                        raise "Invalid YAML passed via `--auto-apply`"
+                      end
+        @auto_apply ||= Config.auto_apply
+
         raise "No port provided!" if !@port
 
         pidpath = ENV['flight_HUNTER_pidfile']
@@ -199,8 +207,16 @@ module Hunter
 
         dest.save
 
-        if @options.auto_parse
-          ProfileCLI.apply(node.label, "all-in-one", force: true)
+        if @auto_apply
+          identity = @auto_apply.find { |rule, _| node.label.match(Regexp.new(rule)) }
+
+          return unless identity
+
+          puts <<~OUT.chomp
+          Node #{node.label} matches auto-apply rule '#{identity[0]}: #{identity[1]}'
+          OUT
+
+          ProfileCLI.apply(node.label, identity[1])
         end
       end
 
