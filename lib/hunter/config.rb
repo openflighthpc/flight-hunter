@@ -77,6 +77,10 @@ module Hunter
         ENV['flight_HUNTER_auth_key'] || data.fetch(:auth_key)
       end
 
+      def auto_parse
+        ENV['flight_HUNTER_auto_parse'] || data.fetch(:auto_parse)
+      end
+
       def profile_command
         command =
           ENV['flight_HUNTER_profile_command'] ||
