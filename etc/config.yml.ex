@@ -29,3 +29,12 @@
 # Attempt to automatically parse nodes when hunted, if they match the given
 # regular expression (optional)
 # auto_parse: /expression/
+#
+# Attempt to automatically trigger Flight Profile for nodes that have been
+# picked up by the `auto_parse` functionality. Must be a set of key/value
+# pairs, where the key is a regular expression to match the node's label
+# against and the value is the name of an identity existing within your
+# given Flight Profile installation
+# auto_apply:
+#   exp1: identity1
+#   exp2: identity2
