@@ -194,6 +194,7 @@ module Hunter
           dest.nodes.delete_if { |n| n.id == node.id }
           dest.nodes << node
           puts "Node added to #{dest.name} node list"
+          @added = true
         else
           if buffer.include_id?(node.id)
             puts "ID already exists in buffer"
@@ -202,25 +203,30 @@ module Hunter
           else
             dest.nodes << node
             puts "Node added to #{dest.name} node list"
+            @added = true
           end
         end
 
         dest.save
 
-        if @auto_apply
-          identity = @auto_apply.find { |rule, _| node.label.match(Regexp.new(rule)) }
-
-          return unless identity
-
-          puts <<~OUT.chomp
-          Node #{node.label} matches auto-apply rule '#{identity[0]}: #{identity[1]}'
-          OUT
-
-          ProfileCLI.apply(node.label, identity[1])
-        end
+        # Have to do this last because it depends on the parsed list being up
+        # to date
+        apply_to_node(node) if @added
       end
 
       private
+
+      def apply_to_node(node)
+        identity = @auto_apply.find { |rule, _| node.label.match(Regexp.new(rule)) }
+
+        return unless identity
+
+        puts <<~OUT.chomp
+        Node #{node.label} matches auto-apply rule '#{identity[0]}: #{identity[1]}'
+        OUT
+
+        ProfileCLI.apply(node.label, identity[1])
+      end
 
       def valid_json?(str)
         result = JSON.parse(str)
