@@ -82,7 +82,18 @@ module Hunter
       end
 
       def auto_apply
-        ENV['flight_HUNTER_auto_apply'] || data.fetch(:auto_apply)
+        (ENV['flight_HUNTER_auto_apply'] || data.fetch(:auto_apply)).tap do |h|
+          return if h.nil?
+
+          raise "Malformed hash passed to `auto_apply`" unless h.is_a?(Hash)
+          bad_exps = h.select { |k,v| !valid_regex?(k) }.keys
+          out = <<~OUT.chomp
+          The following regular expressions passed to `auto_apply` are invalid:
+          #{bad_exps.join("\n")}
+          OUT
+
+          raise out if bad_exps.any?
+        end
       end
 
       def profile_command
@@ -152,6 +163,12 @@ module Hunter
       end
 
       private
+
+      def valid_regex?(regex)
+        Regexp.new(regex)
+      rescue RegexpError => e
+        false
+      end
 
       def var_file(*a)
         parent_dir = File.join(root, 'var', *a[0..-2])
