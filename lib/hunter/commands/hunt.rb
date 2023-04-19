@@ -211,7 +211,7 @@ module Hunter
 
         # Have to do this last because it depends on the parsed list being up
         # to date
-        apply_to_node(node) if @options.auto_apply && @added
+        apply_to_node(node) if @options.auto_apply && @added && dest == parsed
       end
 
       private
