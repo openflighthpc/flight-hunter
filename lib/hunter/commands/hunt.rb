@@ -40,14 +40,29 @@ module Hunter
       def run
         @port = @options.port || Config.port
         @auth_key = @options.auth || Config.auth_key
-        @auto_regex = @options.auto_parse || Config.auto_parse || ".^"
+        @auto_parse = @options.auto_parse || Config.auto_parse || ".^"
         @auto_apply = begin
                         cli = @options.auto_apply
-                        cli ? YAML.parse(cli) : nil
+                        cli ? YAML.load(cli) : {}
                       rescue Psych::SyntaxError
                         raise "Invalid YAML passed via `--auto-apply`"
                       end
         @auto_apply ||= Config.auto_apply
+
+        # Validate auto-parse expression
+        unless valid_regex?(@auto_parse)
+          raise "Invalid regular expression passed to `auto_parse` option"
+        end
+
+        # Validate auto-apply expression
+        raise "Malformed hash passed to `auto_apply`" unless @auto_apply.is_a?(Hash)
+        bad_apply_exps = @auto_apply.map { |k,v| !valid_regex?(k) }
+        if bad_apply_exps.any?
+          raise <<~OUT.chomp
+          The following regular expressions passed to `auto_apply` are invalid:
+          #{bad_apply_exps.join("\n")}
+          OUT
+        end
 
         raise "No port provided!" if !@port
 
@@ -183,7 +198,7 @@ module Hunter
         EOF
 
         dest = buffer
-        if node.hostname.match(Regexp.new(@auto_regex))
+        if node.hostname.match(Regexp.new(@auto_parse))
           dest = parsed
           node.label = node.presets[:label] || node.hostname.split(".").first
         end
@@ -215,6 +230,12 @@ module Hunter
       end
 
       private
+
+      def valid_regex?(regex)
+        Regexp.new(regex.to_s)
+      rescue RegexpError => e
+        false
+      end
 
       def apply_to_node(node)
         identity = @auto_apply.find { |rule, _| node.label.match(Regexp.new(rule)) }
