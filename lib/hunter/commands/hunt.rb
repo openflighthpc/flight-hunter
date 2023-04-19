@@ -41,21 +41,13 @@ module Hunter
         @port = @options.port || Config.port
         @auth_key = @options.auth || Config.auth_key
         @auto_parse = @options.auto_parse || Config.auto_parse || ".^"
-        @auto_apply = Config.auto_apply || {}
+
+        # Fetch auto_apply to raise an error if it's invalid
+        Config.auto_apply
 
         # Validate auto-parse expression
         unless valid_regex?(@auto_parse)
           raise "Invalid regular expression passed to `auto_parse` option"
-        end
-
-        # Validate auto-apply expression
-        raise "Malformed hash passed to `auto_apply`" unless @auto_apply.is_a?(Hash)
-        bad_apply_exps = @auto_apply.map { |k,v| !valid_regex?(k) }
-        if bad_apply_exps.any?
-          raise <<~OUT.chomp
-          The following regular expressions passed to `auto_apply` are invalid:
-          #{bad_apply_exps.join("\n")}
-          OUT
         end
 
         raise "No port provided!" if !@port
@@ -201,27 +193,23 @@ module Hunter
         node.node_list = dest
 
         if @options.allow_existing || Config.allow_existing
+          node.auto_apply = dest == parsed
           dest.nodes.delete_if { |n| n.id == node.id }
           dest.nodes << node
           puts "Node added to #{dest.name} node list"
-          @added = true
         else
           if buffer.include_id?(node.id)
             puts "ID already exists in buffer"
           elsif parsed.include_id?(node.id)
             puts "ID already exists in parsed node list"
           else
+            node.auto_apply = dest == parsed
             dest.nodes << node
             puts "Node added to #{dest.name} node list"
-            @added = true
           end
         end
 
         dest.save
-
-        # Have to do this last because it depends on the parsed list being up
-        # to date
-        apply_to_node(node) if @added && dest == parsed
       end
 
       private
@@ -230,18 +218,6 @@ module Hunter
         Regexp.new(regex.to_s)
       rescue RegexpError => e
         false
-      end
-
-      def apply_to_node(node)
-        identity = @auto_apply.find { |rule, _| node.label.match(Regexp.new(rule)) }
-
-        return unless identity
-
-        puts <<~OUT.chomp
-        Node #{node.label} matches auto-apply rule '#{identity[0]}: #{identity[1]}'
-        OUT
-
-        ProfileCLI.apply(node.label, identity[1])
       end
 
       def valid_json?(str)

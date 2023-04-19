@@ -24,6 +24,7 @@
 # For more information on Flight Hunter, please visit:
 # https://github.com/openflighthpc/flight-hunter
 #==============================================================================
+require_relative 'profile_cli'
 
 module Hunter
   class Node
@@ -74,6 +75,7 @@ module Hunter
 
     def save
       File.open(filepath, 'w+') { |f| f.write(YAML.dump(to_h)) }
+      apply_identity(Config.auto_apply) if @auto_apply
     end
 
     def delete_source
@@ -81,9 +83,9 @@ module Hunter
     end
 
     attr_reader :id, :ip, :content, :hostname, :presets
-    attr_accessor :label, :node_list
+    attr_accessor :label, :node_list, :auto_apply
 
-    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, node_list: nil)
+    def initialize(id:, hostname:, label: nil, ip:, content:, groups: [], presets: {}, node_list: nil, auto_apply: false)
       @id = id
       @hostname = hostname
       @label = label
@@ -92,6 +94,21 @@ module Hunter
       @groups = groups || []
       @presets = presets.reject { |k,v| v.nil? || v.empty? }
       @node_list = node_list
+      @auto_apply = auto_apply
+    end
+
+    private
+
+    def apply_identity(rules)
+      identity = rules&.find { |rule, _| label.match(Regexp.new(rule)) }
+
+      return unless identity
+
+      puts <<~OUT.chomp
+      Node #{label} matches auto-apply rule '#{identity[0]}: #{identity[1]}'
+      OUT
+
+      ProfileCLI.apply(label, identity[1])
     end
   end
 end
