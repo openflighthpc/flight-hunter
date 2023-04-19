@@ -65,7 +65,6 @@ module Hunter
       c.slop.bool '--include-self', 'Immediately try to send payload to self'
       c.slop.string '--auth', "Override default authentication key"
       c.slop.string '--auto-parse', 'Automatically parse nodes matching this regex'
-      c.slop.string '--auto-apply', 'YAML string to map parsed labels to Flight Profile identities'
       c.action Commands, :hunt
     end
 
