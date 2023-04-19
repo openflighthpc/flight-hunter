@@ -37,6 +37,9 @@ module Hunter
         raise "No nodes in buffer" if @buffer.nodes.empty?
         @parsed = NodeList.load(Config.node_list)
 
+        # Load auto_apply rules list so we can check if it's valid
+        Config.auto_apply
+
         if @options.start && !/\A\d+\z/.match(@options.start)
           raise "Please provide a valid positive integer value for `--start`"
         end
@@ -61,6 +64,7 @@ module Hunter
         final.each do |node|
           @buffer.delete([node])
           node.node_list = @parsed
+          node.auto_apply = !Config.auto_apply.nil?
         end
         @parsed.nodes.concat(final)
 
