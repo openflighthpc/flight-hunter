@@ -43,11 +43,12 @@ module Hunter
         @auto_parse = @options.auto_parse || Config.auto_parse || ".^"
         @auto_apply = begin
                         cli = @options.auto_apply
-                        cli ? YAML.load(cli) : {}
+                        cli ? YAML.load(cli) : nil
                       rescue Psych::SyntaxError
                         raise "Invalid YAML passed via `--auto-apply`"
                       end
         @auto_apply ||= Config.auto_apply
+        @auto_apply ||= {}
 
         # Validate auto-parse expression
         unless valid_regex?(@auto_parse)
@@ -227,7 +228,7 @@ module Hunter
 
         # Have to do this last because it depends on the parsed list being up
         # to date
-        apply_to_node(node) if @options.auto_apply && @added && dest == parsed
+        apply_to_node(node) if @added && dest == parsed
       end
 
       private
