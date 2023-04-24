@@ -41,14 +41,7 @@ module Hunter
         @port = @options.port || Config.port
         @auth_key = @options.auth || Config.auth_key
         @auto_parse = @options.auto_parse || Config.auto_parse || ".^"
-        @auto_apply = begin
-                        cli = @options.auto_apply
-                        cli ? YAML.load(cli) : nil
-                      rescue Psych::SyntaxError
-                        raise "Invalid YAML passed via `--auto-apply`"
-                      end
-        @auto_apply ||= Config.auto_apply
-        @auto_apply ||= {}
+        @auto_apply = Config.auto_apply || {}
 
         # Validate auto-parse expression
         unless valid_regex?(@auto_parse)
