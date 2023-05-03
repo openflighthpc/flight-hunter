@@ -39,13 +39,11 @@ module Hunter
           identity
         ]
         cmd = new(*flight_profile, *args)
-        cmd.run.tap do |result|
-          if result.success?
-            return result.stdout
-          else
-            puts "ERROR"
-          end
+
+        pid = Process.fork do
+          cmd.run
         end
+        Process.detach(pid)
       end
 
       private
