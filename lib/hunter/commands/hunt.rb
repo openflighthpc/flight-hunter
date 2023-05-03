@@ -59,6 +59,7 @@ module Hunter
         end
 
         raise "No port provided!" if !@port
+        raise "Provided port #{@port} is busy" if !`lsof -i:#{@port}`.empty?
 
         pidpath = ENV['flight_HUNTER_pidfile']
 
