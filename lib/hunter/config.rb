@@ -85,6 +85,10 @@ module Hunter
         ENV['flight_HUNTER_auto_apply'] || data.fetch(:auto_apply)
       end
 
+      def presets
+        data.fetch(:auto_apply)
+      end
+
       def profile_command
         command =
           ENV['flight_HUNTER_profile_command'] ||

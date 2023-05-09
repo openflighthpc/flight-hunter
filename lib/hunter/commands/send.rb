@@ -111,9 +111,9 @@ module Hunter
           hostid: hostid,
           hostname: hostname,
           content: content,
-          label: @options.label,
-          prefix: @options.prefix,
-          groups: @options.groups,
+          label: @options.label || Config.presets["label"],
+          prefix: @options.prefix || Config.presets["prefix"],
+          groups: @options.groups || Config.presets["groups"],
           auth_key: auth_key
         }
       end
