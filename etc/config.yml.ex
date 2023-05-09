@@ -38,3 +38,11 @@
 # auto_apply:
 #   exp1: identity1
 #   exp2: identity2
+#
+# Preset data to send
+# presets:
+#   label:
+#   prefix:
+#   groups:
+#     - example_group1
+#     - example_group2
