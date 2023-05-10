@@ -75,7 +75,8 @@ module Hunter
             port: @port,
             server: Config.target_host || 'localhost',
             auth: @auth_key,
-            broadcast: false
+            broadcast: false,
+            groups: []
           )
 
           Commands::SendPayload.new(OpenStruct.new, opts).run!
