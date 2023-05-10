@@ -49,6 +49,7 @@ module Hunter
           puts a.join("\t")
         else
           Table.from_nodes([node], buffer: buffer).emit
+          puts node.content
         end
       end
     end
