@@ -86,7 +86,7 @@ module Hunter
       end
 
       def presets
-        data.fetch(:auto_apply)
+        data.fetch(:auto_apply) || {}
       end
 
       def profile_command
