@@ -82,6 +82,20 @@ module Hunter
       File.delete(filepath)
     end
 
+    def generate_label
+      new = @label || @presets.fetch(:label)
+      return unless new.nil?
+      return (Config.short_hostname ? @hostname.split(".").first || @hostname) unless @presets.fetch(:prefix)
+      parsed_names = NodeList.load(Config.node_list).map(:&label)
+      i = 0
+      name = @presets.fetch(:prefix) + i.to_s
+      while !parsed_names.include(name) do
+        i += 1
+        name = @presets.fetch(:prefix) + i.to_s
+      end
+      name
+    end
+
     attr_reader :id, :ip, :content, :hostname, :presets
     attr_accessor :label, :node_list, :auto_apply
 
