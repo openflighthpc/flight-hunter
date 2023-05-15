@@ -46,3 +46,7 @@
 #   groups:
 #     - example_group1
 #     - example_group2
+#
+# Attempt to shorten given hostnames by removing everything after the 
+# first "." (optional)
+# short_hostname: true
