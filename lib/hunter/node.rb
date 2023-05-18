@@ -89,7 +89,7 @@ module Hunter
       prefix = @presets["prefix"]
       return (Config.short_hostname ? @hostname.split(".").first : @hostname) unless prefix
 
-      start = Config.prefix_starts[prefix] || "01"
+      start = Config.prefix_starts[prefix] || Config.default_start
       i = start.to_i
       padding = '0' * [(start.length - i.to_s.length), 0].max
       name = prefix + padding + i.to_s
