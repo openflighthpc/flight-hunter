@@ -82,16 +82,21 @@ module Hunter
       File.delete(filepath)
     end
 
-    def generate_label
-      new = @label || @presets.fetch(:label)
-      return unless new.nil?
-      return (Config.short_hostname ? @hostname.split(".").first || @hostname) unless @presets.fetch(:prefix)
-      parsed_names = NodeList.load(Config.node_list).map(:&label)
-      i = 0
-      name = @presets.fetch(:prefix) + i.to_s
-      while !parsed_names.include(name) do
+    def generate_label(used_names: NodeList.load(Config.node_list).nodes.map(&:label))
+      new = @label || @presets["label"]
+      return new unless new.nil?
+
+      prefix = @presets["prefix"]
+      return (Config.short_hostname ? @hostname.split(".").first : @hostname) unless prefix
+
+      start = Config.prefix_starts[prefix] || "01"
+      i = start.to_i
+      padding = '0' * [(start.length - i.to_s.length), 0].max
+      name = prefix + padding + i.to_s
+      while used_names.include?(name) do
         i += 1
-        name = @presets.fetch(:prefix) + i.to_s
+        padding = '0' * [(start.length - i.to_s.length), 0].max
+        name = prefix + padding + i.to_s
       end
       name
     end
