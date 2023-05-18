@@ -50,3 +50,10 @@
 # Attempt to shorten given hostnames by removing everything after the 
 # first "." (optional)
 # short_hostname: true
+#
+# Default number start value for automatically parsed nodes
+# default_start: "01"
+#
+# List of custom start values for given prefixes. (optional)
+# Each entry should be of the form <prefix>: <start value>
+# prefix_starts:
