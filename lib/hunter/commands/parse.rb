@@ -44,8 +44,7 @@ module Hunter
           raise "Please provide a valid positive integer value for `--start`"
         end
 
-        # Initialize label counts
-        @label_increments = {}
+        # Initialize used labels
         @used_strings = [].tap do |a|
           a << @parsed.nodes.map(&:label)
           a.flatten!.uniq!
@@ -93,24 +92,7 @@ module Hunter
         end
 
         @buffer.nodes.each do |node|
-          prefix = node.presets[:prefix] || @options.prefix
-          if node.presets[:label]
-            label = node.presets[:label]
-          elsif prefix && !@options.start
-            raise "Please provide a valid positive integer value for `--start`"
-          elsif prefix && @options.start
-            loop do
-              label = generate_label(prefix)
-              
-              break unless label_exists?(label) && @options.skip_used_index
-            end
-          else
-            label = node.hostname
-          end
-
-          if label_exists?(label)
-            raise "Automatically generated label '#{label}' already exists."
-          end
+          label = node.generate_label(used_names: @used_strings)
 
           @used_strings << label
 
@@ -122,18 +104,6 @@ module Hunter
 
       def label_exists?(label)
         @used_strings.any? { |n| n == label }
-      end
-
-      def generate_label(prefix)
-        start = @options.start
-
-        @label_increments[prefix] ||= { count: 0 }
-        iteration = start.to_i + @label_increments[prefix][:count]
-        padding = '0' * [(start.length - iteration.to_s.length), 0].max
-        count = padding + iteration.to_s
-
-        @label_increments[prefix][:count] += 1
-        return prefix + count
       end
 
       def manual_parse
@@ -197,20 +167,7 @@ module Hunter
 
           # Pre-generate the label, if possible
           prefill = answers[:active_choice].value.yield_self do |node|
-            prefix = node.presets[:prefix] || @options.prefix
-            if node.presets[:label]
-              node.presets[:label]
-            elsif prefix && !@options.start
-              prefix
-            elsif prefix && @options.start
-              loop do
-                label = generate_label(prefix)
-
-                break label unless label_exists?(label) && @options.skip_used_index
-              end
-            else
-              node.hostname
-            end
+            node.generate_label(used_names: @used_strings)
           end
 
           # Ask the user for a label
