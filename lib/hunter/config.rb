@@ -85,6 +85,14 @@ module Hunter
         ENV['flight_HUNTER_short_hostname'] || data.fetch(:short_hostname)
       end
 
+      def default_start
+        ENV['flight_HUNTER_default_start'] || data.fetch(:default_start) || "01"
+      end
+
+      def prefix_starts
+        ENV['flight_HUNTER_prefix_starts'] || data.fetch(:prefix_starts)
+      end
+
       def auto_apply
         (ENV['flight_HUNTER_auto_apply'] || data.fetch(:auto_apply)).tap do |h|
           return if h.nil?
