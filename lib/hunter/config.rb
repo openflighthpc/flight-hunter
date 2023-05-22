@@ -90,7 +90,7 @@ module Hunter
       end
 
       def prefix_starts
-        ENV['flight_HUNTER_prefix_starts'] || data.fetch(:prefix_starts)
+        ENV['flight_HUNTER_prefix_starts'] || data.fetch(:prefix_starts) || {}
       end
 
       def auto_apply
