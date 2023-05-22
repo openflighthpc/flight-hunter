@@ -121,7 +121,7 @@ module Hunter
 
         if @options.dry_run
           @buffer.nodes.each do |node|
-            print "Generated label #{node.label} for #{node.hostname}
+            print "Generated label #{node.label} for #{node.hostname}"
           end
           raise "Dry run"
         end
