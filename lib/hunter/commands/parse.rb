@@ -96,9 +96,9 @@ module Hunter
 
         @buffer.nodes.each do |node|
           label = node.preset_label
-          preset_labels << label
+          preset_labels << label if label
           if @options.skip_used_index
-            used_auto_strings << label
+            used_auto_strings << label if label
           end
 
           node.label = label
@@ -115,13 +115,13 @@ module Hunter
         end
 
         all_names = preset_labels + used_auto_strings + @used_strings
-        duplicate = all_names.detect{ |name| duplicate.count(name) > 1 }
-        raise "The label #{duplicate} was parsed for multiple nodes. Resolve duplicates or try using '--skip-used-index'"
+        duplicate = all_names.detect{ |name| all_names.count(name) > 1 }
+        raise "The label #{duplicate} was parsed for multiple nodes. Resolve duplicates or try using '--skip-used-index'" if duplicate
 
 
         if @options.dry_run
           @buffer.nodes.each do |node|
-            print "Generated label #{node.label} for #{node.hostname}"
+            puts "Generated label #{node.label} for #{node.hostname}"
           end
           raise "Dry run"
         end
