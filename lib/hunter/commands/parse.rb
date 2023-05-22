@@ -91,7 +91,7 @@ module Hunter
                 "#{existing.map(&:id).join("\n")}"
         end
 
-        used_auto_strings = []
+        used_auto_strings = @options.skip_used_index ? @used_names : []
 
         @buffer.nodes.each do |node|
           label = node.preset_label
@@ -109,7 +109,7 @@ module Hunter
           node.label = label
         end
 
-        all_names = preset_labels + used_auto_strings
+        all_names = preset_labels + used_auto_strings + @used_strings
         duplicate = all_names.detect{ |name| duplicate.count(name) > 1 }
         raise "The label #{duplicate} was parsed for multiple nodes. Resolve duplicates or try using '--skip-used-index'"
 
