@@ -82,11 +82,13 @@ module Hunter
       File.delete(filepath)
     end
 
-    def generate_label(used_names: NodeList.load(Config.node_list).nodes.map(&:label), prefix: nil)
+    def preset_label
       new = @label || @presets["label"]
       return new unless new.nil?
+    end
 
-      prefix = @presets["prefix"] || prefix
+    def auto_label(used_names: NodeList.load(Config.node_list).nodes.map(&:label), default_prefix: nil)
+      prefix = @presets["prefix"] || default_prefix
       return (Config.short_hostname ? @hostname.split(".").first : @hostname) unless prefix
 
       start = Config.prefix_starts[prefix] || Config.default_start
