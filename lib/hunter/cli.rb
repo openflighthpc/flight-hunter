@@ -145,6 +145,7 @@ module Hunter
       c.slop.bool '--auto', "Automatically process everything in buffer list"
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
       c.slop.bool '--skip-used-index', 'Ignore errors if a label index is already in use'
+      c.slop.bool '--dry-run', 'Print generated node labels without parsing nodes'
       c.action Commands, :parse
     end
 
