@@ -91,6 +91,7 @@ module Hunter
                 "#{existing.map(&:id).join("\n")}"
         end
 
+        preset_labels = []
         used_auto_strings = @options.skip_used_index ? @used_names : []
 
         @buffer.nodes.each do |node|
