@@ -91,13 +91,27 @@ module Hunter
                 "#{existing.map(&:id).join("\n")}"
         end
 
-        @buffer.nodes.each do |node|
-          label = node.generate_label(used_names: @used_strings, prefix: @options.prefix)
+        used_auto_strings = []
 
-          @used_strings << label
+        @buffer.nodes.each do |node|
+          label = node.preset_label
+          preset_labels << label
+          if @options.skip_used_index
+            used_auto_strings << label
+          end
+        end
+
+        @buffer.nodes.each do |node|
+          label = node.generate_label(used_names: used_auto_strings, default_prefix: @options.prefix)
+
+          used_auto_strings << label
 
           node.label = label
         end
+
+        all_names = preset_labels + used_auto_strings
+        duplicate = all_names.detect{ |name| duplicate.count(name) > 1 }
+        raise "The label #{duplicate} was parsed for multiple nodes. Resolve duplicates or try using '--skip-used-index'"
 
         @buffer.nodes
       end
@@ -167,7 +181,7 @@ module Hunter
 
           # Pre-generate the label, if possible
           prefill = answers[:active_choice].value.yield_self do |node|
-            node.generate_label(used_names: @used_strings, prefix: @options.prefix)
+            node.generate_label(used_names: @used_strings, default_prefix: @options.prefix)
           end
 
           # Ask the user for a label
