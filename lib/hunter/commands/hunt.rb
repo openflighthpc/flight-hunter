@@ -188,7 +188,11 @@ module Hunter
         dest = buffer
         if node.hostname.match(Regexp.new(@auto_parse))
           dest = parsed
-          node.label = node.presets[:label] || node.hostname.split(".").first
+          node.label = node.preset_label || node.auto_label
+          if parsed.nodes.map(&:label).include?(node.label)
+            puts "Node #{node.hostname} could not be auto-parsed as the resolved name matches an existing node"
+            return
+          end
         end
 
         node.node_list = dest
