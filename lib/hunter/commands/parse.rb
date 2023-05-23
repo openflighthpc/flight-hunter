@@ -77,7 +77,7 @@ module Hunter
       private
 
       def automatic_parse
-        duplicates = @buffer.nodes.group_by { |n| n.presets[:label] }
+        duplicates = @buffer.nodes.group_by { |n| n.presets["label"] }
                                   .reject { |k, v| k.nil? }
                                   .any? { |k, v| v.count > 1 }
         if duplicates

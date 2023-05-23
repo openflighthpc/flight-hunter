@@ -172,8 +172,8 @@ module Hunter
           content: data["content"],
           groups: data["groups"],
           presets: {
-            label: data["label"],
-            prefix: data["prefix"]
+            "label" => data["label"],
+            "prefix" => data["prefix"]
           }
         )
 
