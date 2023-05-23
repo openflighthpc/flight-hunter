@@ -83,8 +83,7 @@ module Hunter
     end
 
     def preset_label
-      new = @label || @presets["label"]
-      return new unless new.nil?
+      @label || @presets["label"]
     end
 
     def auto_label(used_names: NodeList.load(Config.node_list).nodes.map(&:label), default_prefix: nil)
