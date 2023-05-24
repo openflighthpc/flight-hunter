@@ -40,10 +40,6 @@ module Hunter
         # Load auto_apply rules list so we can check if it's valid
         Config.auto_apply
 
-        if @options.start && !/\A\d+\z/.match(@options.start)
-          raise "Please provide a valid positive integer value for `--start`"
-        end
-
         # Initialize used labels
         @used_strings = [].tap do |a|
           a << @parsed.nodes.map(&:label)
