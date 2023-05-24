@@ -100,6 +100,13 @@ bin/hunter parse --prefix cnode --start 001
 ```
 
 will label each node in order `cnode001`, `cnode002`, and so on. When generating labels like this, the order that nodes are selected in will persist. If no label scheme is specified, the hostname of the node will be used instead. You may provide the `--auto` command line option to automatically process every node in the buffer in order. Please be aware that labels are considered unique across Hunter.
+Labels may also have their naming data pre-set by using the `--label` or `--prefix` options for `hunter send`.
+
+* Nodes with a preset label will always attempt to use that label.
+
+* Nodes without a preset label but with a preset prefix will generate a label involving the prefix and a numerical suffix determined based on the start value set through either the `default_start` or `prefix_starts` config options.
+
+* Nodes without either of the above will take their hostnames as labels, which may be shortened up to the first `.` using the `short_hostname` config option.
 
 ### Switching between buffer and processed list
 
