@@ -55,5 +55,5 @@
 # default_start: "01"
 #
 # List of custom start values for given prefixes. (optional)
-# Each entry should be of the form <prefix>: <start value>
+# Each entry should be of the form <prefix>: "<start value>"
 # prefix_starts:
