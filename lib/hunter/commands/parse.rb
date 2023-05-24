@@ -54,19 +54,25 @@ module Hunter
             manual_parse
           end
 
-        existing = @parsed.nodes.select { |old| final.any? { |n| old.id == n.id } }
-        @parsed.delete(existing)
-        final.each do |node|
-          @buffer.delete([node])
-          node.node_list = @parsed
-          node.auto_apply = !Config.auto_apply.nil?
-        end
-        @parsed.nodes.concat(final)
-
-        if final.any? && @parsed.save && @buffer.save
-          puts "Nodes saved to parsed node list:"
+        if @options.dry_run
+          puts "Resulting node data (dry run):"
 
           Table.from_nodes(final).emit
+        else
+          existing = @parsed.nodes.select { |old| final.any? { |n| old.id == n.id } }
+          @parsed.delete(existing)
+          final.each do |node|
+            @buffer.delete([node])
+            node.node_list = @parsed
+            node.auto_apply = !Config.auto_apply.nil?
+          end
+          @parsed.nodes.concat(final)
+
+          if final.any? && @parsed.save && @buffer.save
+            puts "Nodes saved to parsed node list:"
+
+            Table.from_nodes(final).emit
+          end
         end
       end
 
@@ -115,14 +121,6 @@ module Hunter
 
         duplicate = new_labels.detect{ |name| new_labels.count(name) > 1 }
         raise "The label #{duplicate} was parsed for multiple nodes. Resolve duplicates or try using '--skip-used-index'" if duplicate
-
-
-        if @options.dry_run
-          @buffer.nodes.each do |node|
-            puts "Generated label #{node.label} for #{node.hostname}"
-          end
-          raise "Dry run"
-        end
 
         @buffer.nodes
       end
