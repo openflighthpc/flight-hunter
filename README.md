@@ -41,6 +41,13 @@ Flight Hunter has some required configuration based on the environment it is bei
 - `auth_key` - Specify an authentication key allowing only nodes with a matching key to connect
 - `broadcast_address` - Specify an IP address range to use when using `send`'s broadcast mode.
 - `profile_command` - Specify the path to your Flight Profile executable (if it exists).
+- `auto_parse` - A regular expresssion, nodes matching this expression will bypass the buffer and be parsed immediately when `hunt`ed
+- `auto_apply` - Specify pairs of regular expressions and Flight Profile identities. If a node label matches the regular expression (when the node is parsed) then the corresponding Flight Profile identity is applied to it.
+- `presets` - Specify preset data to send when sending to self using `hunt` with `--include self`. Includes `label`, `prefix` and `groups`.
+- `short_hostname` - If true, everything beyond the first `.` in a node's hostname will be removed when generating a label for it from the hostname.
+- `default_start` - The default start index when parsing automatically with a prefix. Note that this must be enclosed in quotation marks.
+- `prefix_starts` - Custom start values for specified prefixes when automatically parsing. Note that given start values must be enclosed in quotation marks.
+- `skip_used_index` - If automatic parsing attempts to create a label which already exists, skip that label and give the node a higher suffix until an unusued label is found.
 
 Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
 
