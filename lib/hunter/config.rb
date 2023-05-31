@@ -93,6 +93,10 @@ module Hunter
         ENV['flight_HUNTER_prefix_starts'] || data.fetch(:prefix_starts) || {}
       end
 
+      def skip_used_index
+        ENV['flight_HUNTER_skip_used_index'] || data.fetch(:skip_used_index)
+      end
+
       def auto_apply
         (ENV['flight_HUNTER_auto_apply'] || data.fetch(:auto_apply)).tap do |h|
           return if h.nil?

@@ -57,3 +57,8 @@
 # List of custom start values for given prefixes. (optional)
 # Each entry should be of the form <prefix>: "<start value>"
 # prefix_starts:
+#
+# If automatic parsing attempts to create a label which already exists, 
+# skip that label and give the node a higher suffix until an unusued label is found.
+# If false, an error is raised when names clash in this manner.
+# skip_used_index: true

@@ -37,6 +37,12 @@ module Hunter
         raise "No nodes in buffer" if @buffer.nodes.empty?
         @parsed = NodeList.load(Config.node_list)
 
+        if @options.skip_used_index
+          @skip_used = (@options.skip_used_index.downcase == "true")
+        else
+          @skip_used = Config.skip_used_index
+        end
+
         # Load auto_apply rules list so we can check if it's valid
         Config.auto_apply
 
@@ -95,13 +101,13 @@ module Hunter
 
         new_labels = []
         preset_labels = []
-        used_auto_strings = @options.skip_used_index ? @used_strings : []
+        used_auto_strings = @skip_used ? @used_strings : []
 
         @buffer.nodes.each do |node|
           label = node.preset_label
           if label
             preset_labels << label
-            used_auto_strings << label if @options.skip_used_index
+            used_auto_strings << label if @skip_used
             new_labels << label
           end
 
