@@ -141,6 +141,7 @@ module Hunter
       cli_syntax(c)
       c.summary = 'Interactively move nodes from buffer to parsed list'
       c.slop.string '--prefix', "Prefix for the generated labels"
+      c.slop.string '--start', "Start value for the numeric portion of the labels"
       c.slop.bool '--auto', "Automatically process everything in buffer list"
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
       c.slop.bool '--skip-used-index', 'Ignore errors if a label index is already in use'

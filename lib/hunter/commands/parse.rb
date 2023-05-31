@@ -110,7 +110,7 @@ module Hunter
 
         @buffer.nodes.each do |node|
           if node.label.nil?
-            label = node.auto_label(used_names: used_auto_strings, default_prefix: @options.prefix)
+            label = node.auto_label(used_names: used_auto_strings, default_prefix: @options.prefix, default_start: @options.start)
 
             used_auto_strings << label
             new_labels << label
@@ -190,7 +190,7 @@ module Hunter
 
           # Pre-generate the label, if possible
           prefill = answers[:active_choice].value.yield_self do |node|
-            node.preset_label || node.auto_label(used_names: @used_strings + reserved, default_prefix: @options.prefix)
+            node.preset_label || node.auto_label(used_names: @used_strings + reserved, default_prefix: @options.prefix, default_start: @options.start)
           end
 
           # Ask the user for a label
