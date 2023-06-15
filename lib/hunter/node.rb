@@ -112,7 +112,8 @@ module Hunter
       @ip = ip
       @content = content
       @groups = groups || []
-      @presets = presets.reject { |k,v| v.nil? || v.empty? }
+      presets = presets.map { |k,v| { k => v.to_s } }.reduce({}, :merge)
+      @presets = presets.reject { |k,v| v.empty? }
       @node_list = node_list
       @auto_apply = auto_apply
     end
