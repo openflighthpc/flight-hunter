@@ -66,24 +66,35 @@ module Hunter
 
           request.body = data.to_json
 
-          begin
-            response = http.request(request)
-            response.value
-            puts "Successful transmission"
-          rescue Errno::ECONNREFUSED => e
-            puts "The server is unavailable"
-            puts e.message
-          rescue Net::HTTPServerException => e
-            if response.code == "401"
-              raise "Authentication key mismatch"
-            else
-              raise "Unknown HTTP error"
-            end
-          end
+          send_request(request)
         end
       end
 
       private
+
+      def send_request(request)
+        begin
+          response = http.request(request)
+          response.value
+          puts "Successful transmission"
+          return
+        rescue Errno::ECONNREFUSED => e
+          msg = "The server is unavailable\n" + e.message
+        rescue Net::HTTPServerException => e
+          if response.code == "401"
+            msg = "Authentication key mismatch"
+          else
+            msg = "Unknown HTTP error"
+          end
+        end
+        if @options.retry
+          puts msg
+          sleep(@options.retry)
+          send_request(request)
+        else
+          raise msg
+        end
+      end
 
       def prepare_payload
         auth_key = @options.auth || Config.auth_key.to_s
