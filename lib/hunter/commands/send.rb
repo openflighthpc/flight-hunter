@@ -66,13 +66,13 @@ module Hunter
 
           request.body = data.to_json
 
-          send_request(request)
+          send_request(http, request)
         end
       end
 
       private
 
-      def send_request(request)
+      def send_request(http, request)
         begin
           response = http.request(request)
           response.value
@@ -90,7 +90,7 @@ module Hunter
         if @options.retry
           puts msg
           sleep(@options.retry)
-          send_request(request)
+          send_request(http, request)
         else
           raise msg
         end
