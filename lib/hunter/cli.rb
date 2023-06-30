@@ -161,7 +161,7 @@ module Hunter
       c.slop.array "--groups", "Specify a comma-separated list of groups for this node"
       c.slop.string "--label", "Specify a label to use for this node"
       c.slop.string "--prefix", "Specify a prefix to use for this node"
-      c.slop.float "--retry", "Specify a number of seconds, send will be re-attempted with this delay until successful.
+      c.slop.float "--retry", "Specify a number of seconds, send will be re-attempted at this interval until successful."
       c.action Commands, :send_payload
     end
   end
