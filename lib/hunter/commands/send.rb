@@ -66,7 +66,13 @@ module Hunter
 
           request.body = data.to_json
 
-          send_request(http, request)
+          loop do
+            response = send_request(http, request)
+            if !@options.retry || response&.code == "200"
+              break
+            end
+            sleep(@options.retry)
+          end
         end
       end
 
@@ -77,7 +83,7 @@ module Hunter
           response = http.request(request)
           response.value
           puts "Successful transmission"
-          return
+          return response
         rescue Errno::ECONNREFUSED => e
           msg = "The server is unavailable\n" + e.message
         rescue Net::HTTPServerException => e
@@ -89,8 +95,6 @@ module Hunter
         end
         if @options.retry
           puts msg
-          sleep(@options.retry)
-          send_request(http, request)
         else
           raise msg
         end
