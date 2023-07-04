@@ -68,15 +68,19 @@ module Hunter
 
           loop do
             response = send_request(http, request)
-            if !@options.retry || response&.code == "200"
+            if !retry_interval || response&.code == '200'
               break
             end
-            sleep(@options.retry)
+            sleep(retry_interval.to_i)
           end
         end
       end
 
       private
+
+      def retry_interval
+        Config.retry_interval || @options.retry
+      end
 
       def send_request(http, request)
         begin
@@ -93,7 +97,7 @@ module Hunter
             msg = "Unknown HTTP error"
           end
         end
-        if @options.retry
+        if retry_interval
           puts msg
         else
           raise msg
