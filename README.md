@@ -48,6 +48,7 @@ Flight Hunter has some required configuration based on the environment it is bei
 - `default_start` - The default start index when parsing automatically with a prefix. Note that this must be enclosed in quotation marks.
 - `prefix_starts` - Custom start values for specified prefixes when automatically parsing. Note that given start values must be enclosed in quotation marks.
 - `skip_used_index` - If automatic parsing attempts to create a label which already exists, skip that label and give the node a higher suffix until an unusued label is found.
+- `retry_interval` - If the server cannot be found, retry every `n` seconds until a successful response is retrieved.
 
 Each of the above config keys can be overwritten at all levels by an environment variable of the form `flight_HUNTER_*key*`.
 
