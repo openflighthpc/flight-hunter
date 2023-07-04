@@ -79,7 +79,7 @@ module Hunter
       private
 
       def retry_interval
-        Config.retry_interval || @options.retry
+        Config.retry_interval || @options.retry_interval
       end
 
       def send_request(http, request)
