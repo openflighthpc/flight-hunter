@@ -135,6 +135,7 @@ module Hunter
               unless headers["Content-Type"] == "application/json"
                 # invalid content type
                 client.puts "HTTP/1.1 415\r\n"
+                client.close
                 puts "Malformed packet received from #{client.peeraddr[2]}"
                 next
               end
@@ -145,6 +146,7 @@ module Hunter
 
               unless payload["auth_key"] == @auth_key
                 client.puts "HTTP/1.1 401\r\n"
+                client.close
                 puts "Unauthorised node attempted to connect"
                 next
               end
