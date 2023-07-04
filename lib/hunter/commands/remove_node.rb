@@ -35,17 +35,22 @@ module Hunter
         list_file = buffer ? Config.node_buffer : Config.node_list
         list = NodeList.load(list_file)
 
-        search_term = args[0]
+        attribute = @options.match_hostname ? :hostname : search_field(buffer)
 
         nodes =
-          case @options.name
+          case @options.regex
           when true
-            list.match(Regexp.new(args[0]))
+            list.select { |n| n.public_send(attribute) =~ Regexp.new(args[0]) }
           when false
-            [list.find(search_field(buffer) =>  args[0])]
+            search_terms = args[0].split(',')
+            list.select { |n| search_terms.include?(n.public_send(attribute)) }
           end
 
-        raise "No #{search_field(buffer)}s in list '#{list.name}' match pattern '#{args[0]}'" unless nodes&.any?
+        unless nodes.any?
+          raise <<~OUT.chomp
+          No #{attribute}s in list '#{list.name}' found with given pattern(s).
+          OUT
+        end
 
         if list.delete(nodes) && list.save
           puts "The following nodes have successfully been removed from list '#{list.name}'"

@@ -107,10 +107,11 @@ module Hunter
     end
 
     command 'remove-node' do |c|
-      cli_syntax(c, 'NODE')
-      c.summary = 'Remove node from parsed list by label'
+      cli_syntax(c, 'NODE[,NODE...]')
+      c.summary = 'Remove nodes from parsed list by label'
       c.slop.bool '--buffer', "Use node buffer list instead of parsed (use ID instead of label here)"
-      c.slop.bool '--name', "Specify node by regex on hostname instead of ID"
+      c.slop.bool '--regex', "Match all nodes with regex NODE"
+      c.slop.bool '--match-hostname', "Match against hostname instead of label (or ID)"
       c.action Commands, :remove_node
     end
 
