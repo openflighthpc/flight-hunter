@@ -27,7 +27,6 @@
 
 module Hunter
   class NodeList
-
     class << self
       def load(dir)
         raise "Node directory #{dir} doesn't exist" unless File.directory?(dir)
@@ -55,6 +54,10 @@ module Hunter
     def delete(nodes)
       nodes.map(&:delete_source)
       @nodes = @nodes - nodes
+    end
+
+    def select(*args, **kwargs, &block)
+      nodes.select(*args, **kwargs, &block)
     end
 
     def match(regex)
