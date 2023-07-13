@@ -134,9 +134,9 @@ module Hunter
 
               unless headers["Content-Type"] == "application/json"
                 # invalid content type
+                puts "Malformed packet received from #{client.peeraddr[2]}"
                 client.puts "HTTP/1.1 415\r\n"
                 client.close
-                puts "Malformed packet received from #{client.peeraddr[2]}"
                 next
               end
 
