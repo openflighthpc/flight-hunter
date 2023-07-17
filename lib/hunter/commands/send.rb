@@ -71,7 +71,7 @@ module Hunter
             if !retry_interval || response&.code == '200'
               break
             end
-            sleep(retry_interval.to_i)
+            sleep(retry_interval.to_f)
           end
         end
       end
