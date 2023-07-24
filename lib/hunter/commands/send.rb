@@ -66,15 +66,12 @@ module Hunter
 
           request.body = data.to_json
 
-          loop do
-            response = send_request(http, request)
-            if !retry_interval || response&.code == '200'
-              break
-            elsif retry_interval.is_a?(Numeric)
-              sleep(retry_interval.to_f)
-            else
-              raise 'Invalid value for the --retry-interval option'
+          if send_request(http, request)&.code != '200' && retry_interval.is_a?(Numeric)
+            until send_request(http, request)&.code == '200'
+                sleep(retry_interval.to_f)
             end
+          elsif retry_interval
+            raise 'Invalid value for the --retry-interval option'
           end
         end
       end
