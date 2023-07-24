@@ -68,12 +68,15 @@ module Hunter
 
           loop do
             response = send_request(http, request)
-            if !retry_interval || response&.code == '200'
+            if response&.code != '200'
+              if retry_interval.is_a?(Numeric)  
+                sleep(retry_interval.to_f)
+              else
+                raise 'Invalid value for the --retry-interval option'
+              end
+            else
               break
-            elsif !retry_interval.is_a?(Numeric)
-              raise 'Invalid value for the --retry-interval option'
             end
-            sleep(retry_interval.to_f)
           end
         end
       end
