@@ -79,7 +79,7 @@ module Hunter
       def retry_interval
         @retry_interval ||= begin
           ri = Config.retry_interval || @options.retry_interval
-          ri.nil? nil : max(1, ri.to_f)
+          ri.nil? nil : max(5.0, ri.to_f)
         end
       end
 
