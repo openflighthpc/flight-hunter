@@ -66,10 +66,8 @@ module Hunter
 
           request.body = data.to_json
 
-          if send_request(http, request)&.code != '200' && retry_interval
-            begin
-              sleep(retry_interval.to_f)
-            end while send_request(http, request)&.code != '200'
+          until send_request(http, request)&.code == '200' || !retry_interval
+            sleep(retry_interval)
           end
         end
       end
@@ -79,7 +77,13 @@ module Hunter
       def retry_interval
         @retry_interval ||= begin
           ri = Config.retry_interval || @options.retry_interval
-          ri.nil? nil : max(5.0, ri.to_f)
+          return nil unless ri
+          if !ri.match(/^\d+(\.\d+)?$/)
+            puts "Warning! Invalid value detected for --retry_interval. It has now been set to " + [5.0, ri.to_f].max + "."
+          elsif ri.to_f < 5.0
+            puts "Warning! The value for --retry_interval is too small. It has now been set to " + [5.0, ri.to_f].max + "."
+          end
+          [5.0, ri.to_f].max
         end
       end
 
