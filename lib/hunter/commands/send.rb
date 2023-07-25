@@ -79,9 +79,9 @@ module Hunter
           ri = Config.retry_interval || @options.retry_interval
           return nil unless ri
           if !ri.match(/^\d+(\.\d+)?$/)
-            puts "Warning! Invalid value detected for --retry_interval. It has now been set to " + [5.0, ri.to_f].max + "."
+            puts "Warning! Invalid value detected for --retry_interval. It has now been set to " + [5.0, ri.to_f].max.to_s + "."
           elsif ri.to_f < 5.0
-            puts "Warning! The value for --retry_interval is too small. It has now been set to " + [5.0, ri.to_f].max + "."
+            puts "Warning! The value for --retry_interval is too small. It has now been set to 5.0."
           end
           [5.0, ri.to_f].max
         end
