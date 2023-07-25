@@ -69,7 +69,7 @@ module Hunter
           if send_request(http, request)&.code != '200' && retry_interval
             begin
               sleep(retry_interval.to_f)
-            end while send_request(http, request)&.code == '200'
+            end while send_request(http, request)&.code != '200'
           end
         end
       end
