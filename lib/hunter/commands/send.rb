@@ -66,7 +66,7 @@ module Hunter
 
           request.body = data.to_json
 
-          until send_request(http, request)&.code == '200' || !retry_interval
+          if send_request(http, request)&.code != '200' && retry_interval
             sleep(retry_interval)
           end
         end
