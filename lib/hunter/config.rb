@@ -98,7 +98,7 @@ module Hunter
       end
 
       def retry_interval
-        ENV['flight_HUNTER_retry_interval'] || data.fetch(:retry_interval)
+        ENV['flight_HUNTER_retry_interval'] || data.fetch(:retry_interval)&.to_s
       end
 
       def auto_apply
