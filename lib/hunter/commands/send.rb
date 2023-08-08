@@ -137,7 +137,7 @@ module Hunter
           content: content,
           label: @options.label || Config.presets["label"],
           prefix: @options.prefix || Config.presets["prefix"],
-          groups: @options.groups.empty? ? Config.presets["groups"] : @options.groups,
+          groups: @options.groups&.empty? ? Config.presets["groups"] : @options.groups,
           auth_key: auth_key
         }
       end
