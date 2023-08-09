@@ -57,6 +57,10 @@ module Hunter
         ENV['flight_HUNTER_autorun_mode'] || data.fetch(:autorun_mode)
       end
 
+      def broadcast
+        ENV['flight_HUNTER_broadcast'] || data.fetch(:broadcast)
+      end
+
       def broadcast_address
         ENV['flight_HUNTER_broadcast_address'] || data.fetch(:broadcast_address)
       end
