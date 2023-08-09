@@ -157,6 +157,7 @@ module Hunter
       c.slop.integer '-p', '--port', "Override server port"
       c.slop.string '-s', '--server', "Override server hostname"
       c.slop.string "--auth", "Override default authentication key"
+      c.slop.bool '--broadcast', "Send identity to all nodes on a given subnet"
       c.slop.string "--broadcast-address", "Specify a broadcast address to use if broadcasting"
       c.slop.array "--groups", "Specify a comma-separated list of groups for this node"
       c.slop.string "--label", "Specify a label to use for this node"
