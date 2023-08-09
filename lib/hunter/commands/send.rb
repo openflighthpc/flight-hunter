@@ -44,19 +44,19 @@ module Hunter
 
         data = prepare_payload
 
+        broadcast = @options.broadcast_address || Config.broadcast_address
         address = @options.broadcast_address || Config.broadcast_address
         host = @options.server || Config.target_host
-        raise "No target server provided!" unless host || address
 
-        # UDP datagram to user provided broadcast address  
-        if address
+        if broadcast 
+          # UDP datagram to user provided broadcast address
+          raise "No broadcast targets provided!" unless address
           socket = UDPSocket.new
           socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
           socket.send(data.to_json, 0, address, port)
-        end
-
-        # TCP datagram to specific host
-        if host
+        else
+          # TCP datagram to specific host
+          raise "No target server provided!" unless host
           uri = URI::HTTPS.build(host: host, port: port)
 
           http = Net::HTTP.new(uri.host, uri.port)
