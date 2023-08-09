@@ -44,7 +44,7 @@ module Hunter
 
         data = prepare_payload
 
-        broadcast = @options.broadcast_address || Config.broadcast_address
+        broadcast = @options.broadcast || Config.broadcast
         address = @options.broadcast_address || Config.broadcast_address
         host = @options.server || Config.target_host
 
