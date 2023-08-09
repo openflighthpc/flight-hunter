@@ -39,7 +39,7 @@ module Hunter
       include Hunter::Collector
 
       def run
-        port = @options.port || Config.port.to_s
+        port = @options.port || Config.port&.to_s
         raise "No port provided!" if !port
 
         data = prepare_payload
