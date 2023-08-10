@@ -48,6 +48,25 @@ module Hunter
         address = @options.broadcast_address || Config.broadcast_address
         host = @options.server || Config.target_host
 
+        pidpath = ENV['flight_HUNTER_pidfile']
+
+        case pidpath.nil?
+        when true
+          pf = PidFile.new
+        when false
+          piddir, pidfile = pidpath.yield_self do |s|
+            [File.dirname(s), s.split('/').pop]
+          end
+
+          pf = PidFile.new(
+            piddir: piddir,
+            pidfile: pidfile
+          )
+        end
+
+        # Give Flight Service a chance to fetch the PID file
+        sleep(1)
+
         if broadcast 
           # UDP datagram to user provided broadcast address
           raise "No broadcast targets provided!" unless address
