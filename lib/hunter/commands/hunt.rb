@@ -80,6 +80,8 @@ module Hunter
             groups: []
           )
 
+          ENV['flight_HUNTER_pidfile'] = nil
+
           Commands::SendPayload.new(OpenStruct.new, opts).run!
         end
 
