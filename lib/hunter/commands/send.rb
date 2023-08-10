@@ -50,10 +50,7 @@ module Hunter
 
         pidpath = ENV['flight_HUNTER_pidfile']
 
-        case pidpath.nil?
-        when true
-          pf = PidFile.new
-        when false
+        unless pidpath.nil?
           piddir, pidfile = pidpath.yield_self do |s|
             [File.dirname(s), s.split('/').pop]
           end
