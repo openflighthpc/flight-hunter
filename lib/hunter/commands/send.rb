@@ -113,7 +113,7 @@ module Hunter
           response.value
           puts "Successful transmission"
           return response
-        rescue Errno::ECONNREFUSED => e
+        rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
           msg = "The server is unavailable\n" + e.message
         rescue Net::HTTPServerException => e
           if response.code == "401"
