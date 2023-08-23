@@ -129,7 +129,10 @@ module Hunter
               client = server.accept
 
               headers = {}
-              while line = client.gets.split(' ', 2)
+              loop do
+                line = client.gets
+                raise Net::HTTPError if line == nil
+                line = line.split(" ", 2)
                 break if line[0] == ""
                 headers[line[0].chop] = line[1].strip
               end
@@ -160,6 +163,8 @@ module Hunter
               process_packet(data: payload)
             rescue Errno::ECONNRESET => e
               puts "Caught exception: #{e.message}"
+            rescue Net::HTTPError
+              puts "Caught exception: unknown nil line captured from the client socket"
             end
           end
         end
