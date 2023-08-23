@@ -131,7 +131,11 @@ module Hunter
               headers = {}
               loop do
                 line = client.gets
-                raise Net::HTTPError if line == nil
+                if line == nil
+                  client.puts "HTTP/1.1 500\r\n"
+                  client.close
+                  raise Net::HTTPError
+                end
                 line = line.split(" ", 2)
                 break if line[0] == ""
                 headers[line[0].chop] = line[1].strip
