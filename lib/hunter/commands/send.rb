@@ -50,7 +50,7 @@ module Hunter
         
         max_host = @options.max_server || Config.max_target&.to_i || 1
 
-        timeout = @options.timeout || Config.timeout&.to_i  || 10
+        timeout = @options.timeout || Config.timeout&.to_i || 10
 
         pidpath = ENV['flight_HUNTER_pidfile']
 

@@ -69,7 +69,7 @@ module Hunter
           )
         end
 
-        threads = [tcp_thread, udp_thread]
+        socket = UDPMoose.new(@port, true)
         puts "Hunter running on port #{@port} - Ctrl+C to stop\n"
 
         if @options.include_self || Config.include_self
@@ -86,85 +86,13 @@ module Hunter
           Commands::SendPayload.new(OpenStruct.new, opts).run!
         end
 
-        ThreadsWait.all_waits(*threads)
+        socket.receive do |payload|
+          process_packet(JSON.parse(payload))
+        end
+
       end
 
       private
-
-      def udp_thread
-        # UDP socket for broadcasted connections
-        Thread.new do
-          # Create socket and bind to address
-          server = UDPSocket.new
-          server.bind('0.0.0.0', @port)
-
-          loop do
-            msg, addr_info, rflags, *controls = server.recvmsg
-            ip = addr_info.ip_address
-
-            if !valid_json?(msg)
-              puts "Malformed packet received from #{ip}"
-              next
-            end
-
-            data = JSON.parse(msg)
-            data.merge!({ 'ip' => ip })
-
-            unless data["auth_key"] == @auth_key
-              puts "Unauthorised node attempted to connect"
-              next
-            end
-
-            process_packet(data: data)
-          end
-        end
-      end
-
-      def tcp_thread
-        # TCP socket for targeted connections
-        Thread.new do
-          server = TCPServer.open(@port)
-
-          loop do
-            begin # Handler for connection reset error
-              client = server.accept
-
-              headers = {}
-              while line = client.gets.split(' ', 2)
-                break if line[0] == ""
-                headers[line[0].chop] = line[1].strip
-              end
-
-              unless headers["Content-Type"] == "application/json"
-                # invalid content type
-                puts "Malformed packet received from #{client.peeraddr[2]}"
-                client.puts "HTTP/1.1 415\r\n"
-                client.close
-                next
-              end
-
-              data = client.read(headers["Content-Length"].to_i)
-              payload = JSON.parse(data)
-              payload.merge!({ 'ip' => client.peeraddr[2] || 'unknown' })
-
-              unless payload["auth_key"] == @auth_key
-                client.puts "HTTP/1.1 401\r\n"
-                client.close
-                puts "Unauthorised node attempted to connect"
-                next
-              end
-
-              # Node is acceptable
-              client.puts "HTTP/1.1 200\r\n"
-              client.close
-
-              process_packet(data: payload)
-            rescue Errno::ECONNRESET => e
-              puts "Caught exception: #{e.message}"
-            end
-          end
-        end
-      end
 
       def process_packet(data:)
         buffer = NodeList.load(Config.node_buffer)
