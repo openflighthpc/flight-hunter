@@ -68,9 +68,11 @@ module Hunter
         # Give Flight Service a chance to fetch the PID file
         sleep(1)
 
-        socket = UDPMoose.new(port)
-        socket.send(data.to_json, host, port, max_host, timeout)
-        socket.get_responses do |responses|
+        # do not open conflict socket when send to self
+        socket = @options.socket || UDPMoose.new(port)
+        request_id = socket.send(data.to_json, host, port, max_host, timeout)
+        puts "sent"
+        socket.get_responses(request_id) do |responses|
           raise "send request timeout" if responses.empty?
           responses.each do |server_ip|
             puts "Successful transmission to: #{server_ip}"

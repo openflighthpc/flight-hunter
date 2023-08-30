@@ -78,7 +78,8 @@ module Hunter
             server: Config.target_host || 'localhost',
             auth: @auth_key,
             broadcast: false,
-            groups: []
+            groups: [],
+            socket: socket
           )
 
           ENV['flight_HUNTER_pidfile'] = nil
@@ -87,7 +88,7 @@ module Hunter
         end
 
         socket.receive do |payload|
-          process_packet(JSON.parse(payload))
+          process_packet(data: JSON.parse(payload))
         end
 
       end
