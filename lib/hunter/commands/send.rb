@@ -40,14 +40,17 @@ module Hunter
       include Hunter::Collector
 
       def run
-        port = @options.port || Config.port&.to_s
+        port = @options.port || Config.port&.to_i
         raise "No port provided!" if !port
 
         data = prepare_payload
 
-        broadcast = @options.broadcast || Config.broadcast
-        address = @options.broadcast_address || Config.broadcast_address
         host = @options.server || Config.target_host
+        raise "No target server provided!" unless host
+        
+        max_host = @options.max_server || Config.max_target&.to_i || 1
+
+        timeout = @options.timeout || Config.timeout&.to_i  || 10
 
         pidpath = ENV['flight_HUNTER_pidfile']
 
@@ -65,67 +68,18 @@ module Hunter
         # Give Flight Service a chance to fetch the PID file
         sleep(1)
 
-        if broadcast 
-          # UDP datagram to user provided broadcast address
-          raise "No broadcast targets provided!" unless address
-          socket = UDPSocket.new
-          socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-          socket.send(data.to_json, 0, address, port)
-        else
-          # TCP datagram to specific host
-          raise "No target server provided!" unless host
-          uri = URI::HTTPS.build(host: host, port: port)
-
-          http = Net::HTTP.new(uri.host, uri.port)
-          request = Net::HTTP::Post.new(
-            uri,
-            'Content-Type' => 'application/json'
-          )
-
-          request.body = data.to_json
-
-          while send_request(http, request)&.code != '200' && retry_interval
-            sleep(retry_interval)
+        socket = UDPMoose.new(port)
+        socket.send(data.to_json, host, port, max_host, timeout)
+        socket.get_responses do |responses|
+          raise "send request timeout" if responses.empty?
+          responses.each do |server_ip|
+            puts "Successful transmission to: #{server_ip}"
           end
         end
+
       end
 
       private
-
-      def retry_interval
-        @retry_interval ||= begin
-          ri = Config.retry_interval || @options.retry_interval
-          return nil unless ri
-          if !ri.match(/^\d+(\.\d+)?$/)
-            puts "Warning! Invalid value detected for --retry-interval. It has now been set to " + [5.0, ri.to_f].max.to_s + "."
-          elsif ri.to_f < 5.0
-            puts "Warning! The value for --retry-interval is too small. It has now been set to 5.0."
-          end
-          [5.0, ri.to_f].max
-        end
-      end
-
-      def send_request(http, request)
-        begin
-          response = http.request(request)
-          response.value
-          puts "Successful transmission"
-          return response
-        rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-          msg = "The server is unavailable\n" + e.message
-        rescue Net::HTTPServerException => e
-          if response.code == "401"
-            msg = "Authentication key mismatch"
-          else
-            msg = "Unknown HTTP error"
-          end
-        end
-        if retry_interval
-          puts msg
-        else
-          raise msg
-        end
-      end
 
       def prepare_payload
         auth_key = @options.auth || Config.auth_key.to_s
