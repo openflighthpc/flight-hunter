@@ -57,16 +57,12 @@ module Hunter
         ENV['flight_HUNTER_autorun_mode'] || data.fetch(:autorun_mode)
       end
 
-      def broadcast
-        ENV['flight_HUNTER_broadcast'] || data.fetch(:broadcast)
-      end
-
-      def broadcast_address
-        ENV['flight_HUNTER_broadcast_address'] || data.fetch(:broadcast_address)
-      end
-
       def target_host
         ENV['flight_HUNTER_target_host'] || data.fetch(:target_host)
+      end
+
+      def max_target
+        ENV['flight_HUNTER_max_target'] || data.fetch(:max_target)
       end
 
       def content_command
@@ -101,8 +97,8 @@ module Hunter
         ENV['flight_HUNTER_skip_used_index'] || data.fetch(:skip_used_index)
       end
 
-      def retry_interval
-        ENV['flight_HUNTER_retry_interval'] || data.fetch(:retry_interval)&.to_s
+      def timeout
+        ENV['flight_HUNTER_timeout'] || data.fetch(:timeout)
       end
 
       def auto_apply
