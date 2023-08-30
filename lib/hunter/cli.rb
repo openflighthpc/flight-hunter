@@ -61,7 +61,7 @@ module Hunter
       cli_syntax(c)
       c.summary = 'Listen for broadcasting clients'
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
-      c.slop.string '--port', 'Override port'
+      c.slop.integer '--port', 'Override port'
       c.slop.bool '--include-self', 'Immediately try to send payload to self'
       c.slop.string '--auth', "Override default authentication key"
       c.slop.string '--auto-parse', 'Automatically parse nodes matching this regex'
@@ -155,14 +155,13 @@ module Hunter
       c.summary = 'Push my identity plus optional additional details to server'
       c.slop.string '-c', '--command', "Command to use to generate sent content"
       c.slop.integer '-p', '--port', "Override server port"
-      c.slop.string '-s', '--server', "Override server hostname"
+      c.slop.string '-s', '--server', "Override server hostname, could be a broadcast address"
+      c.slop.integer '--max-server', "Specify a maximum number of hunting servers to be sent to when using broadcast address"
       c.slop.string "--auth", "Override default authentication key"
-      c.slop.bool '--broadcast', "Send identity to all nodes on a given subnet"
-      c.slop.string "--broadcast-address", "Specify a broadcast address to use if broadcasting"
       c.slop.array "--groups", "Specify a comma-separated list of groups for this node"
       c.slop.string "--label", "Specify a label to use for this node"
       c.slop.string "--prefix", "Specify a prefix to use for this node"
-      c.slop.string "--retry-interval", "Specify a number of seconds, send will be re-attempted at this interval until successful."
+      c.slop.integer "--timeout", "Specify an integer number of seconds, send will be re-attempted within this time limit"
       c.action Commands, :send_payload
     end
   end
