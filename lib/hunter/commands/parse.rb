@@ -34,7 +34,7 @@ module Hunter
     class Parse < Command
       def run
         @buffer = NodeList.load(Config.node_buffer)
-        raise "No nodes in buffer" if @buffer.nodes.empty?
+        raise "No nodes in buffer" unless !@buffer.nodes&.empty?
         @parsed = NodeList.load(Config.node_list)
 
         if @options.skip_used_index
