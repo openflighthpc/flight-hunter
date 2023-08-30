@@ -32,6 +32,7 @@ require 'net/http'
 
 require_relative '../command'
 require_relative '../collector'
+require_relative '../udp_moose'
 
 module Hunter
   module Commands

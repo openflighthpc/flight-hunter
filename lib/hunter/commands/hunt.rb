@@ -32,6 +32,7 @@ require_relative '../config'
 require_relative '../node'
 require_relative '../node_list'
 require_relative '../profile_cli'
+require_relative '../udp_moose'
 
 
 module Hunter
