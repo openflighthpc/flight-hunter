@@ -34,7 +34,6 @@ class UDPMoose
   def send(body, server_ip_range, server_port, max_connection = 1, max_timeout = 10)
     # build the request
     request_id = ((Time.now.to_f * 1000).to_i.to_s + body).hash.to_s
-    puts request_id
     request = UDPMooseRequest.new(request_id, body, server_ip_range, server_port, max_connection, max_timeout)
 
     @requests[request_id] = request
