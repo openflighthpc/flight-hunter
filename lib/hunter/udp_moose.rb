@@ -86,7 +86,10 @@ class UDPMoose
       wait_receive if @receives.empty?
       unlock_receive
 
-      yield @receives.shift if block_given?
+      if block_given?
+        buffer = @receives.shift
+        yield buffer.client_ip, buffer.buffer
+      end
     end
   end
 
@@ -117,7 +120,7 @@ class UDPMoose
             response(hash_msg['id'])
           elsif buffer&.completed?
             ivan(hash_msg['id'])
-            @receives << buffer.buffer if buffer.enqueue?
+            @receives << buffer if buffer.enqueue?
             continue_receive unless @receives.empty?
           end
 

@@ -87,8 +87,8 @@ module Hunter
           Commands::SendPayload.new(OpenStruct.new, opts).run!
         end
 
-        socket.receive do |payload|
-          process_packet(data: JSON.parse(payload))
+        socket.receive do |client_ip, payload|
+          process_packet(data: JSON.parse(payload).merge!({ 'ip' => client_ip }))
         end
 
       end
