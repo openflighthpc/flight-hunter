@@ -79,7 +79,6 @@ module Hunter
             auth: @auth_key,
             broadcast: false,
             groups: [],
-            socket: socket
           )
 
           ENV['flight_HUNTER_pidfile'] = nil

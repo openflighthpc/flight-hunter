@@ -69,7 +69,7 @@ module Hunter
         sleep(1)
 
         # do not open conflict socket when send to self
-        socket = @options.socket || UDPMoose.new(port)
+        socket = UDPMoose.new
         request_id = socket.send(data.to_json, host, port, max_host, timeout)
         socket.get_responses(request_id) do |responses|
           raise "send request timeout" if responses.empty?
