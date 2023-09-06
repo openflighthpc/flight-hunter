@@ -85,8 +85,8 @@ module Hunter
         ENV['flight_HUNTER_auto_parse'] || data.fetch(:auto_parse)
       end
 
-      def short_hostname
-        ENV['flight_HUNTER_short_hostname'] || data.fetch(:short_hostname)
+      def default_hostnames
+        ENV['flight_HUNTER_default_hostnames'] || data.fetch(:default_hostnames) || "long"
       end
 
       def default_start

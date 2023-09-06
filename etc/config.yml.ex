@@ -47,9 +47,8 @@
 #     - example_group1
 #     - example_group2
 #
-# Attempt to shorten given hostnames by removing everything after the 
-# first "." (optional)
-# short_hostname: true
+# How to handle hostnames. If set, must be one of "long", "short" or "blank" (optional)
+# default_hostnames:
 #
 # Default number start value for automatically parsed nodes
 # default_start: "01"
