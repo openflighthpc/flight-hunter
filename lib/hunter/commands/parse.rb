@@ -42,6 +42,10 @@ module Hunter
         else
           @skip_used = Config.skip_used_index
         end
+        
+        if @options.default_hostnames && (!["long", "short", "blank"].include? @options.default_hostnames.downcase) then
+          raise "Invalid argument for 'default_hostnames', must be 'long', 'short', or 'blank'"
+        end
 
         # Load auto_apply rules list so we can check if it's valid
         Config.auto_apply
@@ -197,7 +201,11 @@ module Hunter
 
           # Pre-generate the label, if possible
           prefill = answers[:active_choice].value.yield_self do |node|
-            node.preset_label || node.auto_label(used_names: @used_strings + reserved, default_prefix: @options.prefix, default_start: @options.start, blank: @options.blank)
+            node.preset_label || node.auto_label(used_names: @used_strings + reserved,
+                                                 default_prefix: @options.prefix,
+                                                 default_start: @options.start,
+                                                 default_hostnames: @options.default_hostnames || Config.default_hostnames
+                                                )
           end
 
           # Ask the user for a label
