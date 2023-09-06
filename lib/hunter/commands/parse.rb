@@ -209,7 +209,7 @@ module Hunter
           end
 
           # Ask the user for a label
-          name = prompt.ask("Choose label:", quiet: true, value: prefill) do |q|
+          name = prompt.ask("Enter the alias to be used as a label for node '#{answers[:active_choice].value.hostname}'\nChoose label:", quiet: true, value: prefill) do |q|
             q.validate ->(input) { !reserved.include?(input) }, "Label already exists"
           end.to_s.strip
 
