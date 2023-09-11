@@ -51,7 +51,7 @@ module Hunter
                   when true
                     ['ID', 'Hostname', 'IP', 'Groups', 'Presets']
                   when false
-                    ['ID', 'Label', 'Hostname', 'IP', 'Groups']
+                    ['ID', 'Hostname', 'IP', 'Groups', 'Label']
                   end
         rows = nodes.map { |n| n.to_table_row(buffer: buffer) }
 
