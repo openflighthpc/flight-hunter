@@ -46,6 +46,7 @@ module Hunter
         if @options.default_hostnames && (!["long", "short", "blank"].include? @options.default_hostnames.downcase) then
           raise "Invalid argument for 'default_hostnames', must be 'long', 'short', or 'blank'"
         end
+        @default_hostnames = @options.default_hostnames || Config.default_hostnames
 
         # Load auto_apply rules list so we can check if it's valid
         Config.auto_apply
@@ -120,7 +121,7 @@ module Hunter
 
         @buffer.nodes.each do |node|
           if node.label.nil?
-            label = node.auto_label(used_names: used_auto_strings, default_prefix: @options.prefix, default_start: @options.start)
+            label = node.auto_label(used_names: used_auto_strings, default_prefix: @options.prefix, default_start: @options.start, default_hostnames: @default_hostnames)
 
             used_auto_strings << label
             new_labels << label
@@ -131,6 +132,7 @@ module Hunter
 
         all_labels = new_labels + @used_strings
         duplicate = all_labels.detect{ |name| all_labels.count(name) > 1 }
+        raise "One or more nodes generated a blank label, likely because '--default-hostnames' was set to 'blank'." if all_labels.include? ""
         raise "The label #{duplicate} was parsed for multiple nodes. Resolve duplicates or try using '--skip-used-index'" if duplicate
 
         @buffer.nodes
@@ -204,7 +206,7 @@ module Hunter
             node.preset_label || node.auto_label(used_names: @used_strings + reserved,
                                                  default_prefix: @options.prefix,
                                                  default_start: @options.start,
-                                                 default_hostnames: @options.default_hostnames || Config.default_hostnames
+                                                 default_hostnames: @default_hostnames
                                                 )
           end
 
