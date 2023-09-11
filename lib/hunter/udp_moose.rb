@@ -105,10 +105,7 @@ class UDPMoose
         # handshake request received
         if @ingress && hash_msg['type'] == 'stu'
 
-          unless @buffers[hash_msg['id']]
-            @buffers[hash_msg['id']] =
-              UDPMooseBuffer.new(hash_msg['total'], addr[2], addr[1])
-          end
+          @buffers[hash_msg['id']] ||= UDPMooseBuffer.new(hash_msg['total'], addr[2], addr[1])
           jack(hash_msg['id']) unless @buffers[hash_msg['id']]&.packet&.> 0
 
         # body fragment received
