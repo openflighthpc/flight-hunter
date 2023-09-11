@@ -44,7 +44,8 @@ module Hunter
             node.id,
             node.hostname,
             node.ip,
-            node.groups.any? ? node.groups.join("|") : "|"
+            node.groups.any? ? node.groups.join("|") : "|",
+            node.content
           ]
           puts a.join("\t")
         else
