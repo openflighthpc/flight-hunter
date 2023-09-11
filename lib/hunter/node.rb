@@ -61,7 +61,7 @@ module Hunter
       when true
         [Paint[id, :cyan], hostname, ip, pretty_groups, pretty_presets]
       when false
-        [Paint[id, :cyan], label, hostname, ip, pretty_groups]
+        [Paint[id, :cyan], hostname, ip, pretty_groups, label]
       end
     end
 
