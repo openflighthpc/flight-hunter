@@ -86,9 +86,9 @@ module Hunter
       @label || @presets["label"]
     end
 
-    def auto_label(used_names: NodeList.load(Config.node_list).nodes.map(&:label), default_prefix: nil, default_start: nil, default_hostnames: "long")
+    def auto_label(used_names: NodeList.load(Config.node_list).nodes.map(&:label), default_prefix: nil, default_start: nil, default_label: Config.default_label)
       prefix = @presets["prefix"] || default_prefix
-      hostname = case default_hostnames
+      hostname = case default_label
                  when "long"
                    @hostname
                  when "short"

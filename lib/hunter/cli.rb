@@ -147,7 +147,7 @@ module Hunter
       c.slop.bool '--allow-existing', 'Allow replacement of existing entries'
       c.slop.string '--skip-used-index', 'Ignore errors if a label index is already in use'
       c.slop.bool '--dry-run', 'Print generated node labels without parsing nodes'
-      c.slop.string '--default-hostnames', "Set the way that hostnames are processed in node labels. Must be 'short', 'long' or 'blank'"
+      c.slop.string '--default-label', "Set the way that hostnames are processed in node labels. Must be 'short', 'long' or 'blank'"
       c.action Commands, :parse
     end
 
