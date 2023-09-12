@@ -47,7 +47,7 @@
 #     - example_group1
 #     - example_group2
 #
-# How to handle hostnames. If set, must be one of "long", "short" or "blank" (optional)
+# How to process a node's hostname into a default label. If set, must be one of "long", "short" or "blank" (optional)
 # default_hostnames:
 #
 # Default number start value for automatically parsed nodes
