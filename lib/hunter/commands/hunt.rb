@@ -51,7 +51,7 @@ module Hunter
         end
 
         raise "No port provided!" if !@port
-        raise "Provided port #{@port} is busy" if !`lsof -i:#{@port}`.empty?
+        raise "Provided port #{@port} is busy" if port_busy?(@post)
 
         pidpath = ENV['flight_HUNTER_pidfile']
 
@@ -231,6 +231,13 @@ module Hunter
       end
 
       private
+
+      def port_busy?(port)
+        test = TCPServer.open(port)
+        test.close
+      rescue Errno::EADDRINUSE
+        true
+      end
 
       def valid_regex?(regex)
         Regexp.new(regex.to_s)
