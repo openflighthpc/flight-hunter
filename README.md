@@ -44,7 +44,7 @@ Flight Hunter has some required configuration based on the environment it is bei
 - `auto_parse` - A regular expresssion, nodes matching this expression will bypass the buffer and be parsed immediately when `hunt`ed
 - `auto_apply` - Specify pairs of regular expressions and Flight Profile identities. If a node label matches the regular expression (when the node is parsed) then the corresponding Flight Profile identity is applied to it.
 - `presets` - Specify preset data to send when sending to self using `hunt` with `--include self`. Includes `label`, `prefix` and `groups`.
-- `short_hostname` - If true, everything beyond the first `.` in a node's hostname will be removed when generating a label for it from the hostname.
+- `default_label` - Must be either `long` (default), `short` or `blank`. When generating a label for a node, if the hostname would be used, it may be either shortened or made blank intead.
 - `default_start` - The default start index when parsing automatically with a prefix. Note that this must be enclosed in quotation marks.
 - `prefix_starts` - Custom start values for specified prefixes when automatically parsing. Note that given start values must be enclosed in quotation marks.
 - `skip_used_index` - If automatic parsing attempts to create a label which already exists, skip that label and give the node a higher suffix until an unusued label is found.
@@ -96,7 +96,7 @@ Select nodes: (Scroll for more nodes)
   ⬡ hostname3 - 10.50.0.42
 ```
 
-Selecting a node from this menu will prompt the user for a label to assign to the node. If the node was sent with a `--label` or a `--prefix` (or if the user has chosen command line options for `prefix` and `start`), the input prompt will be pre-populated with the given data.
+Selecting a node from this menu will prompt the user for a label to assign to the node. If the node was sent with a `--label` or a `--prefix` (or if the user has chosen command line options for `prefix` and `start`), the input prompt will be pre-populated with the given data. If these are not given, the prompt will give the node hostname instead. The `--default-label` option may be used to `short`en this value, or make it `blank` entirely.
 
 #### Automatic parser
 
@@ -114,7 +114,7 @@ Labels may also have their naming data pre-set by using the `--label` or `--pref
 
 * Nodes without a preset label but with a preset prefix will generate a label involving the prefix and a numerical suffix determined based on the start value set through either the `default_start` or `prefix_starts` config options.
 
-* Nodes without either of the above will take their hostnames as labels, which may be shortened up to the first `.` using the `short_hostname` config option.
+* Nodes without either of the above will take their hostnames as labels, which may be shortened up to the first `.` using the `short` value for the `default_label` config option.
 
 ### Switching between buffer and processed list
 
