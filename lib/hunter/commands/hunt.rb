@@ -51,7 +51,7 @@ module Hunter
         end
 
         raise "No port provided!" if !@port
-        raise "Provided port #{@port} is busy" if port_busy?(@post)
+        raise "Provided port #{@port} is busy" if port_busy?(@port)
 
         pidpath = ENV['flight_HUNTER_pidfile']
 
