@@ -28,6 +28,7 @@
 source 'https://rubygems.org'
 
 gem 'commander-openflighthpc', '~> 2.2.0'
+gem 'rubocop', group: 'development', require: false
 gem 'tty-prompt'
 gem 'tty-table'
 gem 'tty-config'
