@@ -55,7 +55,8 @@ module Hunter
           end
         end
 
-        attr_reader :list, :search_field
+        attr_reader :list
+        attr_accessor :search_field
 
         def scan(arr)
           arr.map { |n| @list.find(@search_field => n) }.compact
