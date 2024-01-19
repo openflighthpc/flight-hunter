@@ -26,18 +26,17 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../table'
+require_relative './concerns/node_utils'
 
 module Hunter
   module Commands
     class Show < Command
+      include NodeUtils
+
       def run
-        buffer = @options.buffer
-        list_file = buffer ? Config.node_buffer : Config.node_list
-        list = NodeList.load(list_file)
+        node = node_fetcher.scan([args[0]]).first
 
-        node = list.find(search_field(buffer) => args[0])
-
-        raise "Node with #{search_field(buffer)} '#{args[0]}' doesn't exist in list '#{list.name}'" if !node
+        raise "No #{node_fetcher.search_field} '#{args[0]}' found in list '#{list.name}'" unless node
 
         if @options.plain
           a = [
@@ -49,9 +48,23 @@ module Hunter
           ]
           puts a.join("\t")
         else
-          Table.from_nodes([node], buffer: buffer).emit
+          Table.from_nodes([node], buffer: @options.buffer).emit
           puts node.content
         end
+      end
+
+      private
+
+      def cli_parser
+        @cli_parser ||= CLIParser.new
+      end
+
+      def node_fetcher
+        @node_fetcher ||= NodeFetcher.new(buffer: @options.buffer)
+      end
+
+      def list
+        node_fetcher.list
       end
     end
   end
