@@ -30,33 +30,32 @@ require_relative '../table'
 module Hunter
   module Commands
     class RemoveNode < Command
+      include NodeUtils
+
       def run
-        buffer = @options.buffer
-        list_file = buffer ? Config.node_buffer : Config.node_list
-        list = NodeList.load(list_file)
+        names = cli_parser.expand(args[0])
+        node_fetcher.search_field = :hostname if @options.match_hostname
+        nodes = node_fetcher.scan(names)
 
-        attribute = @options.match_hostname ? :hostname : search_field(buffer)
-
-        nodes =
-          case @options.regex
-          when true
-            list.select { |n| n.public_send(attribute) =~ Regexp.new(args[0]) }
-          when false
-            search_terms = args[0].split(',')
-            list.select { |n| search_terms.include?(n.public_send(attribute)) }
-          end
-
-        unless nodes.any?
-          raise <<~OUT.chomp
-          No #{attribute}s in list '#{list.name}' found with given pattern(s).
-          OUT
-        end
+        raise "No #{node_fetcher.search_field}s in list '#{list.name}' found in collection '#{args[0]}'" unless nodes.any?
 
         if list.delete(nodes) && list.save
           puts "The following nodes have successfully been removed from list '#{list.name}'"
 
-          Table.from_nodes(nodes, buffer: buffer).emit
+          Table.from_nodes(nodes, buffer: @options.buffer).emit
         end
+      end
+
+      def cli_parser
+        @cli_parser ||= CLIParser.new
+      end
+
+      def node_fetcher
+        @node_fetcher ||= NodeFetcher.new(buffer: @options.buffer)
+      end
+
+      def list
+        node_fetcher.list
       end
     end
   end
