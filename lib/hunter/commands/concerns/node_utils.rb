@@ -5,6 +5,26 @@ require_relative '../../node_list'
 module Hunter
   module Commands
     module NodeUtils
+      private
+
+      def nodes_from_arg(arg)
+        # Don't try and expand the brackets in a regular expression
+        patterns = @options.regex ? arg.split(',') : cli_parser.expand(arg)
+        node_fetcher.scan(patterns, regex: @options.regex)
+      end
+
+      def cli_parser
+        @cli_parser ||= CLIParser.new
+      end
+
+      def node_fetcher
+        @node_fetcher ||= NodeFetcher.new(buffer: @options.buffer)
+      end
+
+      def list
+        node_fetcher.list
+      end
+
       class InvalidRangeError < StandardError; end
 
       class CLIParser
