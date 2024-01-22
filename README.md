@@ -54,6 +54,7 @@ Each of the above config keys can be overwritten at all levels by an environment
 
 Flight Hunter uses a PID file to track the `hunt` server process. By default, this PID file is created at `/tmp/hunter.pid`. The filepath used can be changed by setting the environment varaible `flight_HUNTER_pidfile`.
 
+
 ## Operation
 
 A brief usage guide is given below. See the `help` command for further details and information about other commands.
@@ -80,6 +81,24 @@ Add/remove groups to/from a node from the node list with `modify-groups`.
 Update the label of a node in the processed list with `modify-label`.
 
 Rename a group across a list with `rename-group`. All nodes with that group will be updated.
+
+### Node entry methods
+
+The `remove-node` and `modify-groups` commands accept a comma separated collection of either node search terms or regular expressions to match nodes against. When modifying buffer list nodes with the `--buffer` option, the terms are matched against the nodes' IDs; when modifying parsed nodes, they are matched against node labels.
+When using regular search terms, a comma separated list of terms is accepted. Each term can use genders-style square bracket syntax. Using a range of numbers in these brackets will search for anything in that range. For example:
+```
+node0[1-5],login[1-2]
+```
+
+will internally expand to:
+
+```
+`node01, node02, node03, node04, node04, login1, login2
+```
+
+You may instead use a comma separated list of regular expressions at the CLI, by including the `--regex` option. In this case, _any_ nodes matching _any_ of the expressions will be accessed.
+Please note that square bracket expansion is not supported for the regular expression input approach.
+
 
 ### Parsing nodes
 
