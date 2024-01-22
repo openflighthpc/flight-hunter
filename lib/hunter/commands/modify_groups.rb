@@ -34,8 +34,7 @@ module Hunter
       include NodeUtils
 
       def run
-        names = cli_parser.expand(args[0])
-        nodes = node_fetcher.scan(names)
+        nodes = nodes_from_arg(args[0])
 
         to_add = @options.add&.split(",") || []
         to_remove = @options.remove&.split(",") || []
@@ -52,20 +51,6 @@ module Hunter
         puts "Node(s) updated successfully:"
 
         Table.from_nodes(nodes, buffer: @options.buffer).emit
-      end
-
-      private
-
-      def cli_parser
-        @cli_parser ||= CLIParser.new
-      end
-
-      def node_fetcher
-        @node_fetcher ||= NodeFetcher.new(buffer: @options.buffer)
-      end
-
-      def list
-        node_fetcher.list
       end
     end
   end

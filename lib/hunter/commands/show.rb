@@ -34,7 +34,7 @@ module Hunter
       include NodeUtils
 
       def run
-        node = node_fetcher.scan([args[0]]).first
+        node = nodes_from_arg(args[0]).first
 
         raise "No #{node_fetcher.search_field} '#{args[0]}' found in list '#{list.name}'" unless node
 
@@ -51,20 +51,6 @@ module Hunter
           Table.from_nodes([node], buffer: @options.buffer).emit
           puts node.content
         end
-      end
-
-      private
-
-      def cli_parser
-        @cli_parser ||= CLIParser.new
-      end
-
-      def node_fetcher
-        @node_fetcher ||= NodeFetcher.new(buffer: @options.buffer)
-      end
-
-      def list
-        node_fetcher.list
       end
     end
   end
