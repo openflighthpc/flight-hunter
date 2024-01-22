@@ -58,8 +58,16 @@ module Hunter
         attr_reader :list
         attr_accessor :search_field
 
-        def scan(arr)
-          arr.map { |n| @list.find(@search_field => n) }.compact
+        def scan(arr, regex: false)
+          case regex
+          when true
+            results = arr.map do |r|
+              @list.select { |n| Regexp.new(r) =~ n.public_send(@search_field) }
+            end
+            results.reduce(:+).uniq.compact
+          else
+            arr.map { |n| @list.find(@search_field => n) }.compact
+          end
         end
       end
     end
