@@ -60,10 +60,6 @@ module Hunter
       nodes.select(*args, **kwargs, &block)
     end
 
-    def match(regex)
-      nodes.select { |n| regex.match(n.hostname) }
-    end
-
     def to_yaml
       YAML.dump(nodes.map(&:to_h))
     end
@@ -106,7 +102,7 @@ module Hunter
       @dir = dir
       @nodes = Dir[File.join(dir, "*")].map do |file|
         data = YAML.load_file(file)
-        
+
         Node.new(
           id: data['id'],
           hostname: data['hostname'],
