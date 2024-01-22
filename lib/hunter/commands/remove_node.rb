@@ -33,9 +33,7 @@ module Hunter
       include NodeUtils
 
       def run
-        names = cli_parser.expand(args[0])
-        node_fetcher.search_field = :hostname if @options.match_hostname
-        nodes = node_fetcher.scan(names)
+        nodes = nodes_from_arg(args[0])
 
         raise "No #{node_fetcher.search_field}s in list '#{list.name}' found in collection '#{args[0]}'" unless nodes.any?
 
@@ -44,18 +42,6 @@ module Hunter
 
           Table.from_nodes(nodes, buffer: @options.buffer).emit
         end
-      end
-
-      def cli_parser
-        @cli_parser ||= CLIParser.new
-      end
-
-      def node_fetcher
-        @node_fetcher ||= NodeFetcher.new(buffer: @options.buffer)
-      end
-
-      def list
-        node_fetcher.list
       end
     end
   end
