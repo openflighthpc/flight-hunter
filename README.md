@@ -93,7 +93,7 @@ node0[1-5],login[1-2]
 will internally expand to:
 
 ```
-`node01, node02, node03, node04, node04, login1, login2
+node01, node02, node03, node04, node04, login1, login2
 ```
 
 You may instead use a comma separated list of regular expressions at the CLI, by including the `--regex` option. In this case, _any_ nodes matching _any_ of the expressions will be accessed.
